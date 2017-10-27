@@ -1,0 +1,3 @@
+[submodule "wcxf/bases"]
+	path = wcxf/bases
+	url = git@github.com:DavidMStraub/wcxf-bases.git
