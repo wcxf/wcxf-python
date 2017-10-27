@@ -158,6 +158,11 @@ class Basis(WCxf, NamedInstanceClass):
                            if t[0] == self.eft and t[2] == self.basis)
         return kt
 
+    @property
+    def all_wcs(self):
+        """Return a list with all Wilson coefficients defined in this basis."""
+        return [wc for sector, wcs in self.sectors.items() for wc in wcs]
+
     def validate(self):
         """Validate the basis file."""
         try:
@@ -199,9 +204,9 @@ class WC(WCxf):
         """Turn a numeric Wilson coefficient value into a Re/Im dict if it is
         complex."""
         if v.imag != 0:
-            return {'Re': v.real, 'Im': v.imag}
+            return {'Re': float(v.real), 'Im': float(v.imag)}
         else:
-            return v.real
+            return float(v.real)
 
     @classmethod
     def dict2values(cls, d):
@@ -213,6 +218,13 @@ class WC(WCxf):
             eft_instance = EFT[self.eft]
         except (AttributeError, KeyError):
             raise ValueError("EFT {} not defined".format(self.eft))
+        try:
+            basis_instance = Basis[self.eft, self.basis]
+        except (AttributeError, KeyError):
+            raise ValueError("Basis {} not defined for EFT {}".format(self.basis, self.eft))
+        unknown_keys = set(self.values.keys()) - set(basis_instance.all_wcs)
+        assert unknown_keys == set(), \
+            "Wilson coefficients do not exist in this basis: " + str(unknown_keys)
 
     @property
     def dict(self):
@@ -254,6 +266,8 @@ class Translator(NamedInstanceClass):
     def translate(self, WC_in):
         """Translate a WC object from `from_basis` to `to_basis`."""
         dict_out = self.function(WC_in.dict)
+        # filter out zero values
+        dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)
         WC_out = WC(self.eft, self.to_basis, WC_in.scale, values)
         return WC_out
@@ -274,6 +288,8 @@ class Matcher(NamedInstanceClass):
         """Translate a WC object in EFT `from_eft` and basis `from_basis`
         to EFT `to_eft` and basis `to_basis`."""
         dict_out = self.function(WC_in.dict)
+        # filter out zero values
+        dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)
         WC_out = WC(self.to_eft, self.to_basis, WC_in.scale, values)
         return WC_out
