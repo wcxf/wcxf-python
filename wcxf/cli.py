@@ -23,9 +23,9 @@ def convert():
     parser = argparse.ArgumentParser(description="""Command line script to convert WCxf files between YAML and JSON.""",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("FORMAT", help="Output format (should be yaml or json)", type=str)
-    parser.add_argument("FILE", nargs='?', help="Input file",
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
                         type=argparse.FileType('r'), default=sys.stdin)
-    parser.add_argument("--output", nargs='?', help="Output file",
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
                         type=argparse.FileType('w'), default=sys.stdout)
     args = parser.parse_args()
     if args.FORMAT.lower() == 'json':
@@ -37,9 +37,9 @@ def translate():
     parser = argparse.ArgumentParser(description="""Command line script for basis translation of WCxf files.""",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("BASIS", help="Output basis", type=str)
-    parser.add_argument("FILE", nargs='?', help="Input file",
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
                         type=argparse.FileType('r'), default=sys.stdin)
-    parser.add_argument("--output", nargs='?', help="Output file",
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
                         type=argparse.FileType('w'), default=sys.stdout)
     parser.add_argument("--format", help="Output format (default: json)", type=str, default="json")
     args = parser.parse_args()
