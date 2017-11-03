@@ -169,7 +169,7 @@ class Basis(WCxf, NamedInstanceClass):
             eft_instance = EFT[self.eft]
         except (AttributeError, KeyError):
             raise ValueError("EFT {} not defined".format(self.eft))
-        unknown_sectors = set(self.sectors) - set(eft_instance.sectors)
+        unknown_sectors = set(self.sectors.keys()) - set(eft_instance.sectors.keys())
         if unknown_sectors:
             raise ValueError("Unkown sectors: {}".format(unknown_sectors))
         # for name, wcs in self.sectors.items():
