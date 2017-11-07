@@ -1,0 +1,1572 @@
+from math import pi, sqrt
+import numpy as np
+from wcxf.parameters import p
+
+
+def _scalar2array(d):
+    """Convert a dictionary with scalar elements and string indices '_1234'
+    to a dictionary of arrays. Unspecified entries are np.nan."""
+    da = {}
+    for k, v in d.items():
+        if '_' not in k:
+            da[k] = v
+        else:
+            name = ''.join(k.split('_')[:-1])
+            ind = k.split('_')[-1]
+            dim = len(ind)
+            if name not in da:
+                shape = tuple(3 for i in range(dim))
+                da[name] = np.empty(shape, dtype=complex)
+                da[name][:] = np.nan
+            da[name][tuple(int(i)-1 for i in ind)] = v
+    return da
+
+
+# CONSTANTS
+
+Nc = 3.
+Qu = 2/3.
+Qd = -1/3.
+alpha_e = p['alpha_e']
+alpha_s = p['alpha_s']
+e = sqrt(4*pi*alpha_e)
+gs = sqrt(4*pi*alpha_s)
+mb = 4.2
+ms = 0.095
+
+# WET with b,c,s,d,u
+
+## Class I ##
+
+# sbsb
+
+SUSYsbsb = lambda C: {
+"C1sbsb" : C['VddLL'][1,2,1,2],
+"C2sbsb" : C['S1ddRR'][2,1,2,1].conjugate()-1/(2*Nc)*C['S8ddRR'][2,1,2,1].conjugate() ,
+"C3sbsb" :  1/2.*C['S8ddRR'][2,1,2,1].conjugate(),
+"C4sbsb" : -C['V8ddLR'][1,2,1,2],
+"C5sbsb" : -2*C['V1ddLR'][1,2,1,2]+1/Nc*C['V8ddLR'][1,2,1,2],
+"C1psbsb" : C['VddRR'][1,2,1,2],
+"C2psbsb" : C['S1ddRR'][1,2,1,2]-1/(2*Nc)*C['S8ddRR'][1,2,1,2],
+"C3psbsb" :  1/2*C['S8ddRR'][1,2,1,2]
+}
+
+Flaviosbsb = lambda SUSYsbsb: {
+'CVLL_bsbs' : SUSYsbsb["C1sbsb"],
+'CSLL_bsbs' : SUSYsbsb["C2sbsb"]+1/2.*SUSYsbsb["C3sbsb"],
+'CTLL_bsbs' : -1/8.*SUSYsbsb["C3sbsb"],
+'CVLR_bsbs' : -1/2.*SUSYsbsb["C5sbsb"],
+'CVRR_bsbs' : SUSYsbsb["C1psbsb"],
+'CSRR_bsbs' : SUSYsbsb["C2psbsb"]+1/2.*SUSYsbsb["C3psbsb"],
+'CTRR_bsbs' : -1/8.*SUSYsbsb["C3psbsb"],
+'CSLR_bsbs' : SUSYsbsb["C4sbsb"]
+}
+
+# dbdb
+
+
+SUSYdbdb = lambda C: {
+"C1dbdb" : C['VddLL'][0,2,0,2],
+"C2dbdb" : C['S1ddRR'][2,0,2,0].conj()-1/(2*Nc)*C['S8ddRR'][2,0,2,0].conj() ,
+"C3dbdb" :  1/2.*C['S8ddRR'][2,0,2,0].conj(),
+"C4dbdb" : -C['V8ddLR'][0,2,0,2],
+"C5dbdb" : -2*C['V1ddLR'][0,2,0,2]+1/Nc*C['V8ddLR'][0,2,0,2],
+"C1pdbdb" : C['VddRR'][0,2,0,2],
+"C2pdbdb" : C['S1ddRR'][0,2,0,2]-1/(2*Nc)*C['S8ddRR'][0,2,0,2],
+"C3pdbdb" :  1/2*C['S8ddRR'][0,2,0,2]
+}
+
+
+Flaviodbdb = lambda SUSYdbdb: {
+'CVLL_bdbd' : SUSYdbdb["C1dbdb"],
+'CSLL_bdbd' : SUSYdbdb["C2dbdb"]+1/2.*SUSYdbdb["C3dbdb"],
+'CTLL_bdbd' : -1/8.*SUSYdbdb["C3dbdb"],
+'CVLR_bdbd' : -1/2.*SUSYdbdb["C5dbdb"],
+'CVRR_bdbd' : SUSYdbdb["C1pdbdb"],
+'CSRR_bdbd' : SUSYdbdb["C2pdbdb"]+1/2.*SUSYdbdb["C3pdbdb"],
+'CTRR_bdbd' : -1/8.*SUSYdbdb["C3pdbdb"],
+'CSLR_bdbd' : SUSYdbdb["C4dbdb"]
+}
+
+## Class II ##
+
+# ublnu
+
+CMMublnu = lambda C: {
+"C1ubllp": C["VnueduLL"][:,:,2,0].conjugate(),
+"C5ubllp" : C["SnueduRL"][:,:,2,0].conjugate(),
+"C1publlp" : C["VnueduLR"][:,:,2,0].conjugate(),
+"C5publlp" : C["SnueduRR"][:,:,2,0].conjugate(),
+"C7publlp" : C["TnueduRR"][:,:,2,0].conjugate(),
+}
+
+ACFGublnu = lambda CMMublnu: {
+'OVublnu': CMMublnu['C1ubllp'],
+'OVpublnu': CMMublnu['C1publlp'],
+'OSpublnu': CMMublnu['C5ubllp'],
+'OSublnu': CMMublnu['C5publlp'],
+'OTublnu': CMMublnu['C7publlp']
+}
+
+Flavioublnu = lambda CMMublnu: {
+'OVublnu': CMMublnu['C1ubllp'],
+'OVpublnu': CMMublnu['C1publlp'],
+'OSublnu': CMMublnu['C5ubllp']/mb,
+'OSpublnu': CMMublnu['C5publlp']/mb,
+'OTublnu': CMMublnu['C7publlp']
+}
+
+# cblnu
+
+CMMcblnu = lambda C: {
+"C1cbllp": C["VnueduLL"][:,:,2,1].conjugate(),
+"C5cbllp" : C["SnueduRL"][:,:,2,1].conjugate(),
+"C1pcbllp" : C["VnueduLR"][:,:,2,1].conjugate(),
+"C5pcbllp" : C["SnueduRR"][:,:,2,1].conjugate(),
+"C7pcbllp" : C["TnueduRR"][:,:,2,1].conjugate(),
+}
+
+ACFGcblnu = lambda CMMcblnu: {
+'OVcblnu': CMMcblnu['C1cbllp'],
+'OVpcblnu': CMMcblnu['C1pcbllp'],
+'OSpcblnu': CMMcblnu['C5cbllp'],
+'OScblnu': CMMcblnu['C5pcbllp'],
+'OTcblnu': CMMcblnu['C7pcbllp']}
+
+
+Flaviocblnu = lambda CMMcblnu: {
+'OVcblnu': CMMcblnu['C1cbllp'],
+'OVpcblnu': CMMcblnu['C1pcbllp'],
+'OScblnu': CMMcblnu['C5cbllp']/mb,
+'OSpcblnu': CMMcblnu['C5pcbllp']/mb,
+'OTcblnu': CMMcblnu['C7pcbllp']}
+
+
+## Class III ##
+
+# Fierz basis with sbqq,
+
+# sbuc
+
+Fsbuc = lambda C: {'Fsbuc1' : C["V1udLL"][0, 1, 1, 2] - C["V8udLL"][0, 1, 1, 2]/(2*Nc),
+ 'Fsbuc2' : C["V8udLL"][0, 1, 1, 2]/2,
+ 'Fsbuc3' : C["V1duLR"][1, 2, 0, 1] - C["V8duLR"][1, 2, 0, 1]/(2*Nc),
+ 'Fsbuc4' : C["V8duLR"][1, 2, 0, 1]/2,
+ 'Fsbuc5' : C["S1udRR"][0, 1, 1, 2] - C["S8udduRR"][0, 2, 1, 1]/4 - C["S8udRR"][0, 1, 1, 2]/(2*Nc),
+ 'Fsbuc6' : -C["S1udduRR"][0, 2, 1, 1]/2 + C["S8udduRR"][0, 2, 1, 1]/(4*Nc) + C["S8udRR"][0, 1, 1, 2]/2,
+ 'Fsbuc7' : -C["V8udduLR"][1, 1, 2, 0].conjugate(),
+ 'Fsbuc8' : -2*C["V1udduLR"][1, 1, 2, 0].conjugate() + C["V8udduLR"][1, 1, 2, 0].conjugate()/Nc,
+ 'Fsbuc9' : -C["S8udduRR"][0, 2, 1, 1]/16,
+ 'Fsbuc10' : -C["S1udduRR"][0, 2, 1, 1]/8 + C["S8udduRR"][0, 2, 1, 1]/(16*Nc)}
+
+Fpsbuc = lambda C: {'Fsbuc1p' : C["V1udRR"][0, 1, 1, 2] - C["V8udRR"][0, 1, 1, 2]/(2*Nc),
+ 'Fsbuc2p' : C["V8udRR"][0, 1, 1, 2]/2,
+ 'Fsbuc3p' : C["V1udLR"][0, 1, 1, 2] - C["V8udLR"][0, 1, 1, 2]/(2*Nc),
+ 'Fsbuc4p' : C["V8udLR"][0, 1, 1, 2]/2,
+ 'Fsbuc5p' : C["S1udRR"][1, 0, 2, 1].conjugate() - C["S8udduRR"][1, 1, 2, 0].conjugate()/4 - C["S8udRR"][1, 0, 2, 1].conjugate()/(2*Nc),
+ 'Fsbuc6p' : -C["S1udduRR"][1, 1, 2, 0].conjugate()/2 + C["S8udduRR"][1, 1, 2, 0].conjugate()/(4*Nc) + C["S8udRR"][1, 0, 2, 1].conjugate()/2,
+ 'Fsbuc7p' : -C["V8udduLR"][0, 2, 1, 1],
+ 'Fsbuc8p' : -2*C["V1udduLR"][0, 2, 1, 1] + C["V8udduLR"][0, 2, 1, 1]/Nc,
+ 'Fsbuc9p' : -C["S8udduRR"][1, 1, 2, 0].conjugate()/16,
+ 'Fsbuc10p' : -C["S1udduRR"][1, 1, 2, 0].conjugate()/8 + C["S8udduRR"][1, 1, 2, 0].conjugate()/(16*Nc)}
+
+# sbcu
+
+Fsbcu = lambda C: {'Fsbcu1' : C["V1udLL"][0, 1, 2, 1].conjugate() - C["V8udLL"][0, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbcu2' : C["V8udLL"][0, 1, 2, 1].conjugate()/2,
+ 'Fsbcu3' : C["V1duLR"][1, 2, 1, 0] - C["V8duLR"][1, 2, 1, 0]/(2*Nc),
+ 'Fsbcu4' : C["V8duLR"][1, 2, 1, 0]/2,
+ 'Fsbcu5' : C["S1udRR"][1, 0, 1, 2] - C["S8udduRR"][1, 2, 1, 0]/4 - C["S8udRR"][1, 0, 1, 2]/(2*Nc),
+ 'Fsbcu6' : -C["S1udduRR"][1, 2, 1, 0]/2 + C["S8udduRR"][1, 2, 1, 0]/(4*Nc) + C["S8udRR"][1, 0, 1, 2]/2,
+ 'Fsbcu7' : -C["V8udduLR"][0, 1, 2, 1].conjugate(),
+ 'Fsbcu8' : -2*C["V1udduLR"][0, 1, 2, 1].conjugate() + C["V8udduLR"][0, 1, 2, 1].conjugate()/Nc,
+ 'Fsbcu9' : -C["S8udduRR"][1, 2, 1, 0]/16,
+ 'Fsbcu10' : -C["S1udduRR"][1, 2, 1, 0]/8 + C["S8udduRR"][1, 2, 1, 0]/(16*Nc)}
+
+
+Fpsbcu = lambda C: {'Fsbcu1p' : C["V1udRR"][0, 1, 2, 1].conjugate() - C["V8udRR"][0, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbcu2p' : C["V8udRR"][0, 1, 2, 1].conjugate()/2,
+ 'Fsbcu3p' : C["V1udLR"][0, 1, 2, 1].conjugate() - C["V8udLR"][0, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbcu4p' : C["V8udLR"][0, 1, 2, 1].conjugate()/2,
+ 'Fsbcu5p' : C["S1udRR"][0, 1, 2, 1].conjugate() - C["S8udduRR"][0, 1, 2, 1].conjugate()/4 - C["S8udRR"][0, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbcu6p' : -C["S1udduRR"][0, 1, 2, 1].conjugate()/2 + C["S8udduRR"][0, 1, 2, 1].conjugate()/(4*Nc) + C["S8udRR"][0, 1, 2, 1].conjugate()/2,
+ 'Fsbcu7p' : -C["V8udduLR"][1, 2, 1, 0],
+ 'Fsbcu8p' : -2*C["V1udduLR"][1, 2, 1, 0] + C["V8udduLR"][1, 2, 1, 0]/Nc,
+ 'Fsbcu9p' : -C["S8udduRR"][0, 1, 2, 1].conjugate()/16,
+ 'Fsbcu10p' : -C["S1udduRR"][0, 1, 2, 1].conjugate()/8 + C["S8udduRR"][0, 1, 2, 1].conjugate()/(16*Nc)}
+
+
+
+# Fierz basis
+
+# dbuc
+
+Fdbuc = lambda C: {'Fdbuc1' : C["V1udLL"][0, 1, 0, 2] - C["V8udLL"][0, 1, 0, 2]/(2*Nc),
+ 'Fdbuc2' : C["V8udLL"][0, 1, 0, 2]/2,
+ 'Fdbuc3' : C["V1duLR"][0, 2, 0, 1] - C["V8duLR"][0, 2, 0, 1]/(2*Nc),
+ 'Fdbuc4' : C["V8duLR"][0, 2, 0, 1]/2,
+ 'Fdbuc5' : C["S1udRR"][0, 1, 0, 2] - C["S8udduRR"][0, 2, 0, 1]/4 - C["S8udRR"][0, 1, 0, 2]/(2*Nc),
+ 'Fdbuc6' : -C["S1udduRR"][0, 2, 0, 1]/2 + C["S8udduRR"][0, 2, 0, 1]/(4*Nc) + C["S8udRR"][0, 1, 0, 2]/2,
+ 'Fdbuc7' : -C["V8udduLR"][1, 0, 2, 0].conjugate(),
+ 'Fdbuc8' : -2*C["V1udduLR"][1, 0, 2, 0].conjugate() + C["V8udduLR"][1, 0, 2, 0].conjugate()/Nc,
+ 'Fdbuc9' : -C["S8udduRR"][0, 2, 0, 1]/16,
+ 'Fdbuc10' : -C["S1udduRR"][0, 2, 0, 1]/8 + C["S8udduRR"][0, 2, 0, 1]/(16*Nc)}
+
+
+Fpdbuc = lambda C: {'Fdbuc1p' : C["V1udRR"][0, 1, 0, 2] - C["V8udRR"][0, 1, 0, 2]/(2*Nc),
+ 'Fdbuc2p' : C["V8udRR"][0, 1, 0, 2]/2,
+ 'Fdbuc3p' : C["V1udLR"][0, 1, 0, 2] - C["V8udLR"][0, 1, 0, 2]/(2*Nc),
+ 'Fdbuc4p' : C["V8udLR"][0, 1, 0, 2]/2,
+ 'Fdbuc5p' : C["S1udRR"][1, 0, 2, 0].conjugate() - C["S8udduRR"][1, 0, 2, 0].conjugate()/4 - C["S8udRR"][1, 0, 2, 0].conjugate()/(2*Nc),
+ 'Fdbuc6p' : -C["S1udduRR"][1, 0, 2, 0].conjugate()/2 + C["S8udduRR"][1, 0, 2, 0].conjugate()/(4*Nc) + C["S8udRR"][1, 0, 2, 0].conjugate()/2,
+ 'Fdbuc7p' : -C["V8udduLR"][0, 2, 0, 1],
+ 'Fdbuc8p' : -2*C["V1udduLR"][0, 2, 0, 1] + C["V8udduLR"][0, 2, 0, 1]/Nc,
+ 'Fdbuc9p' : -C["S8udduRR"][1, 0, 2, 0].conjugate()/16,
+ 'Fdbuc10p' : -C["S1udduRR"][1, 0, 2, 0].conjugate()/8 + C["S8udduRR"][1, 0, 2, 0].conjugate()/(16*Nc)}
+
+# dbcu
+
+Fdbcu = lambda C: {'Fdbcu1' : C["V1udLL"][0, 1, 2, 0].conjugate() - C["V8udLL"][0, 1, 2, 0].conjugate()/(2*Nc),
+ 'Fdbcu2' : C["V8udLL"][0, 1, 2, 0].conjugate()/2,
+ 'Fdbcu3' : C["V1duLR"][0, 2, 1, 0] - C["V8duLR"][0, 2, 1, 0]/(2*Nc),
+ 'Fdbcu4' : C["V8duLR"][0, 2, 1, 0]/2,
+ 'Fdbcu5' : C["S1udRR"][1, 0, 0, 2] - C["S8udduRR"][1, 2, 0, 0]/4 - C["S8udRR"][1, 0, 0, 2]/(2*Nc),
+ 'Fdbcu6' : -C["S1udduRR"][1, 2, 0, 0]/2 + C["S8udduRR"][1, 2, 0, 0]/(4*Nc) + C["S8udRR"][1, 0, 0, 2]/2,
+ 'Fdbcu7' : -C["V8udduLR"][0, 0, 2, 1].conjugate(),
+ 'Fdbcu8' : -2*C["V1udduLR"][0, 0, 2, 1].conjugate() + C["V8udduLR"][0, 0, 2, 1].conjugate()/Nc,
+ 'Fdbcu9' : -C["S8udduRR"][1, 2, 0, 0]/16,
+ 'Fdbcu10' : -C["S1udduRR"][1, 2, 0, 0]/8 + C["S8udduRR"][1, 2, 0, 0]/(16*Nc)}
+
+Fpdbcu = lambda C: {'Fdbcu1p' : C["V1udRR"][0, 1, 2, 0].conjugate() - C["V8udRR"][0, 1, 2, 0].conjugate()/(2*Nc),
+ 'Fdbcu2p' : C["V8udRR"][0, 1, 2, 0].conjugate()/2,
+ 'Fdbcu3p' : C["V1udLR"][0, 1, 2, 0].conjugate() - C["V8udLR"][0, 1, 2, 0].conjugate()/(2*Nc),
+ 'Fdbcu4p' : C["V8udLR"][0, 1, 2, 0].conjugate()/2,
+ 'Fdbcu5p' : C["S1udRR"][0, 1, 2, 0].conjugate() - C["S8udduRR"][0, 0, 2, 1].conjugate()/4 - C["S8udRR"][0, 1, 2, 0].conjugate()/(2*Nc),
+ 'Fdbcu6p' : -C["S1udduRR"][0, 0, 2, 1].conjugate()/2 + C["S8udduRR"][0, 0, 2, 1].conjugate()/(4*Nc) + C["S8udRR"][0, 1, 2, 0].conjugate()/2,
+ 'Fdbcu7p' : -C["V8udduLR"][1, 2, 0, 0],
+ 'Fdbcu8p' : -2*C["V1udduLR"][1, 2, 0, 0] + C["V8udduLR"][1, 2, 0, 0]/Nc,
+ 'Fdbcu9p' : -C["S8udduRR"][0, 0, 2, 1].conjugate()/16,
+ 'Fdbcu10p' : -C["S1udduRR"][0, 0, 2, 1].conjugate()/8 + C["S8udduRR"][0, 0, 2, 1].conjugate()/(16*Nc)}
+
+
+# Bern basis
+
+# sbuc
+
+Bernsbuc = lambda Fsbuc: {'Bernsbuc1' : -Fsbuc['Fsbuc1']/3 + (4*Fsbuc['Fsbuc3'])/3 - Fsbuc['Fsbuc2']/(3*Nc) + (4*Fsbuc['Fsbuc4'])/(3*Nc),
+ 'Bernsbuc2' : (-2*Fsbuc['Fsbuc2'])/3 + (8*Fsbuc['Fsbuc4'])/3,
+ 'Bernsbuc3' : Fsbuc['Fsbuc1']/12 - Fsbuc['Fsbuc3']/12 + Fsbuc['Fsbuc2']/(12*Nc) - Fsbuc['Fsbuc4']/(12*Nc),
+ 'Bernsbuc4' : Fsbuc['Fsbuc2']/6 - Fsbuc['Fsbuc4']/6,
+ 'Bernsbuc5' : -Fsbuc['Fsbuc5']/3 + (4*Fsbuc['Fsbuc7'])/3 - Fsbuc['Fsbuc6']/(3*Nc) + (4*Fsbuc['Fsbuc8'])/(3*Nc),
+ 'Bernsbuc6' : (-2*Fsbuc['Fsbuc6'])/3 + (8*Fsbuc['Fsbuc8'])/3,
+ 'Bernsbuc7' : Fsbuc['Fsbuc5']/3 - Fsbuc['Fsbuc7']/3 + Fsbuc['Fsbuc9'] + Fsbuc['Fsbuc10']/Nc + Fsbuc['Fsbuc6']/(3*Nc) - Fsbuc['Fsbuc8']/(3*Nc),
+ 'Bernsbuc8' : 2*Fsbuc['Fsbuc10'] + (2*Fsbuc['Fsbuc6'])/3 - (2*Fsbuc['Fsbuc8'])/3,
+ 'Bernsbuc9' : Fsbuc['Fsbuc5']/48 - Fsbuc['Fsbuc7']/48 + Fsbuc['Fsbuc6']/(48*Nc) - Fsbuc['Fsbuc8']/(48*Nc),
+ 'Bernsbuc10' : Fsbuc['Fsbuc6']/24 - Fsbuc['Fsbuc8']/24}
+
+
+Bernpsbuc = lambda Fpsbuc: {'Bernsbuc1p' : -Fpsbuc['Fsbuc1p']/3 + (4*Fpsbuc['Fsbuc3p'])/3 - Fpsbuc['Fsbuc2p']/(3*Nc) + (4*Fpsbuc['Fsbuc4p'])/(3*Nc),
+ 'Bernsbuc2p' : (-2*Fpsbuc['Fsbuc2p'])/3 + (8*Fpsbuc['Fsbuc4p'])/3,
+ 'Bernsbuc3p' : Fpsbuc['Fsbuc1p']/12 - Fpsbuc['Fsbuc3p']/12 + Fpsbuc['Fsbuc2p']/(12*Nc) - Fpsbuc['Fsbuc4p']/(12*Nc),
+ 'Bernsbuc4p' : Fpsbuc['Fsbuc2p']/6 - Fpsbuc['Fsbuc4p']/6,
+ 'Bernsbuc5p' : -Fpsbuc['Fsbuc5p']/3 + (4*Fpsbuc['Fsbuc7p'])/3 - Fpsbuc['Fsbuc6p']/(3*Nc) + (4*Fpsbuc['Fsbuc8p'])/(3*Nc),
+ 'Bernsbuc6p' : (-2*Fpsbuc['Fsbuc6p'])/3 + (8*Fpsbuc['Fsbuc8p'])/3,
+ 'Bernsbuc7p' : Fpsbuc['Fsbuc5p']/3 - Fpsbuc['Fsbuc7p']/3 + Fpsbuc['Fsbuc9p'] + Fpsbuc['Fsbuc10p']/Nc + Fpsbuc['Fsbuc6p']/(3*Nc) - Fpsbuc['Fsbuc8p']/(3*Nc),
+ 'Bernsbuc8p' : 2*Fpsbuc['Fsbuc10p'] + (2*Fpsbuc['Fsbuc6p'])/3 - (2*Fpsbuc['Fsbuc8p'])/3,
+ 'Bernsbuc9p' : Fpsbuc['Fsbuc5p']/48 - Fpsbuc['Fsbuc7p']/48 + Fpsbuc['Fsbuc6p']/(48*Nc) - Fpsbuc['Fsbuc8p']/(48*Nc),
+ 'Bernsbuc10p' : Fpsbuc['Fsbuc6p']/24 - Fpsbuc['Fsbuc8p']/24}
+
+# sbcu
+
+Bernsbcu = lambda Fsbcu: {'Bernsbcu1' : -Fsbcu['Fsbcu1']/3 + (4*Fsbcu['Fsbcu3'])/3 - Fsbcu['Fsbcu2']/(3*Nc) + (4*Fsbcu['Fsbcu4'])/(3*Nc),
+ 'Bernsbcu2' : (-2*Fsbcu['Fsbcu2'])/3 + (8*Fsbcu['Fsbcu4'])/3,
+ 'Bernsbcu3' : Fsbcu['Fsbcu1']/12 - Fsbcu['Fsbcu3']/12 + Fsbcu['Fsbcu2']/(12*Nc) - Fsbcu['Fsbcu4']/(12*Nc),
+ 'Bernsbcu4' : Fsbcu['Fsbcu2']/6 - Fsbcu['Fsbcu4']/6,
+ 'Bernsbcu5' : -Fsbcu['Fsbcu5']/3 + (4*Fsbcu['Fsbcu7'])/3 - Fsbcu['Fsbcu6']/(3*Nc) + (4*Fsbcu['Fsbcu8'])/(3*Nc),
+ 'Bernsbcu6' : (-2*Fsbcu['Fsbcu6'])/3 + (8*Fsbcu['Fsbcu8'])/3,
+ 'Bernsbcu7' : Fsbcu['Fsbcu5']/3 - Fsbcu['Fsbcu7']/3 + Fsbcu['Fsbcu9'] + Fsbcu['Fsbcu10']/Nc + Fsbcu['Fsbcu6']/(3*Nc) - Fsbcu['Fsbcu8']/(3*Nc),
+ 'Bernsbcu8' : 2*Fsbcu['Fsbcu10'] + (2*Fsbcu['Fsbcu6'])/3 - (2*Fsbcu['Fsbcu8'])/3,
+ 'Bernsbcu9' : Fsbcu['Fsbcu5']/48 - Fsbcu['Fsbcu7']/48 + Fsbcu['Fsbcu6']/(48*Nc) - Fsbcu['Fsbcu8']/(48*Nc),
+ 'Bernsbcu10' : Fsbcu['Fsbcu6']/24 - Fsbcu['Fsbcu8']/24}
+
+
+Bernpsbcu = lambda Fpsbcu: {'Bernsbcu1p' : -Fpsbcu['Fsbcu1p']/3 + (4*Fpsbcu['Fsbcu3p'])/3 - Fpsbcu['Fsbcu2p']/(3*Nc) + (4*Fpsbcu['Fsbcu4p'])/(3*Nc),
+ 'Bernsbcu2p' : (-2*Fpsbcu['Fsbcu2p'])/3 + (8*Fpsbcu['Fsbcu4p'])/3,
+ 'Bernsbcu3p' : Fpsbcu['Fsbcu1p']/12 - Fpsbcu['Fsbcu3p']/12 + Fpsbcu['Fsbcu2p']/(12*Nc) - Fpsbcu['Fsbcu4p']/(12*Nc),
+ 'Bernsbcu4p' : Fpsbcu['Fsbcu2p']/6 - Fpsbcu['Fsbcu4p']/6,
+ 'Bernsbcu5p' : -Fpsbcu['Fsbcu5p']/3 + (4*Fpsbcu['Fsbcu7p'])/3 - Fpsbcu['Fsbcu6p']/(3*Nc) + (4*Fpsbcu['Fsbcu8p'])/(3*Nc),
+ 'Bernsbcu6p' : (-2*Fpsbcu['Fsbcu6p'])/3 + (8*Fpsbcu['Fsbcu8p'])/3,
+ 'Bernsbcu7p' : Fpsbcu['Fsbcu5p']/3 - Fpsbcu['Fsbcu7p']/3 + Fpsbcu['Fsbcu9p'] + Fpsbcu['Fsbcu10p']/Nc + Fpsbcu['Fsbcu6p']/(3*Nc) - Fpsbcu['Fsbcu8p']/(3*Nc),
+ 'Bernsbcu8p' : 2*Fpsbcu['Fsbcu10p'] + (2*Fpsbcu['Fsbcu6p'])/3 - (2*Fpsbcu['Fsbcu8p'])/3,
+ 'Bernsbcu9p' : Fpsbcu['Fsbcu5p']/48 - Fpsbcu['Fsbcu7p']/48 + Fpsbcu['Fsbcu6p']/(48*Nc) - Fpsbcu['Fsbcu8p']/(48*Nc),
+ 'Bernsbcu10p' : Fpsbcu['Fsbcu6p']/24 - Fpsbcu['Fsbcu8p']/24}
+
+
+
+# dbuc
+
+Berndbuc = lambda Fdbuc: {'Berndbuc1' : -Fdbuc['Fdbuc1']/3 + (4*Fdbuc['Fdbuc3'])/3 - Fdbuc['Fdbuc2']/(3*Nc) + (4*Fdbuc['Fdbuc4'])/(3*Nc),
+ 'Berndbuc2' : (-2*Fdbuc['Fdbuc2'])/3 + (8*Fdbuc['Fdbuc4'])/3,
+ 'Berndbuc3' : Fdbuc['Fdbuc1']/12 - Fdbuc['Fdbuc3']/12 + Fdbuc['Fdbuc2']/(12*Nc) - Fdbuc['Fdbuc4']/(12*Nc),
+ 'Berndbuc4' : Fdbuc['Fdbuc2']/6 - Fdbuc['Fdbuc4']/6,
+ 'Berndbuc5' : -Fdbuc['Fdbuc5']/3 + (4*Fdbuc['Fdbuc7'])/3 - Fdbuc['Fdbuc6']/(3*Nc) + (4*Fdbuc['Fdbuc8'])/(3*Nc),
+ 'Berndbuc6' : (-2*Fdbuc['Fdbuc6'])/3 + (8*Fdbuc['Fdbuc8'])/3,
+ 'Berndbuc7' : Fdbuc['Fdbuc5']/3 - Fdbuc['Fdbuc7']/3 + Fdbuc['Fdbuc9'] + Fdbuc['Fdbuc10']/Nc + Fdbuc['Fdbuc6']/(3*Nc) - Fdbuc['Fdbuc8']/(3*Nc),
+ 'Berndbuc8' : 2*Fdbuc['Fdbuc10'] + (2*Fdbuc['Fdbuc6'])/3 - (2*Fdbuc['Fdbuc8'])/3,
+ 'Berndbuc9' : Fdbuc['Fdbuc5']/48 - Fdbuc['Fdbuc7']/48 + Fdbuc['Fdbuc6']/(48*Nc) - Fdbuc['Fdbuc8']/(48*Nc),
+ 'Berndbuc10' : Fdbuc['Fdbuc6']/24 - Fdbuc['Fdbuc8']/24}
+
+
+Bernpdbuc = lambda Fpdbuc: {'Berndbuc1p' : -Fpdbuc['Fdbuc1p']/3 + (4*Fpdbuc['Fdbuc3p'])/3 - Fpdbuc['Fdbuc2p']/(3*Nc) + (4*Fpdbuc['Fdbuc4p'])/(3*Nc),
+ 'Berndbuc2p' : (-2*Fpdbuc['Fdbuc2p'])/3 + (8*Fpdbuc['Fdbuc4p'])/3,
+ 'Berndbuc3p' : Fpdbuc['Fdbuc1p']/12 - Fpdbuc['Fdbuc3p']/12 + Fpdbuc['Fdbuc2p']/(12*Nc) - Fpdbuc['Fdbuc4p']/(12*Nc),
+ 'Berndbuc4p' : Fpdbuc['Fdbuc2p']/6 - Fpdbuc['Fdbuc4p']/6,
+ 'Berndbuc5p' : -Fpdbuc['Fdbuc5p']/3 + (4*Fpdbuc['Fdbuc7p'])/3 - Fpdbuc['Fdbuc6p']/(3*Nc) + (4*Fpdbuc['Fdbuc8p'])/(3*Nc),
+ 'Berndbuc6p' : (-2*Fpdbuc['Fdbuc6p'])/3 + (8*Fpdbuc['Fdbuc8p'])/3,
+ 'Berndbuc7p' : Fpdbuc['Fdbuc5p']/3 - Fpdbuc['Fdbuc7p']/3 + Fpdbuc['Fdbuc9p'] + Fpdbuc['Fdbuc10p']/Nc + Fpdbuc['Fdbuc6p']/(3*Nc) - Fpdbuc['Fdbuc8p']/(3*Nc),
+ 'Berndbuc8p' : 2*Fpdbuc['Fdbuc10p'] + (2*Fpdbuc['Fdbuc6p'])/3 - (2*Fpdbuc['Fdbuc8p'])/3,
+ 'Berndbuc9p' : Fpdbuc['Fdbuc5p']/48 - Fpdbuc['Fdbuc7p']/48 + Fpdbuc['Fdbuc6p']/(48*Nc) - Fpdbuc['Fdbuc8p']/(48*Nc),
+ 'Berndbuc10p' : Fpdbuc['Fdbuc6p']/24 - Fpdbuc['Fdbuc8p']/24}
+
+# dbcu
+
+Berndbcu = lambda Fdbcu: {'Berndbcu1' : -Fdbcu['Fdbcu1']/3 + (4*Fdbcu['Fdbcu3'])/3 - Fdbcu['Fdbcu2']/(3*Nc) + (4*Fdbcu['Fdbcu4'])/(3*Nc),
+ 'Berndbcu2' : (-2*Fdbcu['Fdbcu2'])/3 + (8*Fdbcu['Fdbcu4'])/3,
+ 'Berndbcu3' : Fdbcu['Fdbcu1']/12 - Fdbcu['Fdbcu3']/12 + Fdbcu['Fdbcu2']/(12*Nc) - Fdbcu['Fdbcu4']/(12*Nc),
+ 'Berndbcu4' : Fdbcu['Fdbcu2']/6 - Fdbcu['Fdbcu4']/6,
+ 'Berndbcu5' : -Fdbcu['Fdbcu5']/3 + (4*Fdbcu['Fdbcu7'])/3 - Fdbcu['Fdbcu6']/(3*Nc) + (4*Fdbcu['Fdbcu8'])/(3*Nc),
+ 'Berndbcu6' : (-2*Fdbcu['Fdbcu6'])/3 + (8*Fdbcu['Fdbcu8'])/3,
+ 'Berndbcu7' : Fdbcu['Fdbcu5']/3 - Fdbcu['Fdbcu7']/3 + Fdbcu['Fdbcu9'] + Fdbcu['Fdbcu10']/Nc + Fdbcu['Fdbcu6']/(3*Nc) - Fdbcu['Fdbcu8']/(3*Nc),
+ 'Berndbcu8' : 2*Fdbcu['Fdbcu10'] + (2*Fdbcu['Fdbcu6'])/3 - (2*Fdbcu['Fdbcu8'])/3,
+ 'Berndbcu9' : Fdbcu['Fdbcu5']/48 - Fdbcu['Fdbcu7']/48 + Fdbcu['Fdbcu6']/(48*Nc) - Fdbcu['Fdbcu8']/(48*Nc),
+ 'Berndbcu10' : Fdbcu['Fdbcu6']/24 - Fdbcu['Fdbcu8']/24}
+
+Bernpdbcu = lambda Fpdbcu: {'Berndbcu1p' : -Fpdbcu['Fdbcu1p']/3 + (4*Fpdbcu['Fdbcu3p'])/3 - Fpdbcu['Fdbcu2p']/(3*Nc) + (4*Fpdbcu['Fdbcu4p'])/(3*Nc),
+ 'Berndbcu2p' : (-2*Fpdbcu['Fdbcu2p'])/3 + (8*Fpdbcu['Fdbcu4p'])/3,
+ 'Berndbcu3p' : Fpdbcu['Fdbcu1p']/12 - Fpdbcu['Fdbcu3p']/12 + Fpdbcu['Fdbcu2p']/(12*Nc) - Fpdbcu['Fdbcu4p']/(12*Nc),
+ 'Berndbcu4p' : Fpdbcu['Fdbcu2p']/6 - Fpdbcu['Fdbcu4p']/6,
+ 'Berndbcu5p' : -Fpdbcu['Fdbcu5p']/3 + (4*Fpdbcu['Fdbcu7p'])/3 - Fpdbcu['Fdbcu6p']/(3*Nc) + (4*Fpdbcu['Fdbcu8p'])/(3*Nc),
+ 'Berndbcu6p' : (-2*Fpdbcu['Fdbcu6p'])/3 + (8*Fpdbcu['Fdbcu8p'])/3,
+ 'Berndbcu7p' : Fpdbcu['Fdbcu5p']/3 - Fpdbcu['Fdbcu7p']/3 + Fpdbcu['Fdbcu9p'] + Fpdbcu['Fdbcu10p']/Nc + Fpdbcu['Fdbcu6p']/(3*Nc) - Fpdbcu['Fdbcu8p']/(3*Nc),
+ 'Berndbcu8p' : 2*Fpdbcu['Fdbcu10p'] + (2*Fpdbcu['Fdbcu6p'])/3 - (2*Fpdbcu['Fdbcu8p'])/3,
+ 'Berndbcu9p' : Fpdbcu['Fdbcu5p']/48 - Fpdbcu['Fdbcu7p']/48 + Fpdbcu['Fdbcu6p']/(48*Nc) - Fpdbcu['Fdbcu8p']/(48*Nc),
+ 'Berndbcu10p' : Fpdbcu['Fdbcu6p']/24 - Fpdbcu['Fdbcu8p']/24}
+
+## Class IV ##
+
+# Fierz basis
+
+# sbsd
+
+Fsbsd = lambda C: {'Fsbsd1' : C["VddLL"][0, 1, 2, 1].conjugate(),
+ 'Fsbsd2' : C["VddLL"][0, 1, 2, 1].conjugate(),
+ 'Fsbsd3' : C["V1ddLR"][1, 2, 1, 0] - C["V8ddLR"][1, 2, 1, 0]/(2*Nc),
+ 'Fsbsd4' : C["V8ddLR"][1, 2, 1, 0]/2,
+ 'Fsbsd5' : C["S1ddRR"][1, 0, 1, 2] - C["S8ddRR"][1, 0, 1, 2]/(2*Nc) - C["S8ddRR"][0, 1, 2, 1].conjugate()/4,
+ 'Fsbsd6' : C["S8ddRR"][1, 0, 1, 2]/2 - C["S1ddRR"][0, 1, 2, 1].conjugate()/2 + C["S8ddRR"][0, 1, 2, 1].conjugate()/(4*Nc),
+ 'Fsbsd7' : -C["V8ddLR"][0, 1, 2, 1].conjugate(),
+ 'Fsbsd8' : -2*C["V1ddLR"][0, 1, 2, 1].conjugate() + C["V8ddLR"][0, 1, 2, 1].conjugate()/Nc,
+ 'Fsbsd9' : -C["S8ddRR"][0, 1, 2, 1].conjugate()/16,
+ 'Fsbsd10' : -C["S1ddRR"][0, 1, 2, 1].conjugate()/8 + C["S8ddRR"][0, 1, 2, 1].conjugate()/(16*Nc)}
+
+Fpsbsd = lambda C: {'Fsbsd1p' : C["VddRR"][0, 1, 2, 1].conjugate(),
+ 'Fsbsd2p' : C["VddRR"][0, 1, 2, 1].conjugate(),
+ 'Fsbsd3p' : C["V1ddLR"][0, 1, 2, 1].conjugate() - C["V8ddLR"][0, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbsd4p' : C["V8ddLR"][0, 1, 2, 1].conjugate()/2,
+ 'Fsbsd5p' : -C["S8ddRR"][1, 0, 1, 2]/4 + C["S1ddRR"][0, 1, 2, 1].conjugate() - C["S8ddRR"][0, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbsd6p' : -C["S1ddRR"][1, 0, 1, 2]/2 + C["S8ddRR"][1, 0, 1, 2]/(4*Nc) + C["S8ddRR"][0, 1, 2, 1].conjugate()/2,
+ 'Fsbsd7p' : -C["V8ddLR"][1, 2, 1, 0],
+ 'Fsbsd8p' : -2*C["V1ddLR"][1, 2, 1, 0] + C["V8ddLR"][1, 2, 1, 0]/Nc,
+ 'Fsbsd9p' : -C["S8ddRR"][1, 0, 1, 2]/16,
+ 'Fsbsd10p' : -C["S1ddRR"][1, 0, 1, 2]/8 + C["S8ddRR"][1, 0, 1, 2]/(16*Nc)}
+
+# dbds
+
+Fdbds = lambda C: {'Fdbds1' : C["VddLL"][0, 1, 0, 2],
+ 'Fdbds2' : C["VddLL"][0, 1, 0, 2],
+ 'Fdbds3' : C["V1ddLR"][0, 2, 0, 1] - C["V8ddLR"][0, 2, 0, 1]/(2*Nc),
+ 'Fdbds4' : C["V8ddLR"][0, 2, 0, 1]/2,
+ 'Fdbds5' : C["S1ddRR"][0, 1, 0, 2] - C["S8ddRR"][0, 1, 0, 2]/(2*Nc) - C["S8ddRR"][1, 0, 2, 0].conjugate()/4,
+ 'Fdbds6' : C["S8ddRR"][0, 1, 0, 2]/2 - C["S1ddRR"][1, 0, 2, 0].conjugate()/2 + C["S8ddRR"][1, 0, 2, 0].conjugate()/(4*Nc),
+ 'Fdbds7' : -C["V8ddLR"][0, 1, 0, 2],
+ 'Fdbds8' : -2*C["V1ddLR"][0, 1, 0, 2] + C["V8ddLR"][0, 1, 0, 2]/Nc,
+ 'Fdbds9' : -C["S8ddRR"][1, 0, 2, 0].conjugate()/16,
+ 'Fdbds10' : -C["S1ddRR"][1, 0, 2, 0].conjugate()/8 + C["S8ddRR"][1, 0, 2, 0].conjugate()/(16*Nc)}
+
+Fpdbds = lambda C: {'Fdbds1p' : C["VddRR"][0, 1, 0, 2],
+ 'Fdbds2p' : C["VddRR"][0, 1, 0, 2],
+ 'Fdbds3p' : C["V1ddLR"][0, 1, 0, 2] - C["V8ddLR"][0, 1, 0, 2]/(2*Nc),
+ 'Fdbds4p' : C["V8ddLR"][0, 1, 0, 2]/2,
+ 'Fdbds5p' : -C["S8ddRR"][0, 1, 0, 2]/4 + C["S1ddRR"][1, 0, 2, 0].conjugate() - C["S8ddRR"][1, 0, 2, 0].conjugate()/(2*Nc),
+ 'Fdbds6p' : -C["S1ddRR"][0, 1, 0, 2]/2 + C["S8ddRR"][0, 1, 0, 2]/(4*Nc) + C["S8ddRR"][1, 0, 2, 0].conjugate()/2,
+ 'Fdbds7p' : -C["V8ddLR"][0, 2, 0, 1],
+ 'Fdbds8p' : -2*C["V1ddLR"][0, 2, 0, 1] + C["V8ddLR"][0, 2, 0, 1]/Nc,
+ 'Fdbds9p' : -C["S8ddRR"][0, 1, 0, 2]/16,
+ 'Fdbds10p' : -C["S1ddRR"][0, 1, 0, 2]/8 + C["S8ddRR"][0, 1, 0, 2]/(16*Nc)}
+
+
+# Bern basis
+#different choice of basis for class IV! remains to be checked
+
+# sbsd
+
+Bernsbsd = lambda Fsbsd: {'Bernsbsd1' : -Fsbsd['Fsbsd1']/3 + (4*Fsbsd['Fsbsd3'])/3 - Fsbsd['Fsbsd2']/(3*Nc) + (4*Fsbsd['Fsbsd4'])/(3*Nc),
+ 'Bernsbsd2' : (-2*Fsbsd['Fsbsd2'])/3 + (8*Fsbsd['Fsbsd4'])/3,
+ 'Bernsbsd3' : Fsbsd['Fsbsd1']/12 - Fsbsd['Fsbsd3']/12 + Fsbsd['Fsbsd2']/(12*Nc) - Fsbsd['Fsbsd4']/(12*Nc),
+ 'Bernsbsd4' : Fsbsd['Fsbsd2']/6 - Fsbsd['Fsbsd4']/6,
+ 'Bernsbsd5' : -Fsbsd['Fsbsd5']/3 + (4*Fsbsd['Fsbsd7'])/3 - Fsbsd['Fsbsd6']/(3*Nc) + (4*Fsbsd['Fsbsd8'])/(3*Nc),
+ 'Bernsbsd6' : (-2*Fsbsd['Fsbsd6'])/3 + (8*Fsbsd['Fsbsd8'])/3,
+ 'Bernsbsd7' : Fsbsd['Fsbsd5']/3 - Fsbsd['Fsbsd7']/3 + Fsbsd['Fsbsd9'] + Fsbsd['Fsbsd10']/Nc + Fsbsd['Fsbsd6']/(3*Nc) - Fsbsd['Fsbsd8']/(3*Nc),
+ 'Bernsbsd8' : 2*Fsbsd['Fsbsd10'] + (2*Fsbsd['Fsbsd6'])/3 - (2*Fsbsd['Fsbsd8'])/3,
+ 'Bernsbsd9' : Fsbsd['Fsbsd5']/48 - Fsbsd['Fsbsd7']/48 + Fsbsd['Fsbsd6']/(48*Nc) - Fsbsd['Fsbsd8']/(48*Nc),
+ 'Bernsbsd10' : Fsbsd['Fsbsd6']/24 - Fsbsd['Fsbsd8']/24}
+
+
+Bernpsbsd = lambda Fpsbsd: {'Bernsbsd1p' : -Fpsbsd['Fsbsd1p']/3 + (4*Fpsbsd['Fsbsd3p'])/3 - Fpsbsd['Fsbsd2p']/(3*Nc) + (4*Fpsbsd['Fsbsd4p'])/(3*Nc),
+ 'Bernsbsd2p' : (-2*Fpsbsd['Fsbsd2p'])/3 + (8*Fpsbsd['Fsbsd4p'])/3,
+ 'Bernsbsd3p' : Fpsbsd['Fsbsd1p']/12 - Fpsbsd['Fsbsd3p']/12 + Fpsbsd['Fsbsd2p']/(12*Nc) - Fpsbsd['Fsbsd4p']/(12*Nc),
+ 'Bernsbsd4p' : Fpsbsd['Fsbsd2p']/6 - Fpsbsd['Fsbsd4p']/6,
+ 'Bernsbsd5p' : -Fpsbsd['Fsbsd5p']/3 + (4*Fpsbsd['Fsbsd7p'])/3 - Fpsbsd['Fsbsd6p']/(3*Nc) + (4*Fpsbsd['Fsbsd8p'])/(3*Nc),
+ 'Bernsbsd6p' : (-2*Fpsbsd['Fsbsd6p'])/3 + (8*Fpsbsd['Fsbsd8p'])/3,
+ 'Bernsbsd7p' : Fpsbsd['Fsbsd5p']/3 - Fpsbsd['Fsbsd7p']/3 + Fpsbsd['Fsbsd9p'] + Fpsbsd['Fsbsd10p']/Nc + Fpsbsd['Fsbsd6p']/(3*Nc) - Fpsbsd['Fsbsd8p']/(3*Nc),
+ 'Bernsbsd8p' : 2*Fpsbsd['Fsbsd10p'] + (2*Fpsbsd['Fsbsd6p'])/3 - (2*Fpsbsd['Fsbsd8p'])/3,
+ 'Bernsbsd9p' : Fpsbsd['Fsbsd5p']/48 - Fpsbsd['Fsbsd7p']/48 + Fpsbsd['Fsbsd6p']/(48*Nc) - Fpsbsd['Fsbsd8p']/(48*Nc),
+ 'Bernsbsd10p' : Fpsbsd['Fsbsd6p']/24 - Fpsbsd['Fsbsd8p']/24}
+
+# dbds
+Berndbds = lambda Fdbds: {'Berndbds1' : -Fdbds['Fdbds1']/3 + (4*Fdbds['Fdbds3'])/3 - Fdbds['Fdbds2']/(3*Nc) + (4*Fdbds['Fdbds4'])/(3*Nc),
+ 'Berndbds2' : (-2*Fdbds['Fdbds2'])/3 + (8*Fdbds['Fdbds4'])/3,
+ 'Berndbds3' : Fdbds['Fdbds1']/12 - Fdbds['Fdbds3']/12 + Fdbds['Fdbds2']/(12*Nc) - Fdbds['Fdbds4']/(12*Nc),
+ 'Berndbds4' : Fdbds['Fdbds2']/6 - Fdbds['Fdbds4']/6,
+ 'Berndbds5' : -Fdbds['Fdbds5']/3 + (4*Fdbds['Fdbds7'])/3 - Fdbds['Fdbds6']/(3*Nc) + (4*Fdbds['Fdbds8'])/(3*Nc),
+ 'Berndbds6' : (-2*Fdbds['Fdbds6'])/3 + (8*Fdbds['Fdbds8'])/3,
+ 'Berndbds7' : Fdbds['Fdbds5']/3 - Fdbds['Fdbds7']/3 + Fdbds['Fdbds9'] + Fdbds['Fdbds10']/Nc + Fdbds['Fdbds6']/(3*Nc) - Fdbds['Fdbds8']/(3*Nc),
+ 'Berndbds8' : 2*Fdbds['Fdbds10'] + (2*Fdbds['Fdbds6'])/3 - (2*Fdbds['Fdbds8'])/3,
+ 'Berndbds9' : Fdbds['Fdbds5']/48 - Fdbds['Fdbds7']/48 + Fdbds['Fdbds6']/(48*Nc) - Fdbds['Fdbds8']/(48*Nc),
+ 'Berndbds10' : Fdbds['Fdbds6']/24 - Fdbds['Fdbds8']/24}
+
+Bernpdbds = lambda Fpdbds: {'Berndbds1p' : -Fpdbds['Fdbds1p']/3 + (4*Fpdbds['Fdbds3p'])/3 - Fpdbds['Fdbds2p']/(3*Nc) + (4*Fpdbds['Fdbds4p'])/(3*Nc),
+ 'Berndbds2p' : (-2*Fpdbds['Fdbds2p'])/3 + (8*Fpdbds['Fdbds4p'])/3,
+ 'Berndbds3p' : Fpdbds['Fdbds1p']/12 - Fpdbds['Fdbds3p']/12 + Fpdbds['Fdbds2p']/(12*Nc) - Fpdbds['Fdbds4p']/(12*Nc),
+ 'Berndbds4p' : Fpdbds['Fdbds2p']/6 - Fpdbds['Fdbds4p']/6,
+ 'Berndbds5p' : -Fpdbds['Fdbds5p']/3 + (4*Fpdbds['Fdbds7p'])/3 - Fpdbds['Fdbds6p']/(3*Nc) + (4*Fpdbds['Fdbds8p'])/(3*Nc),
+ 'Berndbds6p' : (-2*Fpdbds['Fdbds6p'])/3 + (8*Fpdbds['Fdbds8p'])/3,
+ 'Berndbds7p' : Fpdbds['Fdbds5p']/3 - Fpdbds['Fdbds7p']/3 + Fpdbds['Fdbds9p'] + Fpdbds['Fdbds10p']/Nc + Fpdbds['Fdbds6p']/(3*Nc) - Fpdbds['Fdbds8p']/(3*Nc),
+ 'Berndbds8p' : 2*Fpdbds['Fdbds10p'] + (2*Fpdbds['Fdbds6p'])/3 - (2*Fpdbds['Fdbds8p'])/3,
+ 'Berndbds9p' : Fpdbds['Fdbds5p']/48 - Fpdbds['Fdbds7p']/48 + Fpdbds['Fdbds6p']/(48*Nc) - Fpdbds['Fdbds8p']/(48*Nc),
+ 'Berndbds10p' : Fpdbds['Fdbds6p']/24 - Fpdbds['Fdbds8p']/24}
+
+# dbsb shoudl be added
+
+
+## Class V ##
+
+# four-quark operators
+
+# Fierz basis
+
+# sbuu
+Fsbuu = lambda C: {'Fsbuu1' : C["V1udLL"][0, 0, 1, 2] - C["V8udLL"][0, 0, 1, 2]/(2*Nc),
+ 'Fsbuu2' : C["V8udLL"][0, 0, 1, 2]/2,
+ 'Fsbuu3' : C["V1duLR"][1, 2, 0, 0] - C["V8duLR"][1, 2, 0, 0]/(2*Nc),
+ 'Fsbuu4' : C["V8duLR"][1, 2, 0, 0]/2,
+ 'Fsbuu5' : C["S1udRR"][0, 0, 1, 2] - C["S8udduRR"][0, 2, 1, 0]/4 - C["S8udRR"][0, 0, 1, 2]/(2*Nc),
+ 'Fsbuu6' : -C["S1udduRR"][0, 2, 1, 0]/2 + C["S8udduRR"][0, 2, 1, 0]/(4*Nc) + C["S8udRR"][0, 0, 1, 2]/2,
+ 'Fsbuu7' : -C["V8udduLR"][0, 1, 2, 0].conjugate(),
+ 'Fsbuu8' : -2*C["V1udduLR"][0, 1, 2, 0].conjugate() + C["V8udduLR"][0, 1, 2, 0].conjugate()/Nc,
+ 'Fsbuu9' : -C["S8udduRR"][0, 2, 1, 0]/16,
+ 'Fsbuu10' : -C["S1udduRR"][0, 2, 1, 0]/8 + C["S8udduRR"][0, 2, 1, 0]/(16*Nc)}
+
+Fpsbuu = lambda C: {'Fsbuu1p' : C["V1udRR"][0, 0, 1, 2] - C["V8udRR"][0, 0, 1, 2]/(2*Nc),
+ 'Fsbuu2p' : C["V8udRR"][0, 0, 1, 2]/2,
+ 'Fsbuu3p' : C["V1udLR"][0, 0, 1, 2] - C["V8udLR"][0, 0, 1, 2]/(2*Nc),
+ 'Fsbuu4p' : C["V8udLR"][0, 0, 1, 2]/2,
+ 'Fsbuu5p' : C["S1udRR"][0, 0, 2, 1].conjugate() - C["S8udduRR"][0, 1, 2, 0].conjugate()/4 - C["S8udRR"][0, 0, 2, 1].conjugate()/(2*Nc),
+ 'Fsbuu6p' : -C["S1udduRR"][0, 1, 2, 0].conjugate()/2 + C["S8udduRR"][0, 1, 2, 0].conjugate()/(4*Nc) + C["S8udRR"][0, 0, 2, 1].conjugate()/2,
+ 'Fsbuu7p' : -C["V8udduLR"][0, 2, 1, 0],
+ 'Fsbuu8p' : -2*C["V1udduLR"][0, 2, 1, 0] + C["V8udduLR"][0, 2, 1, 0]/Nc,
+ 'Fsbuu9p' : -C["S8udduRR"][0, 1, 2, 0].conjugate()/16,
+ 'Fsbuu10p' : -C["S1udduRR"][0, 1, 2, 0].conjugate()/8 + C["S8udduRR"][0, 1, 2, 0].conjugate()/(16*Nc)}
+
+
+# dbuu
+Fdbuu = lambda C: {'Fdbuu1' : C["V1udLL"][0, 0, 0, 2] - C["V8udLL"][0, 0, 0, 2]/(2*Nc),
+ 'Fdbuu2' : C["V8udLL"][0, 0, 0, 2]/2,
+ 'Fdbuu3' : C["V1duLR"][0, 2, 0, 0] - C["V8duLR"][0, 2, 0, 0]/(2*Nc),
+ 'Fdbuu4' : C["V8duLR"][0, 2, 0, 0]/2,
+ 'Fdbuu5' : C["S1udRR"][0, 0, 0, 2] - C["S8udduRR"][0, 2, 0, 0]/4 - C["S8udRR"][0, 0, 0, 2]/(2*Nc),
+ 'Fdbuu6' : -C["S1udduRR"][0, 2, 0, 0]/2 + C["S8udduRR"][0, 2, 0, 0]/(4*Nc) + C["S8udRR"][0, 0, 0, 2]/2,
+ 'Fdbuu7' : -C["V8udduLR"][0, 0, 2, 0].conjugate(),
+ 'Fdbuu8' : -2*C["V1udduLR"][0, 0, 2, 0].conjugate() + C["V8udduLR"][0, 0, 2, 0].conjugate()/Nc,
+ 'Fdbuu9' : -C["S8udduRR"][0, 2, 0, 0]/16,
+ 'Fdbuu10' : -C["S1udduRR"][0, 2, 0, 0]/8 + C["S8udduRR"][0, 2, 0, 0]/(16*Nc)}
+
+Fpdbuu = lambda C: {'Fdbuu1p' : C["V1udRR"][0, 0, 0, 2] - C["V8udRR"][0, 0, 0, 2]/(2*Nc),
+ 'Fdbuu2p' : C["V8udRR"][0, 0, 0, 2]/2,
+ 'Fdbuu3p' : C["V1udLR"][0, 0, 0, 2] - C["V8udLR"][0, 0, 0, 2]/(2*Nc),
+ 'Fdbuu4p' : C["V8udLR"][0, 0, 0, 2]/2,
+ 'Fdbuu5p' : C["S1udRR"][0, 0, 2, 0].conjugate() - C["S8udduRR"][0, 0, 2, 0].conjugate()/4 - C["S8udRR"][0, 0, 2, 0].conjugate()/(2*Nc),
+ 'Fdbuu6p' : -C["S1udduRR"][0, 0, 2, 0].conjugate()/2 + C["S8udduRR"][0, 0, 2, 0].conjugate()/(4*Nc) + C["S8udRR"][0, 0, 2, 0].conjugate()/2,
+ 'Fdbuu7p' : -C["V8udduLR"][0, 2, 0, 0],
+ 'Fdbuu8p' : -2*C["V1udduLR"][0, 2, 0, 0] + C["V8udduLR"][0, 2, 0, 0]/Nc,
+ 'Fdbuu9p' : -C["S8udduRR"][0, 0, 2, 0].conjugate()/16,
+ 'Fdbuu10p' : -C["S1udduRR"][0, 0, 2, 0].conjugate()/8 + C["S8udduRR"][0, 0, 2, 0].conjugate()/(16*Nc)}
+
+# sbcc
+
+Fsbcc = lambda C: {'Fsbcc1' : C["V1udLL"][1, 1, 1, 2] - C["V8udLL"][1, 1, 1, 2]/(2*Nc),
+ 'Fsbcc2' : C["V8udLL"][1, 1, 1, 2]/2,
+ 'Fsbcc3' : C["V1duLR"][1, 2, 1, 1] - C["V8duLR"][1, 2, 1, 1]/(2*Nc),
+ 'Fsbcc4' : C["V8duLR"][1, 2, 1, 1]/2,
+ 'Fsbcc5' : C["S1udRR"][1, 1, 1, 2] - C["S8udduRR"][1, 2, 1, 1]/4 - C["S8udRR"][1, 1, 1, 2]/(2*Nc),
+ 'Fsbcc6' : -C["S1udduRR"][1, 2, 1, 1]/2 + C["S8udduRR"][1, 2, 1, 1]/(4*Nc) + C["S8udRR"][1, 1, 1, 2]/2,
+ 'Fsbcc7' : -C["V8udduLR"][1, 1, 2, 1].conjugate(),
+ 'Fsbcc8' : -2*C["V1udduLR"][1, 1, 2, 1].conjugate() + C["V8udduLR"][1, 1, 2, 1].conjugate()/Nc,
+ 'Fsbcc9' : -C["S8udduRR"][1, 2, 1, 1]/16,
+ 'Fsbcc10' : -C["S1udduRR"][1, 2, 1, 1]/8 + C["S8udduRR"][1, 2, 1, 1]/(16*Nc)}
+
+Fpsbcc = lambda C: {'Fsbcc1p' : C["V1udRR"][1, 1, 1, 2] - C["V8udRR"][1, 1, 1, 2]/(2*Nc),
+ 'Fsbcc2p' : C["V8udRR"][1, 1, 1, 2]/2,
+ 'Fsbcc3p' : C["V1udLR"][1, 1, 1, 2] - C["V8udLR"][1, 1, 1, 2]/(2*Nc),
+ 'Fsbcc4p' : C["V8udLR"][1, 1, 1, 2]/2,
+ 'Fsbcc5p' : C["S1udRR"][1, 1, 2, 1].conjugate() - C["S8udduRR"][1, 1, 2, 1].conjugate()/4 - C["S8udRR"][1, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbcc6p' : -C["S1udduRR"][1, 1, 2, 1].conjugate()/2 + C["S8udduRR"][1, 1, 2, 1].conjugate()/(4*Nc) + C["S8udRR"][1, 1, 2, 1].conjugate()/2,
+ 'Fsbcc7p' : -C["V8udduLR"][1, 2, 1, 1],
+ 'Fsbcc8p' : -2*C["V1udduLR"][1, 2, 1, 1] + C["V8udduLR"][1, 2, 1, 1]/Nc,
+ 'Fsbcc9p' : -C["S8udduRR"][1, 1, 2, 1].conjugate()/16,
+ 'Fsbcc10p' : -C["S1udduRR"][1, 1, 2, 1].conjugate()/8 + C["S8udduRR"][1, 1, 2, 1].conjugate()/(16*Nc)}
+
+ # dbcc
+
+Fdbcc = lambda C: {'Fdbcc1' : C["V1udLL"][1, 1, 0, 2] - C["V8udLL"][1, 1, 0, 2]/(2*Nc),
+ 'Fdbcc2' : C["V8udLL"][1, 1, 0, 2]/2,
+ 'Fdbcc3' : C["V1duLR"][0, 2, 1, 1] - C["V8duLR"][0, 2, 1, 1]/(2*Nc),
+ 'Fdbcc4' : C["V8duLR"][0, 2, 1, 1]/2,
+ 'Fdbcc5' : C["S1udRR"][1, 1, 0, 2] - C["S8udduRR"][1, 2, 0, 1]/4 - C["S8udRR"][1, 1, 0, 2]/(2*Nc),
+ 'Fdbcc6' : -C["S1udduRR"][1, 2, 0, 1]/2 + C["S8udduRR"][1, 2, 0, 1]/(4*Nc) + C["S8udRR"][1, 1, 0, 2]/2,
+ 'Fdbcc7' : -C["V8udduLR"][1, 0, 2, 1].conjugate(),
+ 'Fdbcc8' : -2*C["V1udduLR"][1, 0, 2, 1].conjugate() + C["V8udduLR"][1, 0, 2, 1].conjugate()/Nc,
+ 'Fdbcc9' : -C["S8udduRR"][1, 2, 0, 1]/16,
+ 'Fdbcc10' : -C["S1udduRR"][1, 2, 0, 1]/8 + C["S8udduRR"][1, 2, 0, 1]/(16*Nc)}
+
+Fpdbcc = lambda C: {'Fdbcc1p' : C["V1udRR"][1, 1, 0, 2] - C["V8udRR"][1, 1, 0, 2]/(2*Nc),
+ 'Fdbcc2p' : C["V8udRR"][1, 1, 0, 2]/2,
+ 'Fdbcc3p' : C["V1udLR"][1, 1, 0, 2] - C["V8udLR"][1, 1, 0, 2]/(2*Nc),
+ 'Fdbcc4p' : C["V8udLR"][1, 1, 0, 2]/2,
+ 'Fdbcc5p' : C["S1udRR"][1, 1, 2, 0].conjugate() - C["S8udduRR"][1, 0, 2, 1].conjugate()/4 - C["S8udRR"][1, 1, 2, 0].conjugate()/(2*Nc),
+ 'Fdbcc6p' : -C["S1udduRR"][1, 0, 2, 1].conjugate()/2 + C["S8udduRR"][1, 0, 2, 1].conjugate()/(4*Nc) + C["S8udRR"][1, 1, 2, 0].conjugate()/2,
+ 'Fdbcc7p' : -C["V8udduLR"][1, 2, 0, 1],
+ 'Fdbcc8p' : -2*C["V1udduLR"][1, 2, 0, 1] + C["V8udduLR"][1, 2, 0, 1]/Nc,
+ 'Fdbcc9p' : -C["S8udduRR"][1, 0, 2, 1].conjugate()/16,
+ 'Fdbcc10p' : -C["S1udduRR"][1, 0, 2, 1].conjugate()/8 + C["S8udduRR"][1, 0, 2, 1].conjugate()/(16*Nc)}
+
+
+ # sbdd
+
+Fsbdd = lambda C: {'Fsbdd1' : C["VddLL"][0, 0, 1, 2],
+ 'Fsbdd2' : C["VddLL"][0, 1, 2, 0].conjugate(),
+ 'Fsbdd3' : C["V1ddLR"][1, 2, 0, 0] - C["V8ddLR"][1, 2, 0, 0]/(2*Nc),
+ 'Fsbdd4' : C["V8ddLR"][1, 2, 0, 0]/2,
+ 'Fsbdd5' : C["S1ddRR"][0, 0, 1, 2] - C["S8ddRR"][0, 0, 1, 2]/(2*Nc) - C["S8ddRR"][0, 2, 1, 0]/4,
+ 'Fsbdd6' : -C["S1ddRR"][0, 2, 1, 0]/2 + C["S8ddRR"][0, 0, 1, 2]/2 + C["S8ddRR"][0, 2, 1, 0]/(4*Nc),
+ 'Fsbdd7' : -C["V8ddLR"][0, 1, 2, 0].conjugate(),
+ 'Fsbdd8' : -2*C["V1ddLR"][0, 1, 2, 0].conjugate() + C["V8ddLR"][0, 1, 2, 0].conjugate()/Nc,
+ 'Fsbdd9' : -C["S8ddRR"][0, 2, 1, 0]/16,
+ 'Fsbdd10' : -C["S1ddRR"][0, 2, 1, 0]/8 + C["S8ddRR"][0, 2, 1, 0]/(16*Nc)}
+
+Fpsbdd = lambda C: {'Fsbdd1p' : C["VddRR"][0, 0, 1, 2],
+ 'Fsbdd2p' : C["VddRR"][0, 1, 2, 0].conjugate(),
+ 'Fsbdd3p' : C["V1ddLR"][0, 0, 1, 2] - C["V8ddLR"][0, 0, 1, 2]/(2*Nc),
+ 'Fsbdd4p' : C["V8ddLR"][0, 0, 1, 2]/2,
+ 'Fsbdd5p' : C["S1ddRR"][0, 0, 2, 1].conjugate() - C["S8ddRR"][0, 0, 2, 1].conjugate()/(2*Nc) - C["S8ddRR"][0, 1, 2, 0].conjugate()/4,
+ 'Fsbdd6p' : -C["S1ddRR"][0, 1, 2, 0].conjugate()/2 + C["S8ddRR"][0, 0, 2, 1].conjugate()/2 + C["S8ddRR"][0, 1, 2, 0].conjugate()/(4*Nc),
+ 'Fsbdd7p' : -C["V8ddLR"][0, 2, 1, 0],
+ 'Fsbdd8p' : -2*C["V1ddLR"][0, 2, 1, 0] + C["V8ddLR"][0, 2, 1, 0]/Nc,
+ 'Fsbdd9p' : -C["S8ddRR"][0, 1, 2, 0].conjugate()/16,
+ 'Fsbdd10p' : -C["S1ddRR"][0, 1, 2, 0].conjugate()/8 + C["S8ddRR"][0, 1, 2, 0].conjugate()/(16*Nc)}
+
+# dbdd
+
+Fdbdd = lambda C: {'Fdbdd1' : C["VddLL"][0, 0, 0, 2],
+ 'Fdbdd2' : C["VddLL"][0, 0, 0, 2],
+ 'Fdbdd3' : C["V1ddLR"][0, 2, 0, 0] - C["V8ddLR"][0, 2, 0, 0]/(2*Nc),
+ 'Fdbdd4' : C["V8ddLR"][0, 2, 0, 0]/2,
+ 'Fdbdd5' : C["S1ddRR"][0, 0, 0, 2] - C["S8ddRR"][0, 0, 0, 2]/4 - C["S8ddRR"][0, 0, 0, 2]/(2*Nc),
+ 'Fdbdd6' : -C["S1ddRR"][0, 0, 0, 2]/2 + C["S8ddRR"][0, 0, 0, 2]/2 + C["S8ddRR"][0, 0, 0, 2]/(4*Nc),
+ 'Fdbdd7' : -C["V8ddLR"][0, 0, 0, 2],
+ 'Fdbdd8' : -2*C["V1ddLR"][0, 0, 0, 2] + C["V8ddLR"][0, 0, 0, 2]/Nc,
+ 'Fdbdd9' : -C["S8ddRR"][0, 0, 0, 2]/16,
+ 'Fdbdd10' : -C["S1ddRR"][0, 0, 0, 2]/8 + C["S8ddRR"][0, 0, 0, 2]/(16*Nc)}
+
+Fpdbdd = lambda C: {'Fdbdd1p' : C["VddRR"][0, 0, 0, 2],
+ 'Fdbdd2p' : C["VddRR"][0, 0, 0, 2],
+ 'Fdbdd3p' : C["V1ddLR"][0, 0, 0, 2] - C["V8ddLR"][0, 0, 0, 2]/(2*Nc),
+ 'Fdbdd4p' : C["V8ddLR"][0, 0, 0, 2]/2,
+ 'Fdbdd5p' : C["S1ddRR"][0, 0, 2, 0].conjugate() - C["S8ddRR"][0, 0, 2, 0].conjugate()/4 - C["S8ddRR"][0, 0, 2, 0].conjugate()/(2*Nc),
+ 'Fdbdd6p' : -C["S1ddRR"][0, 0, 2, 0].conjugate()/2 + C["S8ddRR"][0, 0, 2, 0].conjugate()/2 + C["S8ddRR"][0, 0, 2, 0].conjugate()/(4*Nc),
+ 'Fdbdd7p' : -C["V8ddLR"][0, 2, 0, 0],
+ 'Fdbdd8p' : -2*C["V1ddLR"][0, 2, 0, 0] + C["V8ddLR"][0, 2, 0, 0]/Nc,
+ 'Fdbdd9p' : -C["S8ddRR"][0, 0, 2, 0].conjugate()/16,
+ 'Fdbdd10p' : -C["S1ddRR"][0, 0, 2, 0].conjugate()/8 + C["S8ddRR"][0, 0, 2, 0].conjugate()/(16*Nc)}
+
+
+ # sbss
+
+Fsbss = lambda C: {'Fsbss1' : C["VddLL"][1, 1, 1, 2],
+ 'Fsbss2' : C["VddLL"][1, 1, 1, 2],
+ 'Fsbss3' : C["V1ddLR"][1, 2, 1, 1] - C["V8ddLR"][1, 2, 1, 1]/(2*Nc),
+ 'Fsbss4' : C["V8ddLR"][1, 2, 1, 1]/2,
+ 'Fsbss5' : C["S1ddRR"][1, 1, 1, 2] - C["S8ddRR"][1, 1, 1, 2]/4 - C["S8ddRR"][1, 1, 1, 2]/(2*Nc),
+ 'Fsbss6' : -C["S1ddRR"][1, 1, 1, 2]/2 + C["S8ddRR"][1, 1, 1, 2]/2 + C["S8ddRR"][1, 1, 1, 2]/(4*Nc),
+ 'Fsbss7' : -C["V8ddLR"][1, 1, 1, 2],
+ 'Fsbss8' : -2*C["V1ddLR"][1, 1, 1, 2] + C["V8ddLR"][1, 1, 1, 2]/Nc,
+ 'Fsbss9' : -C["S8ddRR"][1, 1, 1, 2]/16,
+ 'Fsbss10' : -C["S1ddRR"][1, 1, 1, 2]/8 + C["S8ddRR"][1, 1, 1, 2]/(16*Nc)}
+
+
+Fpsbss = lambda C: {'Fsbss1p' : C["VddRR"][1, 1, 1, 2],
+ 'Fsbss2p' : C["VddRR"][1, 1, 1, 2],
+ 'Fsbss3p' : C["V1ddLR"][1, 1, 1, 2] - C["V8ddLR"][1, 1, 1, 2]/(2*Nc),
+ 'Fsbss4p' : C["V8ddLR"][1, 1, 1, 2]/2,
+ 'Fsbss5p' : C["S1ddRR"][1, 1, 2, 1].conjugate() - C["S8ddRR"][1, 1, 2, 1].conjugate()/4 - C["S8ddRR"][1, 1, 2, 1].conjugate()/(2*Nc),
+ 'Fsbss6p' : -C["S1ddRR"][1, 1, 2, 1].conjugate()/2 + C["S8ddRR"][1, 1, 2, 1].conjugate()/2 + C["S8ddRR"][1, 1, 2, 1].conjugate()/(4*Nc),
+ 'Fsbss7p' : -C["V8ddLR"][1, 2, 1, 1],
+ 'Fsbss8p' : -2*C["V1ddLR"][1, 2, 1, 1] + C["V8ddLR"][1, 2, 1, 1]/Nc,
+ 'Fsbss9p' : -C["S8ddRR"][1, 1, 2, 1].conjugate()/16,
+ 'Fsbss10p' : -C["S1ddRR"][1, 1, 2, 1].conjugate()/8 + C["S8ddRR"][1, 1, 2, 1].conjugate()/(16*Nc)}
+
+
+# dbss
+
+Fdbss = lambda C: {'Fdbss1' : C["VddLL"][0, 2, 1, 1],
+ 'Fdbss2' : C["VddLL"][0, 1, 1, 2],
+ 'Fdbss3' : C["V1ddLR"][0, 2, 1, 1] - C["V8ddLR"][0, 2, 1, 1]/(2*Nc),
+ 'Fdbss4' : C["V8ddLR"][0, 2, 1, 1]/2,
+ 'Fdbss5' : C["S1ddRR"][0, 2, 1, 1] - C["S8ddRR"][0, 1, 1, 2]/4 - C["S8ddRR"][0, 2, 1, 1]/(2*Nc),
+ 'Fdbss6' : -C["S1ddRR"][0, 1, 1, 2]/2 + C["S8ddRR"][0, 1, 1, 2]/(4*Nc) + C["S8ddRR"][0, 2, 1, 1]/2,
+ 'Fdbss7' : -C["V8ddLR"][0, 1, 1, 2],
+ 'Fdbss8' : -2*C["V1ddLR"][0, 1, 1, 2] + C["V8ddLR"][0, 1, 1, 2]/Nc,
+ 'Fdbss9' : -C["S8ddRR"][0, 1, 1, 2]/16,
+ 'Fdbss10' : -C["S1ddRR"][0, 1, 1, 2]/8 + C["S8ddRR"][0, 1, 1, 2]/(16*Nc)}
+
+Fpdbss = lambda C: {'Fdbss1p' : C["VddRR"][0, 2, 1, 1],
+ 'Fdbss2p' : C["VddRR"][0, 1, 1, 2],
+ 'Fdbss3p' : C["V1ddLR"][1, 1, 0, 2] - C["V8ddLR"][1, 1, 0, 2]/(2*Nc),
+ 'Fdbss4p' : C["V8ddLR"][1, 1, 0, 2]/2,
+ 'Fdbss5p' : C["S1ddRR"][1, 1, 2, 0].conjugate() - C["S8ddRR"][1, 0, 2, 1].conjugate()/4 - C["S8ddRR"][1, 1, 2, 0].conjugate()/(2*Nc),
+ 'Fdbss6p' : -C["S1ddRR"][1, 0, 2, 1].conjugate()/2 + C["S8ddRR"][1, 0, 2, 1].conjugate()/(4*Nc) + C["S8ddRR"][1, 1, 2, 0].conjugate()/2,
+ 'Fdbss7p' : -C["V8ddLR"][1, 2, 0, 1],
+ 'Fdbss8p' : -2*C["V1ddLR"][1, 2, 0, 1] + C["V8ddLR"][1, 2, 0, 1]/Nc,
+ 'Fdbss9p' : -C["S8ddRR"][1, 0, 2, 1].conjugate()/16,
+ 'Fdbss10p' : -C["S1ddRR"][1, 0, 2, 1].conjugate()/8 + C["S8ddRR"][1, 0, 2, 1].conjugate()/(16*Nc)}
+
+ # sbbb
+
+Fsbbb = lambda C: {'Fsbbb1' : C["VddLL"][1, 2, 2, 2],
+ 'Fsbbb2' : C["VddLL"][1, 2, 2, 2],
+ 'Fsbbb3' : C["V1ddLR"][1, 2, 2, 2] - C["V8ddLR"][1, 2, 2, 2]/(2*Nc),
+ 'Fsbbb4' : C["V8ddLR"][1, 2, 2, 2]/2,
+ 'Fsbbb5' : C["S1ddRR"][1, 2, 2, 2] - C["S8ddRR"][1, 2, 2, 2]/4 - C["S8ddRR"][1, 2, 2, 2]/(2*Nc),
+ 'Fsbbb6' : -C["S1ddRR"][1, 2, 2, 2]/2 + C["S8ddRR"][1, 2, 2, 2]/2 + C["S8ddRR"][1, 2, 2, 2]/(4*Nc),
+ 'Fsbbb7' : -C["V8ddLR"][1, 2, 2, 2],
+ 'Fsbbb8' : -2*C["V1ddLR"][1, 2, 2, 2] + C["V8ddLR"][1, 2, 2, 2]/Nc,
+ 'Fsbbb9' : -C["S8ddRR"][1, 2, 2, 2]/16,
+ 'Fsbbb10' : -C["S1ddRR"][1, 2, 2, 2]/8 + C["S8ddRR"][1, 2, 2, 2]/(16*Nc)}
+
+
+Fpsbbb = lambda C: {'Fsbbb1p' : C["VddRR"][1, 2, 2, 2],
+ 'Fsbbb2p' : C["VddRR"][1, 2, 2, 2],
+ 'Fsbbb3p' : C["V1ddLR"][2, 2, 1, 2] - C["V8ddLR"][2, 2, 1, 2]/(2*Nc),
+ 'Fsbbb4p' : C["V8ddLR"][2, 2, 1, 2]/2,
+ 'Fsbbb5p' : C["S1ddRR"][2, 1, 2, 2].conjugate() - C["S8ddRR"][2, 1, 2, 2].conjugate()/4 - C["S8ddRR"][2, 1, 2, 2].conjugate()/(2*Nc),
+ 'Fsbbb6p' : -C["S1ddRR"][2, 1, 2, 2].conjugate()/2 + C["S8ddRR"][2, 1, 2, 2].conjugate()/2 + C["S8ddRR"][2, 1, 2, 2].conjugate()/(4*Nc),
+ 'Fsbbb7p' : -C["V8ddLR"][2, 2, 1, 2],
+ 'Fsbbb8p' : -2*C["V1ddLR"][2, 2, 1, 2] + C["V8ddLR"][2, 2, 1, 2]/Nc,
+ 'Fsbbb9p' : -C["S8ddRR"][2, 1, 2, 2].conjugate()/16,
+ 'Fsbbb10p' : -C["S1ddRR"][2, 1, 2, 2].conjugate()/8 + C["S8ddRR"][2, 1, 2, 2].conjugate()/(16*Nc)}
+
+# dbbb
+
+Fdbbb = lambda C: {'Fdbbb1' : C["VddLL"][0, 2, 2, 2],
+ 'Fdbbb2' : C["VddLL"][0, 2, 2, 2],
+ 'Fdbbb3' : C["V1ddLR"][0, 2, 2, 2] - C["V8ddLR"][0, 2, 2, 2]/(2*Nc),
+ 'Fdbbb4' : C["V8ddLR"][0, 2, 2, 2]/2,
+ 'Fdbbb5' : C["S1ddRR"][0, 2, 2, 2] - C["S8ddRR"][0, 2, 2, 2]/4 - C["S8ddRR"][0, 2, 2, 2]/(2*Nc),
+ 'Fdbbb6' : -C["S1ddRR"][0, 2, 2, 2]/2 + C["S8ddRR"][0, 2, 2, 2]/2 + C["S8ddRR"][0, 2, 2, 2]/(4*Nc),
+ 'Fdbbb7' : -C["V8ddLR"][0, 2, 2, 2],
+ 'Fdbbb8' : -2*C["V1ddLR"][0, 2, 2, 2] + C["V8ddLR"][0, 2, 2, 2]/Nc,
+ 'Fdbbb9' : -C["S8ddRR"][0, 2, 2, 2]/16,
+ 'Fdbbb10' : -C["S1ddRR"][0, 2, 2, 2]/8 + C["S8ddRR"][0, 2, 2, 2]/(16*Nc)}
+
+
+Fpdbbb = lambda C: {'Fdbbb1p' : C["VddRR"][0, 2, 2, 2],
+ 'Fdbbb2p' : C["VddRR"][0, 2, 2, 2],
+ 'Fdbbb3p' : C["V1ddLR"][2, 2, 0, 2] - C["V8ddLR"][2, 2, 0, 2]/(2*Nc),
+ 'Fdbbb4p' : C["V8ddLR"][2, 2, 0, 2]/2,
+ 'Fdbbb5p' : C["S1ddRR"][2, 0, 2, 2].conjugate() - C["S8ddRR"][2, 0, 2, 2].conjugate()/4 - C["S8ddRR"][2, 0, 2, 2].conjugate()/(2*Nc),
+ 'Fdbbb6p' : -C["S1ddRR"][2, 0, 2, 2].conjugate()/2 + C["S8ddRR"][2, 0, 2, 2].conjugate()/2 + C["S8ddRR"][2, 0, 2, 2].conjugate()/(4*Nc),
+ 'Fdbbb7p' : -C["V8ddLR"][2, 2, 0, 2],
+ 'Fdbbb8p' : -2*C["V1ddLR"][2, 2, 0, 2] + C["V8ddLR"][2, 2, 0, 2]/Nc,
+ 'Fdbbb9p' : -C["S8ddRR"][2, 0, 2, 2].conjugate()/16,
+ 'Fdbbb10p' : -C["S1ddRR"][2, 0, 2, 2].conjugate()/8 + C["S8ddRR"][2, 0, 2, 2].conjugate()/(16*Nc)}
+
+
+# Bern basis
+
+# sbuu
+
+Bernsbuu = lambda Fsbuu: {'Bernsbuu1' : -Fsbuu['Fsbuu1']/3 + (4*Fsbuu['Fsbuu3'])/3 - Fsbuu['Fsbuu2']/(3*Nc) + (4*Fsbuu['Fsbuu4'])/(3*Nc),
+ 'Bernsbuu2' : (-2*Fsbuu['Fsbuu2'])/3 + (8*Fsbuu['Fsbuu4'])/3,
+ 'Bernsbuu3' : Fsbuu['Fsbuu1']/12 - Fsbuu['Fsbuu3']/12 + Fsbuu['Fsbuu2']/(12*Nc) - Fsbuu['Fsbuu4']/(12*Nc),
+ 'Bernsbuu4' : Fsbuu['Fsbuu2']/6 - Fsbuu['Fsbuu4']/6,
+ 'Bernsbuu5' : -Fsbuu['Fsbuu5']/3 + (4*Fsbuu['Fsbuu7'])/3 - Fsbuu['Fsbuu6']/(3*Nc) + (4*Fsbuu['Fsbuu8'])/(3*Nc),
+ 'Bernsbuu6' : (-2*Fsbuu['Fsbuu6'])/3 + (8*Fsbuu['Fsbuu8'])/3,
+ 'Bernsbuu7' : Fsbuu['Fsbuu5']/3 - Fsbuu['Fsbuu7']/3 + Fsbuu['Fsbuu9'] + Fsbuu['Fsbuu10']/Nc + Fsbuu['Fsbuu6']/(3*Nc) - Fsbuu['Fsbuu8']/(3*Nc),
+ 'Bernsbuu8' : 2*Fsbuu['Fsbuu10'] + (2*Fsbuu['Fsbuu6'])/3 - (2*Fsbuu['Fsbuu8'])/3,
+ 'Bernsbuu9' : Fsbuu['Fsbuu5']/48 - Fsbuu['Fsbuu7']/48 + Fsbuu['Fsbuu6']/(48*Nc) - Fsbuu['Fsbuu8']/(48*Nc),
+ 'Bernsbuu10' : Fsbuu['Fsbuu6']/24 - Fsbuu['Fsbuu8']/24}
+
+Bernpsbuu = lambda Fpsbuu: {'Bernsbuu1p' : -Fpsbuu['Fsbuu1p']/3 + (4*Fpsbuu['Fsbuu3p'])/3 - Fpsbuu['Fsbuu2p']/(3*Nc) + (4*Fpsbuu['Fsbuu4p'])/(3*Nc),
+ 'Bernsbuu2p' : (-2*Fpsbuu['Fsbuu2p'])/3 + (8*Fpsbuu['Fsbuu4p'])/3,
+ 'Bernsbuu3p' : Fpsbuu['Fsbuu1p']/12 - Fpsbuu['Fsbuu3p']/12 + Fpsbuu['Fsbuu2p']/(12*Nc) - Fpsbuu['Fsbuu4p']/(12*Nc),
+ 'Bernsbuu4p' : Fpsbuu['Fsbuu2p']/6 - Fpsbuu['Fsbuu4p']/6,
+ 'Bernsbuu5p' : -Fpsbuu['Fsbuu5p']/3 + (4*Fpsbuu['Fsbuu7p'])/3 - Fpsbuu['Fsbuu6p']/(3*Nc) + (4*Fpsbuu['Fsbuu8p'])/(3*Nc),
+ 'Bernsbuu6p' : (-2*Fpsbuu['Fsbuu6p'])/3 + (8*Fpsbuu['Fsbuu8p'])/3,
+ 'Bernsbuu7p' : Fpsbuu['Fsbuu5p']/3 - Fpsbuu['Fsbuu7p']/3 + Fpsbuu['Fsbuu9p'] + Fpsbuu['Fsbuu10p']/Nc + Fpsbuu['Fsbuu6p']/(3*Nc) - Fpsbuu['Fsbuu8p']/(3*Nc),
+ 'Bernsbuu8p' : 2*Fpsbuu['Fsbuu10p'] + (2*Fpsbuu['Fsbuu6p'])/3 - (2*Fpsbuu['Fsbuu8p'])/3,
+ 'Bernsbuu9p' : Fpsbuu['Fsbuu5p']/48 - Fpsbuu['Fsbuu7p']/48 + Fpsbuu['Fsbuu6p']/(48*Nc) - Fpsbuu['Fsbuu8p']/(48*Nc),
+ 'Bernsbuu10p' : Fpsbuu['Fsbuu6p']/24 - Fpsbuu['Fsbuu8p']/24}
+
+ # dbuu
+
+Berndbuu = lambda Fdbuu: {'Berndbuu1' : -Fdbuu['Fdbuu1']/3 + (4*Fdbuu['Fdbuu3'])/3 - Fdbuu['Fdbuu2']/(3*Nc) + (4*Fdbuu['Fdbuu4'])/(3*Nc),
+ 'Berndbuu2' : (-2*Fdbuu['Fdbuu2'])/3 + (8*Fdbuu['Fdbuu4'])/3,
+ 'Berndbuu3' : Fdbuu['Fdbuu1']/12 - Fdbuu['Fdbuu3']/12 + Fdbuu['Fdbuu2']/(12*Nc) - Fdbuu['Fdbuu4']/(12*Nc),
+ 'Berndbuu4' : Fdbuu['Fdbuu2']/6 - Fdbuu['Fdbuu4']/6,
+ 'Berndbuu5' : -Fdbuu['Fdbuu5']/3 + (4*Fdbuu['Fdbuu7'])/3 - Fdbuu['Fdbuu6']/(3*Nc) + (4*Fdbuu['Fdbuu8'])/(3*Nc),
+ 'Berndbuu6' : (-2*Fdbuu['Fdbuu6'])/3 + (8*Fdbuu['Fdbuu8'])/3,
+ 'Berndbuu7' : Fdbuu['Fdbuu5']/3 - Fdbuu['Fdbuu7']/3 + Fdbuu['Fdbuu9'] + Fdbuu['Fdbuu10']/Nc + Fdbuu['Fdbuu6']/(3*Nc) - Fdbuu['Fdbuu8']/(3*Nc),
+ 'Berndbuu8' : 2*Fdbuu['Fdbuu10'] + (2*Fdbuu['Fdbuu6'])/3 - (2*Fdbuu['Fdbuu8'])/3,
+ 'Berndbuu9' : Fdbuu['Fdbuu5']/48 - Fdbuu['Fdbuu7']/48 + Fdbuu['Fdbuu6']/(48*Nc) - Fdbuu['Fdbuu8']/(48*Nc),
+ 'Berndbuu10' : Fdbuu['Fdbuu6']/24 - Fdbuu['Fdbuu8']/24}
+
+Bernpdbuu = lambda Fpdbuu: {'Berndbuu1p' : -Fpdbuu['Fdbuu1p']/3 + (4*Fpdbuu['Fdbuu3p'])/3 - Fpdbuu['Fdbuu2p']/(3*Nc) + (4*Fpdbuu['Fdbuu4p'])/(3*Nc),
+ 'Berndbuu2p' : (-2*Fpdbuu['Fdbuu2p'])/3 + (8*Fpdbuu['Fdbuu4p'])/3,
+ 'Berndbuu3p' : Fpdbuu['Fdbuu1p']/12 - Fpdbuu['Fdbuu3p']/12 + Fpdbuu['Fdbuu2p']/(12*Nc) - Fpdbuu['Fdbuu4p']/(12*Nc),
+ 'Berndbuu4p' : Fpdbuu['Fdbuu2p']/6 - Fpdbuu['Fdbuu4p']/6,
+ 'Berndbuu5p' : -Fpdbuu['Fdbuu5p']/3 + (4*Fpdbuu['Fdbuu7p'])/3 - Fpdbuu['Fdbuu6p']/(3*Nc) + (4*Fpdbuu['Fdbuu8p'])/(3*Nc),
+ 'Berndbuu6p' : (-2*Fpdbuu['Fdbuu6p'])/3 + (8*Fpdbuu['Fdbuu8p'])/3,
+ 'Berndbuu7p' : Fpdbuu['Fdbuu5p']/3 - Fpdbuu['Fdbuu7p']/3 + Fpdbuu['Fdbuu9p'] + Fpdbuu['Fdbuu10p']/Nc + Fpdbuu['Fdbuu6p']/(3*Nc) - Fpdbuu['Fdbuu8p']/(3*Nc),
+ 'Berndbuu8p' : 2*Fpdbuu['Fdbuu10p'] + (2*Fpdbuu['Fdbuu6p'])/3 - (2*Fpdbuu['Fdbuu8p'])/3,
+ 'Berndbuu9p' : Fpdbuu['Fdbuu5p']/48 - Fpdbuu['Fdbuu7p']/48 + Fpdbuu['Fdbuu6p']/(48*Nc) - Fpdbuu['Fdbuu8p']/(48*Nc),
+ 'Berndbuu10p' : Fpdbuu['Fdbuu6p']/24 - Fpdbuu['Fdbuu8p']/24}
+
+
+# sbcc
+
+Bernsbcc = lambda Fsbcc: {'Bernsbcc1' : -Fsbcc['Fsbcc1']/3 + (4*Fsbcc['Fsbcc3'])/3 - Fsbcc['Fsbcc2']/(3*Nc) + (4*Fsbcc['Fsbcc4'])/(3*Nc),
+ 'Bernsbcc2' : (-2*Fsbcc['Fsbcc2'])/3 + (8*Fsbcc['Fsbcc4'])/3,
+ 'Bernsbcc3' : Fsbcc['Fsbcc1']/12 - Fsbcc['Fsbcc3']/12 + Fsbcc['Fsbcc2']/(12*Nc) - Fsbcc['Fsbcc4']/(12*Nc),
+ 'Bernsbcc4' : Fsbcc['Fsbcc2']/6 - Fsbcc['Fsbcc4']/6,
+ 'Bernsbcc5' : -Fsbcc['Fsbcc5']/3 + (4*Fsbcc['Fsbcc7'])/3 - Fsbcc['Fsbcc6']/(3*Nc) + (4*Fsbcc['Fsbcc8'])/(3*Nc),
+ 'Bernsbcc6' : (-2*Fsbcc['Fsbcc6'])/3 + (8*Fsbcc['Fsbcc8'])/3,
+ 'Bernsbcc7' : Fsbcc['Fsbcc5']/3 - Fsbcc['Fsbcc7']/3 + Fsbcc['Fsbcc9'] + Fsbcc['Fsbcc10']/Nc + Fsbcc['Fsbcc6']/(3*Nc) - Fsbcc['Fsbcc8']/(3*Nc),
+ 'Bernsbcc8' : 2*Fsbcc['Fsbcc10'] + (2*Fsbcc['Fsbcc6'])/3 - (2*Fsbcc['Fsbcc8'])/3,
+ 'Bernsbcc9' : Fsbcc['Fsbcc5']/48 - Fsbcc['Fsbcc7']/48 + Fsbcc['Fsbcc6']/(48*Nc) - Fsbcc['Fsbcc8']/(48*Nc),
+ 'Bernsbcc10' : Fsbcc['Fsbcc6']/24 - Fsbcc['Fsbcc8']/24}
+
+Bernpsbcc = lambda Fpsbcc: {'Bernsbcc1p' : -Fpsbcc['Fsbcc1p']/3 + (4*Fpsbcc['Fsbcc3p'])/3 - Fpsbcc['Fsbcc2p']/(3*Nc) + (4*Fpsbcc['Fsbcc4p'])/(3*Nc),
+ 'Bernsbcc2p' : (-2*Fpsbcc['Fsbcc2p'])/3 + (8*Fpsbcc['Fsbcc4p'])/3,
+ 'Bernsbcc3p' : Fpsbcc['Fsbcc1p']/12 - Fpsbcc['Fsbcc3p']/12 + Fpsbcc['Fsbcc2p']/(12*Nc) - Fpsbcc['Fsbcc4p']/(12*Nc),
+ 'Bernsbcc4p' : Fpsbcc['Fsbcc2p']/6 - Fpsbcc['Fsbcc4p']/6,
+ 'Bernsbcc5p' : -Fpsbcc['Fsbcc5p']/3 + (4*Fpsbcc['Fsbcc7p'])/3 - Fpsbcc['Fsbcc6p']/(3*Nc) + (4*Fpsbcc['Fsbcc8p'])/(3*Nc),
+ 'Bernsbcc6p' : (-2*Fpsbcc['Fsbcc6p'])/3 + (8*Fpsbcc['Fsbcc8p'])/3,
+ 'Bernsbcc7p' : Fpsbcc['Fsbcc5p']/3 - Fpsbcc['Fsbcc7p']/3 + Fpsbcc['Fsbcc9p'] + Fpsbcc['Fsbcc10p']/Nc + Fpsbcc['Fsbcc6p']/(3*Nc) - Fpsbcc['Fsbcc8p']/(3*Nc),
+ 'Bernsbcc8p' : 2*Fpsbcc['Fsbcc10p'] + (2*Fpsbcc['Fsbcc6p'])/3 - (2*Fpsbcc['Fsbcc8p'])/3,
+ 'Bernsbcc9p' : Fpsbcc['Fsbcc5p']/48 - Fpsbcc['Fsbcc7p']/48 + Fpsbcc['Fsbcc6p']/(48*Nc) - Fpsbcc['Fsbcc8p']/(48*Nc),
+ 'Bernsbcc10p' : Fpsbcc['Fsbcc6p']/24 - Fpsbcc['Fsbcc8p']/24}
+
+# dbcc
+
+Berndbcc = lambda Fdbcc: {'Berndbcc1' : -Fdbcc['Fdbcc1']/3 + (4*Fdbcc['Fdbcc3'])/3 - Fdbcc['Fdbcc2']/(3*Nc) + (4*Fdbcc['Fdbcc4'])/(3*Nc),
+ 'Berndbcc2' : (-2*Fdbcc['Fdbcc2'])/3 + (8*Fdbcc['Fdbcc4'])/3,
+ 'Berndbcc3' : Fdbcc['Fdbcc1']/12 - Fdbcc['Fdbcc3']/12 + Fdbcc['Fdbcc2']/(12*Nc) - Fdbcc['Fdbcc4']/(12*Nc),
+ 'Berndbcc4' : Fdbcc['Fdbcc2']/6 - Fdbcc['Fdbcc4']/6,
+ 'Berndbcc5' : -Fdbcc['Fdbcc5']/3 + (4*Fdbcc['Fdbcc7'])/3 - Fdbcc['Fdbcc6']/(3*Nc) + (4*Fdbcc['Fdbcc8'])/(3*Nc),
+ 'Berndbcc6' : (-2*Fdbcc['Fdbcc6'])/3 + (8*Fdbcc['Fdbcc8'])/3,
+ 'Berndbcc7' : Fdbcc['Fdbcc5']/3 - Fdbcc['Fdbcc7']/3 + Fdbcc['Fdbcc9'] + Fdbcc['Fdbcc10']/Nc + Fdbcc['Fdbcc6']/(3*Nc) - Fdbcc['Fdbcc8']/(3*Nc),
+ 'Berndbcc8' : 2*Fdbcc['Fdbcc10'] + (2*Fdbcc['Fdbcc6'])/3 - (2*Fdbcc['Fdbcc8'])/3,
+ 'Berndbcc9' : Fdbcc['Fdbcc5']/48 - Fdbcc['Fdbcc7']/48 + Fdbcc['Fdbcc6']/(48*Nc) - Fdbcc['Fdbcc8']/(48*Nc),
+ 'Berndbcc10' : Fdbcc['Fdbcc6']/24 - Fdbcc['Fdbcc8']/24}
+
+
+Bernpdbcc = lambda Fpdbcc: {'Berndbcc1p' : -Fpdbcc['Fdbcc1p']/3 + (4*Fpdbcc['Fdbcc3p'])/3 - Fpdbcc['Fdbcc2p']/(3*Nc) + (4*Fpdbcc['Fdbcc4p'])/(3*Nc),
+ 'Berndbcc2p' : (-2*Fpdbcc['Fdbcc2p'])/3 + (8*Fpdbcc['Fdbcc4p'])/3,
+ 'Berndbcc3p' : Fpdbcc['Fdbcc1p']/12 - Fpdbcc['Fdbcc3p']/12 + Fpdbcc['Fdbcc2p']/(12*Nc) - Fpdbcc['Fdbcc4p']/(12*Nc),
+ 'Berndbcc4p' : Fpdbcc['Fdbcc2p']/6 - Fpdbcc['Fdbcc4p']/6,
+ 'Berndbcc5p' : -Fpdbcc['Fdbcc5p']/3 + (4*Fpdbcc['Fdbcc7p'])/3 - Fpdbcc['Fdbcc6p']/(3*Nc) + (4*Fpdbcc['Fdbcc8p'])/(3*Nc),
+ 'Berndbcc6p' : (-2*Fpdbcc['Fdbcc6p'])/3 + (8*Fpdbcc['Fdbcc8p'])/3,
+ 'Berndbcc7p' : Fpdbcc['Fdbcc5p']/3 - Fpdbcc['Fdbcc7p']/3 + Fpdbcc['Fdbcc9p'] + Fpdbcc['Fdbcc10p']/Nc + Fpdbcc['Fdbcc6p']/(3*Nc) - Fpdbcc['Fdbcc8p']/(3*Nc),
+ 'Berndbcc8p' : 2*Fpdbcc['Fdbcc10p'] + (2*Fpdbcc['Fdbcc6p'])/3 - (2*Fpdbcc['Fdbcc8p'])/3,
+ 'Berndbcc9p' : Fpdbcc['Fdbcc5p']/48 - Fpdbcc['Fdbcc7p']/48 + Fpdbcc['Fdbcc6p']/(48*Nc) - Fpdbcc['Fdbcc8p']/(48*Nc),
+ 'Berndbcc10p' : Fpdbcc['Fdbcc6p']/24 - Fpdbcc['Fdbcc8p']/24}
+
+
+# sbdd
+
+Bernsbdd = lambda Fsbdd: {'Bernsbdd1' : -Fsbdd['Fsbdd1']/3 + (4*Fsbdd['Fsbdd3'])/3 - Fsbdd['Fsbdd2']/(3*Nc) + (4*Fsbdd['Fsbdd4'])/(3*Nc),
+ 'Bernsbdd2' : (-2*Fsbdd['Fsbdd2'])/3 + (8*Fsbdd['Fsbdd4'])/3,
+ 'Bernsbdd3' : Fsbdd['Fsbdd1']/12 - Fsbdd['Fsbdd3']/12 + Fsbdd['Fsbdd2']/(12*Nc) - Fsbdd['Fsbdd4']/(12*Nc),
+ 'Bernsbdd4' : Fsbdd['Fsbdd2']/6 - Fsbdd['Fsbdd4']/6,
+ 'Bernsbdd5' : -Fsbdd['Fsbdd5']/3 + (4*Fsbdd['Fsbdd7'])/3 - Fsbdd['Fsbdd6']/(3*Nc) + (4*Fsbdd['Fsbdd8'])/(3*Nc),
+ 'Bernsbdd6' : (-2*Fsbdd['Fsbdd6'])/3 + (8*Fsbdd['Fsbdd8'])/3,
+ 'Bernsbdd7' : Fsbdd['Fsbdd5']/3 - Fsbdd['Fsbdd7']/3 + Fsbdd['Fsbdd9'] + Fsbdd['Fsbdd10']/Nc + Fsbdd['Fsbdd6']/(3*Nc) - Fsbdd['Fsbdd8']/(3*Nc),
+ 'Bernsbdd8' : 2*Fsbdd['Fsbdd10'] + (2*Fsbdd['Fsbdd6'])/3 - (2*Fsbdd['Fsbdd8'])/3,
+ 'Bernsbdd9' : Fsbdd['Fsbdd5']/48 - Fsbdd['Fsbdd7']/48 + Fsbdd['Fsbdd6']/(48*Nc) - Fsbdd['Fsbdd8']/(48*Nc),
+ 'Bernsbdd10' : Fsbdd['Fsbdd6']/24 - Fsbdd['Fsbdd8']/24}
+
+
+Bernpsbdd = lambda Fpsbdd: {'Bernsbdd1p' : -Fpsbdd['Fsbdd1p']/3 + (4*Fpsbdd['Fsbdd3p'])/3 - Fpsbdd['Fsbdd2p']/(3*Nc) + (4*Fpsbdd['Fsbdd4p'])/(3*Nc),
+ 'Bernsbdd2p' : (-2*Fpsbdd['Fsbdd2p'])/3 + (8*Fpsbdd['Fsbdd4p'])/3,
+ 'Bernsbdd3p' : Fpsbdd['Fsbdd1p']/12 - Fpsbdd['Fsbdd3p']/12 + Fpsbdd['Fsbdd2p']/(12*Nc) - Fpsbdd['Fsbdd4p']/(12*Nc),
+ 'Bernsbdd4p' : Fpsbdd['Fsbdd2p']/6 - Fpsbdd['Fsbdd4p']/6,
+ 'Bernsbdd5p' : -Fpsbdd['Fsbdd5p']/3 + (4*Fpsbdd['Fsbdd7p'])/3 - Fpsbdd['Fsbdd6p']/(3*Nc) + (4*Fpsbdd['Fsbdd8p'])/(3*Nc),
+ 'Bernsbdd6p' : (-2*Fpsbdd['Fsbdd6p'])/3 + (8*Fpsbdd['Fsbdd8p'])/3,
+ 'Bernsbdd7p' : Fpsbdd['Fsbdd5p']/3 - Fpsbdd['Fsbdd7p']/3 + Fpsbdd['Fsbdd9p'] + Fpsbdd['Fsbdd10p']/Nc + Fpsbdd['Fsbdd6p']/(3*Nc) - Fpsbdd['Fsbdd8p']/(3*Nc),
+ 'Bernsbdd8p' : 2*Fpsbdd['Fsbdd10p'] + (2*Fpsbdd['Fsbdd6p'])/3 - (2*Fpsbdd['Fsbdd8p'])/3,
+ 'Bernsbdd9p' : Fpsbdd['Fsbdd5p']/48 - Fpsbdd['Fsbdd7p']/48 + Fpsbdd['Fsbdd6p']/(48*Nc) - Fpsbdd['Fsbdd8p']/(48*Nc),
+ 'Bernsbdd10p' : Fpsbdd['Fsbdd6p']/24 - Fpsbdd['Fsbdd8p']/24}
+
+
+# dbdd
+
+Berndbdd = lambda Fdbdd: {'Berndbdd1' : -Fdbdd['Fdbdd1']/3 + (4*Fdbdd['Fdbdd3'])/3 - Fdbdd['Fdbdd2']/(3*Nc) + (4*Fdbdd['Fdbdd4'])/(3*Nc),
+ 'Berndbdd2' : (-2*Fdbdd['Fdbdd2'])/3 + (8*Fdbdd['Fdbdd4'])/3,
+ 'Berndbdd3' : Fdbdd['Fdbdd1']/12 - Fdbdd['Fdbdd3']/12 + Fdbdd['Fdbdd2']/(12*Nc) - Fdbdd['Fdbdd4']/(12*Nc),
+ 'Berndbdd4' : Fdbdd['Fdbdd2']/6 - Fdbdd['Fdbdd4']/6,
+ 'Berndbdd5' : -Fdbdd['Fdbdd5']/3 + (4*Fdbdd['Fdbdd7'])/3 - Fdbdd['Fdbdd6']/(3*Nc) + (4*Fdbdd['Fdbdd8'])/(3*Nc),
+ 'Berndbdd6' : (-2*Fdbdd['Fdbdd6'])/3 + (8*Fdbdd['Fdbdd8'])/3,
+ 'Berndbdd7' : Fdbdd['Fdbdd5']/3 - Fdbdd['Fdbdd7']/3 + Fdbdd['Fdbdd9'] + Fdbdd['Fdbdd10']/Nc + Fdbdd['Fdbdd6']/(3*Nc) - Fdbdd['Fdbdd8']/(3*Nc),
+ 'Berndbdd8' : 2*Fdbdd['Fdbdd10'] + (2*Fdbdd['Fdbdd6'])/3 - (2*Fdbdd['Fdbdd8'])/3,
+ 'Berndbdd9' : Fdbdd['Fdbdd5']/48 - Fdbdd['Fdbdd7']/48 + Fdbdd['Fdbdd6']/(48*Nc) - Fdbdd['Fdbdd8']/(48*Nc),
+ 'Berndbdd10' : Fdbdd['Fdbdd6']/24 - Fdbdd['Fdbdd8']/24}
+
+Bernpdbdd = lambda Fpdbdd: {'Berndbdd1p' : -Fpdbdd['Fdbdd1p']/3 + (4*Fpdbdd['Fdbdd3p'])/3 - Fpdbdd['Fdbdd2p']/(3*Nc) + (4*Fpdbdd['Fdbdd4p'])/(3*Nc),
+ 'Berndbdd2p' : (-2*Fpdbdd['Fdbdd2p'])/3 + (8*Fpdbdd['Fdbdd4p'])/3,
+ 'Berndbdd3p' : Fpdbdd['Fdbdd1p']/12 - Fpdbdd['Fdbdd3p']/12 + Fpdbdd['Fdbdd2p']/(12*Nc) - Fpdbdd['Fdbdd4p']/(12*Nc),
+ 'Berndbdd4p' : Fpdbdd['Fdbdd2p']/6 - Fpdbdd['Fdbdd4p']/6,
+ 'Berndbdd5p' : -Fpdbdd['Fdbdd5p']/3 + (4*Fpdbdd['Fdbdd7p'])/3 - Fpdbdd['Fdbdd6p']/(3*Nc) + (4*Fpdbdd['Fdbdd8p'])/(3*Nc),
+ 'Berndbdd6p' : (-2*Fpdbdd['Fdbdd6p'])/3 + (8*Fpdbdd['Fdbdd8p'])/3,
+ 'Berndbdd7p' : Fpdbdd['Fdbdd5p']/3 - Fpdbdd['Fdbdd7p']/3 + Fpdbdd['Fdbdd9p'] + Fpdbdd['Fdbdd10p']/Nc + Fpdbdd['Fdbdd6p']/(3*Nc) - Fpdbdd['Fdbdd8p']/(3*Nc),
+ 'Berndbdd8p' : 2*Fpdbdd['Fdbdd10p'] + (2*Fpdbdd['Fdbdd6p'])/3 - (2*Fpdbdd['Fdbdd8p'])/3,
+ 'Berndbdd9p' : Fpdbdd['Fdbdd5p']/48 - Fpdbdd['Fdbdd7p']/48 + Fpdbdd['Fdbdd6p']/(48*Nc) - Fpdbdd['Fdbdd8p']/(48*Nc),
+ 'Berndbdd10p' : Fpdbdd['Fdbdd6p']/24 - Fpdbdd['Fdbdd8p']/24}
+
+
+# sbss
+
+Bernsbss = lambda Fsbss: {'Bernsbss1' : -Fsbss['Fsbss1']/3 + (4*Fsbss['Fsbss3'])/3 - Fsbss['Fsbss2']/(3*Nc) + (4*Fsbss['Fsbss4'])/(3*Nc),
+ 'Bernsbss2' : (-2*Fsbss['Fsbss2'])/3 + (8*Fsbss['Fsbss4'])/3,
+ 'Bernsbss3' : Fsbss['Fsbss1']/12 - Fsbss['Fsbss3']/12 + Fsbss['Fsbss2']/(12*Nc) - Fsbss['Fsbss4']/(12*Nc),
+ 'Bernsbss4' : Fsbss['Fsbss2']/6 - Fsbss['Fsbss4']/6,
+ 'Bernsbss5' : -Fsbss['Fsbss5']/3 + (4*Fsbss['Fsbss7'])/3 - Fsbss['Fsbss6']/(3*Nc) + (4*Fsbss['Fsbss8'])/(3*Nc),
+ 'Bernsbss6' : (-2*Fsbss['Fsbss6'])/3 + (8*Fsbss['Fsbss8'])/3,
+ 'Bernsbss7' : Fsbss['Fsbss5']/3 - Fsbss['Fsbss7']/3 + Fsbss['Fsbss9'] + Fsbss['Fsbss10']/Nc + Fsbss['Fsbss6']/(3*Nc) - Fsbss['Fsbss8']/(3*Nc),
+ 'Bernsbss8' : 2*Fsbss['Fsbss10'] + (2*Fsbss['Fsbss6'])/3 - (2*Fsbss['Fsbss8'])/3,
+ 'Bernsbss9' : Fsbss['Fsbss5']/48 - Fsbss['Fsbss7']/48 + Fsbss['Fsbss6']/(48*Nc) - Fsbss['Fsbss8']/(48*Nc),
+ 'Bernsbss10' : Fsbss['Fsbss6']/24 - Fsbss['Fsbss8']/24}
+
+
+Bernpsbss = lambda Fpsbss: {'Bernsbss1p' : -Fpsbss['Fsbss1p']/3 + (4*Fpsbss['Fsbss3p'])/3 - Fpsbss['Fsbss2p']/(3*Nc) + (4*Fpsbss['Fsbss4p'])/(3*Nc),
+ 'Bernsbss2p' : (-2*Fpsbss['Fsbss2p'])/3 + (8*Fpsbss['Fsbss4p'])/3,
+ 'Bernsbss3p' : Fpsbss['Fsbss1p']/12 - Fpsbss['Fsbss3p']/12 + Fpsbss['Fsbss2p']/(12*Nc) - Fpsbss['Fsbss4p']/(12*Nc),
+ 'Bernsbss4p' : Fpsbss['Fsbss2p']/6 - Fpsbss['Fsbss4p']/6,
+ 'Bernsbss5p' : -Fpsbss['Fsbss5p']/3 + (4*Fpsbss['Fsbss7p'])/3 - Fpsbss['Fsbss6p']/(3*Nc) + (4*Fpsbss['Fsbss8p'])/(3*Nc),
+ 'Bernsbss6p' : (-2*Fpsbss['Fsbss6p'])/3 + (8*Fpsbss['Fsbss8p'])/3,
+ 'Bernsbss7p' : Fpsbss['Fsbss5p']/3 - Fpsbss['Fsbss7p']/3 + Fpsbss['Fsbss9p'] + Fpsbss['Fsbss10p']/Nc + Fpsbss['Fsbss6p']/(3*Nc) - Fpsbss['Fsbss8p']/(3*Nc),
+ 'Bernsbss8p' : 2*Fpsbss['Fsbss10p'] + (2*Fpsbss['Fsbss6p'])/3 - (2*Fpsbss['Fsbss8p'])/3,
+ 'Bernsbss9p' : Fpsbss['Fsbss5p']/48 - Fpsbss['Fsbss7p']/48 + Fpsbss['Fsbss6p']/(48*Nc) - Fpsbss['Fsbss8p']/(48*Nc),
+ 'Bernsbss10p' : Fpsbss['Fsbss6p']/24 - Fpsbss['Fsbss8p']/24}
+
+ # dbss
+
+Berndbss = lambda Fdbss: {'Berndbss1' : -Fdbss['Fdbss1']/3 + (4*Fdbss['Fdbss3'])/3 - Fdbss['Fdbss2']/(3*Nc) + (4*Fdbss['Fdbss4'])/(3*Nc),
+ 'Berndbss2' : (-2*Fdbss['Fdbss2'])/3 + (8*Fdbss['Fdbss4'])/3,
+ 'Berndbss3' : Fdbss['Fdbss1']/12 - Fdbss['Fdbss3']/12 + Fdbss['Fdbss2']/(12*Nc) - Fdbss['Fdbss4']/(12*Nc),
+ 'Berndbss4' : Fdbss['Fdbss2']/6 - Fdbss['Fdbss4']/6,
+ 'Berndbss5' : -Fdbss['Fdbss5']/3 + (4*Fdbss['Fdbss7'])/3 - Fdbss['Fdbss6']/(3*Nc) + (4*Fdbss['Fdbss8'])/(3*Nc),
+ 'Berndbss6' : (-2*Fdbss['Fdbss6'])/3 + (8*Fdbss['Fdbss8'])/3,
+ 'Berndbss7' : Fdbss['Fdbss5']/3 - Fdbss['Fdbss7']/3 + Fdbss['Fdbss9'] + Fdbss['Fdbss10']/Nc + Fdbss['Fdbss6']/(3*Nc) - Fdbss['Fdbss8']/(3*Nc),
+ 'Berndbss8' : 2*Fdbss['Fdbss10'] + (2*Fdbss['Fdbss6'])/3 - (2*Fdbss['Fdbss8'])/3,
+ 'Berndbss9' : Fdbss['Fdbss5']/48 - Fdbss['Fdbss7']/48 + Fdbss['Fdbss6']/(48*Nc) - Fdbss['Fdbss8']/(48*Nc),
+ 'Berndbss10' : Fdbss['Fdbss6']/24 - Fdbss['Fdbss8']/24}
+
+
+Bernpdbss = lambda Fpdbss: {'Berndbss1p' : -Fpdbss['Fdbss1p']/3 + (4*Fpdbss['Fdbss3p'])/3 - Fpdbss['Fdbss2p']/(3*Nc) + (4*Fpdbss['Fdbss4p'])/(3*Nc),
+ 'Berndbss2p' : (-2*Fpdbss['Fdbss2p'])/3 + (8*Fpdbss['Fdbss4p'])/3,
+ 'Berndbss3p' : Fpdbss['Fdbss1p']/12 - Fpdbss['Fdbss3p']/12 + Fpdbss['Fdbss2p']/(12*Nc) - Fpdbss['Fdbss4p']/(12*Nc),
+ 'Berndbss4p' : Fpdbss['Fdbss2p']/6 - Fpdbss['Fdbss4p']/6,
+ 'Berndbss5p' : -Fpdbss['Fdbss5p']/3 + (4*Fpdbss['Fdbss7p'])/3 - Fpdbss['Fdbss6p']/(3*Nc) + (4*Fpdbss['Fdbss8p'])/(3*Nc),
+ 'Berndbss6p' : (-2*Fpdbss['Fdbss6p'])/3 + (8*Fpdbss['Fdbss8p'])/3,
+ 'Berndbss7p' : Fpdbss['Fdbss5p']/3 - Fpdbss['Fdbss7p']/3 + Fpdbss['Fdbss9p'] + Fpdbss['Fdbss10p']/Nc + Fpdbss['Fdbss6p']/(3*Nc) - Fpdbss['Fdbss8p']/(3*Nc),
+ 'Berndbss8p' : 2*Fpdbss['Fdbss10p'] + (2*Fpdbss['Fdbss6p'])/3 - (2*Fpdbss['Fdbss8p'])/3,
+ 'Berndbss9p' : Fpdbss['Fdbss5p']/48 - Fpdbss['Fdbss7p']/48 + Fpdbss['Fdbss6p']/(48*Nc) - Fpdbss['Fdbss8p']/(48*Nc),
+ 'Berndbss10p' : Fpdbss['Fdbss6p']/24 - Fpdbss['Fdbss8p']/24}
+
+
+ # sbbb
+
+Bernsbbb = lambda Fsbbb: {'Bernsbbb1' : -Fsbbb['Fsbbb1']/3 + (4*Fsbbb['Fsbbb3'])/3 - Fsbbb['Fsbbb2']/(3*Nc) + (4*Fsbbb['Fsbbb4'])/(3*Nc),
+ 'Bernsbbb2' : (-2*Fsbbb['Fsbbb2'])/3 + (8*Fsbbb['Fsbbb4'])/3,
+ 'Bernsbbb3' : Fsbbb['Fsbbb1']/12 - Fsbbb['Fsbbb3']/12 + Fsbbb['Fsbbb2']/(12*Nc) - Fsbbb['Fsbbb4']/(12*Nc),
+ 'Bernsbbb4' : Fsbbb['Fsbbb2']/6 - Fsbbb['Fsbbb4']/6,
+ 'Bernsbbb5' : -Fsbbb['Fsbbb5']/3 + (4*Fsbbb['Fsbbb7'])/3 - Fsbbb['Fsbbb6']/(3*Nc) + (4*Fsbbb['Fsbbb8'])/(3*Nc),
+ 'Bernsbbb6' : (-2*Fsbbb['Fsbbb6'])/3 + (8*Fsbbb['Fsbbb8'])/3,
+ 'Bernsbbb7' : Fsbbb['Fsbbb5']/3 - Fsbbb['Fsbbb7']/3 + Fsbbb['Fsbbb9'] + Fsbbb['Fsbbb10']/Nc + Fsbbb['Fsbbb6']/(3*Nc) - Fsbbb['Fsbbb8']/(3*Nc),
+ 'Bernsbbb8' : 2*Fsbbb['Fsbbb10'] + (2*Fsbbb['Fsbbb6'])/3 - (2*Fsbbb['Fsbbb8'])/3,
+ 'Bernsbbb9' : Fsbbb['Fsbbb5']/48 - Fsbbb['Fsbbb7']/48 + Fsbbb['Fsbbb6']/(48*Nc) - Fsbbb['Fsbbb8']/(48*Nc),
+ 'Bernsbbb10' : Fsbbb['Fsbbb6']/24 - Fsbbb['Fsbbb8']/24}
+
+Bernpsbbb = lambda Fpsbbb: {'Bernsbbb1p' : -Fpsbbb['Fsbbb1p']/3 + (4*Fpsbbb['Fsbbb3p'])/3 - Fpsbbb['Fsbbb2p']/(3*Nc) + (4*Fpsbbb['Fsbbb4p'])/(3*Nc),
+ 'Bernsbbb2p' : (-2*Fpsbbb['Fsbbb2p'])/3 + (8*Fpsbbb['Fsbbb4p'])/3,
+ 'Bernsbbb3p' : Fpsbbb['Fsbbb1p']/12 - Fpsbbb['Fsbbb3p']/12 + Fpsbbb['Fsbbb2p']/(12*Nc) - Fpsbbb['Fsbbb4p']/(12*Nc),
+ 'Bernsbbb4p' : Fpsbbb['Fsbbb2p']/6 - Fpsbbb['Fsbbb4p']/6,
+ 'Bernsbbb5p' : -Fpsbbb['Fsbbb5p']/3 + (4*Fpsbbb['Fsbbb7p'])/3 - Fpsbbb['Fsbbb6p']/(3*Nc) + (4*Fpsbbb['Fsbbb8p'])/(3*Nc),
+ 'Bernsbbb6p' : (-2*Fpsbbb['Fsbbb6p'])/3 + (8*Fpsbbb['Fsbbb8p'])/3,
+ 'Bernsbbb7p' : Fpsbbb['Fsbbb5p']/3 - Fpsbbb['Fsbbb7p']/3 + Fpsbbb['Fsbbb9p'] + Fpsbbb['Fsbbb10p']/Nc + Fpsbbb['Fsbbb6p']/(3*Nc) - Fpsbbb['Fsbbb8p']/(3*Nc),
+ 'Bernsbbb8p' : 2*Fpsbbb['Fsbbb10p'] + (2*Fpsbbb['Fsbbb6p'])/3 - (2*Fpsbbb['Fsbbb8p'])/3,
+ 'Bernsbbb9p' : Fpsbbb['Fsbbb5p']/48 - Fpsbbb['Fsbbb7p']/48 + Fpsbbb['Fsbbb6p']/(48*Nc) - Fpsbbb['Fsbbb8p']/(48*Nc),
+ 'Bernsbbb10p' : Fpsbbb['Fsbbb6p']/24 - Fpsbbb['Fsbbb8p']/24}
+
+
+# Buras basis
+
+#sbqq
+
+Burassbqq = lambda Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb: {'Burassbqq1' : 2*Fsbcc['Fsbcc1'] - 2*Fsbuu['Fsbuu1'],
+ 'Burassbqq2' : Fsbcc['Fsbcc1']/3 + Fsbcc['Fsbcc2'] - Fsbuu['Fsbuu1']/3 - Fsbuu['Fsbuu2'],
+ 'Burassbqq3' : (-2*Fsbbb['Fsbbb1'])/27 - (2*Fsbbb['Fsbbb2'])/81 + (8*Fsbbb['Fsbbb3'])/27 + (8*Fsbbb['Fsbbb4'])/81 + (2*Fsbcc['Fsbcc3'])/9 + (2*Fsbcc['Fsbcc4'])/27 - (2*Fsbdd['Fsbdd1'])/27 - (2*Fsbdd['Fsbdd2'])/81 + (8*Fsbdd['Fsbdd3'])/27 + (8*Fsbdd['Fsbdd4'])/81 - (2*Fsbss['Fsbss1'])/27 - (2*Fsbss['Fsbss2'])/81 + (8*Fsbss['Fsbss3'])/27 + (8*Fsbss['Fsbss4'])/81 - Fsbuu['Fsbuu1']/9 - Fsbuu['Fsbuu2']/27 + (2*Fsbuu['Fsbuu3'])/9 + (2*Fsbuu['Fsbuu4'])/27,
+ 'Burassbqq4' : (-4*Fsbbb['Fsbbb2'])/27 + (16*Fsbbb['Fsbbb4'])/27 + (4*Fsbcc['Fsbcc4'])/9 - (4*Fsbdd['Fsbdd2'])/27 + (16*Fsbdd['Fsbdd4'])/27 - (4*Fsbss['Fsbss2'])/27 + (16*Fsbss['Fsbss4'])/27 - (2*Fsbuu['Fsbuu2'])/9 + (4*Fsbuu['Fsbuu4'])/9,
+ 'Burassbqq5' : Fsbbb['Fsbbb1']/54 + Fsbbb['Fsbbb2']/162 - Fsbbb['Fsbbb3']/54 - Fsbbb['Fsbbb4']/162 - Fsbcc['Fsbcc3']/72 - Fsbcc['Fsbcc4']/216 + Fsbdd['Fsbdd1']/54 + Fsbdd['Fsbdd2']/162 - Fsbdd['Fsbdd3']/54 - Fsbdd['Fsbdd4']/162 + Fsbss['Fsbss1']/54 + Fsbss['Fsbss2']/162 - Fsbss['Fsbss3']/54 - Fsbss['Fsbss4']/162 + Fsbuu['Fsbuu1']/36 + Fsbuu['Fsbuu2']/108 - Fsbuu['Fsbuu3']/72 - Fsbuu['Fsbuu4']/216,
+ 'Burassbqq6' : Fsbbb['Fsbbb2']/27 - Fsbbb['Fsbbb4']/27 - Fsbcc['Fsbcc4']/36 + Fsbdd['Fsbdd2']/27 - Fsbdd['Fsbdd4']/27 + Fsbss['Fsbss2']/27 - Fsbss['Fsbss4']/27 + Fsbuu['Fsbuu2']/18 - Fsbuu['Fsbuu4']/36,
+ 'Burassbqq7' : Fsbbb['Fsbbb1']/9 + Fsbbb['Fsbbb2']/27 - (4*Fsbbb['Fsbbb3'])/9 - (4*Fsbbb['Fsbbb4'])/27 + (2*Fsbcc['Fsbcc3'])/3 + (2*Fsbcc['Fsbcc4'])/9 + Fsbdd['Fsbdd1']/9 + Fsbdd['Fsbdd2']/27 - (4*Fsbdd['Fsbdd3'])/9 - (4*Fsbdd['Fsbdd4'])/27 + Fsbss['Fsbss1']/9 + Fsbss['Fsbss2']/27 - (4*Fsbss['Fsbss3'])/9 - (4*Fsbss['Fsbss4'])/27 - Fsbuu['Fsbuu1']/3 - Fsbuu['Fsbuu2']/9 + (2*Fsbuu['Fsbuu3'])/3 + (2*Fsbuu['Fsbuu4'])/9,
+ 'Burassbqq8' : (2*Fsbbb['Fsbbb2'])/9 - (8*Fsbbb['Fsbbb4'])/9 + (4*Fsbcc['Fsbcc4'])/3 + (2*Fsbdd['Fsbdd2'])/9 - (8*Fsbdd['Fsbdd4'])/9 + (2*Fsbss['Fsbss2'])/9 - (8*Fsbss['Fsbss4'])/9 - (2*Fsbuu['Fsbuu2'])/3 + (4*Fsbuu['Fsbuu4'])/3,
+ 'Burassbqq9' : -Fsbbb['Fsbbb1']/36 - Fsbbb['Fsbbb2']/108 + Fsbbb['Fsbbb3']/36 + Fsbbb['Fsbbb4']/108 - Fsbcc['Fsbcc3']/24 - Fsbcc['Fsbcc4']/72 - Fsbdd['Fsbdd1']/36 - Fsbdd['Fsbdd2']/108 + Fsbdd['Fsbdd3']/36 + Fsbdd['Fsbdd4']/108 - Fsbss['Fsbss1']/36 - Fsbss['Fsbss2']/108 + Fsbss['Fsbss3']/36 + Fsbss['Fsbss4']/108 + Fsbuu['Fsbuu1']/12 + Fsbuu['Fsbuu2']/36 - Fsbuu['Fsbuu3']/24 - Fsbuu['Fsbuu4']/72,
+ 'Burassbqq10' : -Fsbbb['Fsbbb2']/18 + Fsbbb['Fsbbb4']/18 - Fsbcc['Fsbcc4']/12 - Fsbdd['Fsbdd2']/18 + Fsbdd['Fsbdd4']/18 - Fsbss['Fsbss2']/18 + Fsbss['Fsbss4']/18 + Fsbuu['Fsbuu2']/6 - Fsbuu['Fsbuu4']/12}
+
+Buraspsbqq = lambda Fpsbuu,Fpsbdd,Fpsbcc,Fpsbss,Fpsbbb: {'Burassbqq1p' : 2*Fpsbcc['Fsbcc1p'] - 2*Fpsbuu['Fsbuu1p'],
+ 'Burassbqq2p' : Fpsbcc['Fsbcc1p']/3 + Fpsbcc['Fsbcc2p'] - Fpsbuu['Fsbuu1p']/3 - Fpsbuu['Fsbuu2p'],
+ 'Burassbqq3p' : (-2*Fpsbbb['Fsbbb1p'])/27 - (2*Fpsbbb['Fsbbb2p'])/81 + (8*Fpsbbb['Fsbbb3p'])/27 + (8*Fpsbbb['Fsbbb4p'])/81 + (2*Fpsbcc['Fsbcc3p'])/9 + (2*Fpsbcc['Fsbcc4p'])/27 - (2*Fpsbdd['Fsbdd1p'])/27 - (2*Fpsbdd['Fsbdd2p'])/81 + (8*Fpsbdd['Fsbdd3p'])/27 + (8*Fpsbdd['Fsbdd4p'])/81 - (2*Fpsbss['Fsbss1p'])/27 - (2*Fpsbss['Fsbss2p'])/81 + (8*Fpsbss['Fsbss3p'])/27 + (8*Fpsbss['Fsbss4p'])/81 - Fpsbuu['Fsbuu1p']/9 - Fpsbuu['Fsbuu2p']/27 + (2*Fpsbuu['Fsbuu3p'])/9 + (2*Fpsbuu['Fsbuu4p'])/27,
+ 'Burassbqq4p' : (-4*Fpsbbb['Fsbbb2p'])/27 + (16*Fpsbbb['Fsbbb4p'])/27 + (4*Fpsbcc['Fsbcc4p'])/9 - (4*Fpsbdd['Fsbdd2p'])/27 + (16*Fpsbdd['Fsbdd4p'])/27 - (4*Fpsbss['Fsbss2p'])/27 + (16*Fpsbss['Fsbss4p'])/27 - (2*Fpsbuu['Fsbuu2p'])/9 + (4*Fpsbuu['Fsbuu4p'])/9,
+ 'Burassbqq5p' : Fpsbbb['Fsbbb1p']/54 + Fpsbbb['Fsbbb2p']/162 - Fpsbbb['Fsbbb3p']/54 - Fpsbbb['Fsbbb4p']/162 - Fpsbcc['Fsbcc3p']/72 - Fpsbcc['Fsbcc4p']/216 + Fpsbdd['Fsbdd1p']/54 + Fpsbdd['Fsbdd2p']/162 - Fpsbdd['Fsbdd3p']/54 - Fpsbdd['Fsbdd4p']/162 + Fpsbss['Fsbss1p']/54 + Fpsbss['Fsbss2p']/162 - Fpsbss['Fsbss3p']/54 - Fpsbss['Fsbss4p']/162 + Fpsbuu['Fsbuu1p']/36 + Fpsbuu['Fsbuu2p']/108 - Fpsbuu['Fsbuu3p']/72 - Fpsbuu['Fsbuu4p']/216,
+ 'Burassbqq6p' : Fpsbbb['Fsbbb2p']/27 - Fpsbbb['Fsbbb4p']/27 - Fpsbcc['Fsbcc4p']/36 + Fpsbdd['Fsbdd2p']/27 - Fpsbdd['Fsbdd4p']/27 + Fpsbss['Fsbss2p']/27 - Fpsbss['Fsbss4p']/27 + Fpsbuu['Fsbuu2p']/18 - Fpsbuu['Fsbuu4p']/36,
+ 'Burassbqq7p' : Fpsbbb['Fsbbb1p']/9 + Fpsbbb['Fsbbb2p']/27 - (4*Fpsbbb['Fsbbb3p'])/9 - (4*Fpsbbb['Fsbbb4p'])/27 + (2*Fpsbcc['Fsbcc3p'])/3 + (2*Fpsbcc['Fsbcc4p'])/9 + Fpsbdd['Fsbdd1p']/9 + Fpsbdd['Fsbdd2p']/27 - (4*Fpsbdd['Fsbdd3p'])/9 - (4*Fpsbdd['Fsbdd4p'])/27 + Fpsbss['Fsbss1p']/9 + Fpsbss['Fsbss2p']/27 - (4*Fpsbss['Fsbss3p'])/9 - (4*Fpsbss['Fsbss4p'])/27 - Fpsbuu['Fsbuu1p']/3 - Fpsbuu['Fsbuu2p']/9 + (2*Fpsbuu['Fsbuu3p'])/3 + (2*Fpsbuu['Fsbuu4p'])/9,
+ 'Burassbqq8p' : (2*Fpsbbb['Fsbbb2p'])/9 - (8*Fpsbbb['Fsbbb4p'])/9 + (4*Fpsbcc['Fsbcc4p'])/3 + (2*Fpsbdd['Fsbdd2p'])/9 - (8*Fpsbdd['Fsbdd4p'])/9 + (2*Fpsbss['Fsbss2p'])/9 - (8*Fpsbss['Fsbss4p'])/9 - (2*Fpsbuu['Fsbuu2p'])/3 + (4*Fpsbuu['Fsbuu4p'])/3,
+ 'Burassbqq9p' : -Fpsbbb['Fsbbb1p']/36 - Fpsbbb['Fsbbb2p']/108 + Fpsbbb['Fsbbb3p']/36 + Fpsbbb['Fsbbb4p']/108 - Fpsbcc['Fsbcc3p']/24 - Fpsbcc['Fsbcc4p']/72 - Fpsbdd['Fsbdd1p']/36 - Fpsbdd['Fsbdd2p']/108 + Fpsbdd['Fsbdd3p']/36 + Fpsbdd['Fsbdd4p']/108 - Fpsbss['Fsbss1p']/36 - Fpsbss['Fsbss2p']/108 + Fpsbss['Fsbss3p']/36 + Fpsbss['Fsbss4p']/108 + Fpsbuu['Fsbuu1p']/12 + Fpsbuu['Fsbuu2p']/36 - Fpsbuu['Fsbuu3p']/24 - Fpsbuu['Fsbuu4p']/72,
+ 'Burassbqq10p' : -Fpsbbb['Fsbbb2p']/18 + Fpsbbb['Fsbbb4p']/18 - Fpsbcc['Fsbcc4p']/12 - Fpsbdd['Fsbdd2p']/18 + Fpsbdd['Fsbdd4p']/18 - Fpsbss['Fsbss2p']/18 + Fpsbss['Fsbss4p']/18 + Fpsbuu['Fsbuu2p']/6 - Fpsbuu['Fsbuu4p']/12}
+
+
+# dbqq
+
+Burasdbqq = lambda Fdbuu,Fdbdd,Fdbcc,Fdbss,Fdbbb: {'Burasdbqq1' : 2*Fdbcc['Fdbcc1'] - 2*Fdbuu['Fdbuu1'],
+ 'Burasdbqq2' : Fdbcc['Fdbcc1']/3 + Fdbcc['Fdbcc2'] - Fdbuu['Fdbuu1']/3 - Fdbuu['Fdbuu2'],
+ 'Burasdbqq3' : (-2*Fdbbb['Fdbbb1'])/27 - (2*Fdbbb['Fdbbb2'])/81 + (8*Fdbbb['Fdbbb3'])/27 + (8*Fdbbb['Fdbbb4'])/81 + (2*Fdbcc['Fdbcc3'])/9 + (2*Fdbcc['Fdbcc4'])/27 - (2*Fdbdd['Fdbdd1'])/27 - (2*Fdbdd['Fdbdd2'])/81 + (8*Fdbdd['Fdbdd3'])/27 + (8*Fdbdd['Fdbdd4'])/81 - (2*Fdbss['Fdbss1'])/27 - (2*Fdbss['Fdbss2'])/81 + (8*Fdbss['Fdbss3'])/27 + (8*Fdbss['Fdbss4'])/81 - Fdbuu['Fdbuu1']/9 - Fdbuu['Fdbuu2']/27 + (2*Fdbuu['Fdbuu3'])/9 + (2*Fdbuu['Fdbuu4'])/27,
+ 'Burasdbqq4' : (-4*Fdbbb['Fdbbb2'])/27 + (16*Fdbbb['Fdbbb4'])/27 + (4*Fdbcc['Fdbcc4'])/9 - (4*Fdbdd['Fdbdd2'])/27 + (16*Fdbdd['Fdbdd4'])/27 - (4*Fdbss['Fdbss2'])/27 + (16*Fdbss['Fdbss4'])/27 - (2*Fdbuu['Fdbuu2'])/9 + (4*Fdbuu['Fdbuu4'])/9,
+ 'Burasdbqq5' : Fdbbb['Fdbbb1']/54 + Fdbbb['Fdbbb2']/162 - Fdbbb['Fdbbb3']/54 - Fdbbb['Fdbbb4']/162 - Fdbcc['Fdbcc3']/72 - Fdbcc['Fdbcc4']/216 + Fdbdd['Fdbdd1']/54 + Fdbdd['Fdbdd2']/162 - Fdbdd['Fdbdd3']/54 - Fdbdd['Fdbdd4']/162 + Fdbss['Fdbss1']/54 + Fdbss['Fdbss2']/162 - Fdbss['Fdbss3']/54 - Fdbss['Fdbss4']/162 + Fdbuu['Fdbuu1']/36 + Fdbuu['Fdbuu2']/108 - Fdbuu['Fdbuu3']/72 - Fdbuu['Fdbuu4']/216,
+ 'Burasdbqq6' : Fdbbb['Fdbbb2']/27 - Fdbbb['Fdbbb4']/27 - Fdbcc['Fdbcc4']/36 + Fdbdd['Fdbdd2']/27 - Fdbdd['Fdbdd4']/27 + Fdbss['Fdbss2']/27 - Fdbss['Fdbss4']/27 + Fdbuu['Fdbuu2']/18 - Fdbuu['Fdbuu4']/36,
+ 'Burasdbqq7' : Fdbbb['Fdbbb1']/9 + Fdbbb['Fdbbb2']/27 - (4*Fdbbb['Fdbbb3'])/9 - (4*Fdbbb['Fdbbb4'])/27 + (2*Fdbcc['Fdbcc3'])/3 + (2*Fdbcc['Fdbcc4'])/9 + Fdbdd['Fdbdd1']/9 + Fdbdd['Fdbdd2']/27 - (4*Fdbdd['Fdbdd3'])/9 - (4*Fdbdd['Fdbdd4'])/27 + Fdbss['Fdbss1']/9 + Fdbss['Fdbss2']/27 - (4*Fdbss['Fdbss3'])/9 - (4*Fdbss['Fdbss4'])/27 - Fdbuu['Fdbuu1']/3 - Fdbuu['Fdbuu2']/9 + (2*Fdbuu['Fdbuu3'])/3 + (2*Fdbuu['Fdbuu4'])/9,
+ 'Burasdbqq8' : (2*Fdbbb['Fdbbb2'])/9 - (8*Fdbbb['Fdbbb4'])/9 + (4*Fdbcc['Fdbcc4'])/3 + (2*Fdbdd['Fdbdd2'])/9 - (8*Fdbdd['Fdbdd4'])/9 + (2*Fdbss['Fdbss2'])/9 - (8*Fdbss['Fdbss4'])/9 - (2*Fdbuu['Fdbuu2'])/3 + (4*Fdbuu['Fdbuu4'])/3,
+ 'Burasdbqq9' : -Fdbbb['Fdbbb1']/36 - Fdbbb['Fdbbb2']/108 + Fdbbb['Fdbbb3']/36 + Fdbbb['Fdbbb4']/108 - Fdbcc['Fdbcc3']/24 - Fdbcc['Fdbcc4']/72 - Fdbdd['Fdbdd1']/36 - Fdbdd['Fdbdd2']/108 + Fdbdd['Fdbdd3']/36 + Fdbdd['Fdbdd4']/108 - Fdbss['Fdbss1']/36 - Fdbss['Fdbss2']/108 + Fdbss['Fdbss3']/36 + Fdbss['Fdbss4']/108 + Fdbuu['Fdbuu1']/12 + Fdbuu['Fdbuu2']/36 - Fdbuu['Fdbuu3']/24 - Fdbuu['Fdbuu4']/72,
+ 'Burasdbqq10' : -Fdbbb['Fdbbb2']/18 + Fdbbb['Fdbbb4']/18 - Fdbcc['Fdbcc4']/12 - Fdbdd['Fdbdd2']/18 + Fdbdd['Fdbdd4']/18 - Fdbss['Fdbss2']/18 + Fdbss['Fdbss4']/18 + Fdbuu['Fdbuu2']/6 - Fdbuu['Fdbuu4']/12}
+
+
+Buraspdbqq = lambda Fpdbuu,Fpdbdd,Fpdbcc,Fpdbss,Fpdbbb: {'Burasdbqq1p' : 2*Fpdbcc['Fdbcc1p'] - 2*Fpdbuu['Fdbuu1p'],
+ 'Burasdbqq2p' : Fpdbcc['Fdbcc1p']/3 + Fpdbcc['Fdbcc2p'] - Fpdbuu['Fdbuu1p']/3 - Fpdbuu['Fdbuu2p'],
+ 'Burasdbqq3p' : (-2*Fpdbbb['Fdbbb1p'])/27 - (2*Fpdbbb['Fdbbb2p'])/81 + (8*Fpdbbb['Fdbbb3p'])/27 + (8*Fpdbbb['Fdbbb4p'])/81 + (2*Fpdbcc['Fdbcc3p'])/9 + (2*Fpdbcc['Fdbcc4p'])/27 - (2*Fpdbdd['Fdbdd1p'])/27 - (2*Fpdbdd['Fdbdd2p'])/81 + (8*Fpdbdd['Fdbdd3p'])/27 + (8*Fpdbdd['Fdbdd4p'])/81 - (2*Fpdbss['Fdbss1p'])/27 - (2*Fpdbss['Fdbss2p'])/81 + (8*Fpdbss['Fdbss3p'])/27 + (8*Fpdbss['Fdbss4p'])/81 - Fpdbuu['Fdbuu1p']/9 - Fpdbuu['Fdbuu2p']/27 + (2*Fpdbuu['Fdbuu3p'])/9 + (2*Fpdbuu['Fdbuu4p'])/27,
+ 'Burasdbqq4p' : (-4*Fpdbbb['Fdbbb2p'])/27 + (16*Fpdbbb['Fdbbb4p'])/27 + (4*Fpdbcc['Fdbcc4p'])/9 - (4*Fpdbdd['Fdbdd2p'])/27 + (16*Fpdbdd['Fdbdd4p'])/27 - (4*Fpdbss['Fdbss2p'])/27 + (16*Fpdbss['Fdbss4p'])/27 - (2*Fpdbuu['Fdbuu2p'])/9 + (4*Fpdbuu['Fdbuu4p'])/9,
+ 'Burasdbqq5p' : Fpdbbb['Fdbbb1p']/54 + Fpdbbb['Fdbbb2p']/162 - Fpdbbb['Fdbbb3p']/54 - Fpdbbb['Fdbbb4p']/162 - Fpdbcc['Fdbcc3p']/72 - Fpdbcc['Fdbcc4p']/216 + Fpdbdd['Fdbdd1p']/54 + Fpdbdd['Fdbdd2p']/162 - Fpdbdd['Fdbdd3p']/54 - Fpdbdd['Fdbdd4p']/162 + Fpdbss['Fdbss1p']/54 + Fpdbss['Fdbss2p']/162 - Fpdbss['Fdbss3p']/54 - Fpdbss['Fdbss4p']/162 + Fpdbuu['Fdbuu1p']/36 + Fpdbuu['Fdbuu2p']/108 - Fpdbuu['Fdbuu3p']/72 - Fpdbuu['Fdbuu4p']/216,
+ 'Burasdbqq6p' : Fpdbbb['Fdbbb2p']/27 - Fpdbbb['Fdbbb4p']/27 - Fpdbcc['Fdbcc4p']/36 + Fpdbdd['Fdbdd2p']/27 - Fpdbdd['Fdbdd4p']/27 + Fpdbss['Fdbss2p']/27 - Fpdbss['Fdbss4p']/27 + Fpdbuu['Fdbuu2p']/18 - Fpdbuu['Fdbuu4p']/36,
+ 'Burasdbqq7p' : Fpdbbb['Fdbbb1p']/9 + Fpdbbb['Fdbbb2p']/27 - (4*Fpdbbb['Fdbbb3p'])/9 - (4*Fpdbbb['Fdbbb4p'])/27 + (2*Fpdbcc['Fdbcc3p'])/3 + (2*Fpdbcc['Fdbcc4p'])/9 + Fpdbdd['Fdbdd1p']/9 + Fpdbdd['Fdbdd2p']/27 - (4*Fpdbdd['Fdbdd3p'])/9 - (4*Fpdbdd['Fdbdd4p'])/27 + Fpdbss['Fdbss1p']/9 + Fpdbss['Fdbss2p']/27 - (4*Fpdbss['Fdbss3p'])/9 - (4*Fpdbss['Fdbss4p'])/27 - Fpdbuu['Fdbuu1p']/3 - Fpdbuu['Fdbuu2p']/9 + (2*Fpdbuu['Fdbuu3p'])/3 + (2*Fpdbuu['Fdbuu4p'])/9,
+ 'Burasdbqq8p' : (2*Fpdbbb['Fdbbb2p'])/9 - (8*Fpdbbb['Fdbbb4p'])/9 + (4*Fpdbcc['Fdbcc4p'])/3 + (2*Fpdbdd['Fdbdd2p'])/9 - (8*Fpdbdd['Fdbdd4p'])/9 + (2*Fpdbss['Fdbss2p'])/9 - (8*Fpdbss['Fdbss4p'])/9 - (2*Fpdbuu['Fdbuu2p'])/3 + (4*Fpdbuu['Fdbuu4p'])/3,
+ 'Burasdbqq9p' : -Fpdbbb['Fdbbb1p']/36 - Fpdbbb['Fdbbb2p']/108 + Fpdbbb['Fdbbb3p']/36 + Fpdbbb['Fdbbb4p']/108 - Fpdbcc['Fdbcc3p']/24 - Fpdbcc['Fdbcc4p']/72 - Fpdbdd['Fdbdd1p']/36 - Fpdbdd['Fdbdd2p']/108 + Fpdbdd['Fdbdd3p']/36 + Fpdbdd['Fdbdd4p']/108 - Fpdbss['Fdbss1p']/36 - Fpdbss['Fdbss2p']/108 + Fpdbss['Fdbss3p']/36 + Fpdbss['Fdbss4p']/108 + Fpdbuu['Fdbuu1p']/12 + Fpdbuu['Fdbuu2p']/36 - Fpdbuu['Fdbuu3p']/24 - Fpdbuu['Fdbuu4p']/72,
+ 'Burasdbqq10p' : -Fpdbbb['Fdbbb2p']/18 + Fpdbbb['Fdbbb4p']/18 - Fpdbcc['Fdbcc4p']/12 - Fpdbdd['Fdbdd2p']/18 + Fpdbdd['Fdbdd4p']/18 - Fpdbss['Fdbss2p']/18 + Fpdbss['Fdbss4p']/18 + Fpdbuu['Fdbuu2p']/6 - Fpdbuu['Fdbuu4p']/12}
+
+
+
+# BGHW basis
+
+#sbuu
+
+BGHWsbuu = lambda Fsbuu: {'BGHWsbuu3' : -Fsbuu['Fsbuu1']/3 + (4*Fsbuu['Fsbuu3'])/3 - Fsbuu['Fsbuu2']/(3*Nc) + (4*Fsbuu['Fsbuu4'])/(3*Nc),
+ 'BGHWsbuu4' : (-2*Fsbuu['Fsbuu2'])/3 + (8*Fsbuu['Fsbuu4'])/3,
+ 'BGHWsbuu5' : Fsbuu['Fsbuu1']/12 - Fsbuu['Fsbuu3']/12 + Fsbuu['Fsbuu2']/(12*Nc) - Fsbuu['Fsbuu4']/(12*Nc),
+ 'BGHWsbuu6' : Fsbuu['Fsbuu2']/6 - Fsbuu['Fsbuu4']/6,
+ 'BGHWsbuu15' : Fsbuu['Fsbuu5'],
+ 'BGHWsbuu16' : Fsbuu['Fsbuu6'],
+ 'BGHWsbuu17' : Fsbuu['Fsbuu7'],
+ 'BGHWsbuu18' : Fsbuu['Fsbuu8'],
+ 'BGHWsbuu19' : Fsbuu['Fsbuu9'],
+ 'BGHWsbuu20' : Fsbuu['Fsbuu10']}
+
+BGHWpsbuu = lambda Fpsbuu: {'BGHWsbuu3p' : -Fpsbuu['Fsbuu1p']/3 + (4*Fpsbuu['Fsbuu3p'])/3 - Fpsbuu['Fsbuu2p']/(3*Nc) + (4*Fpsbuu['Fsbuu4p'])/(3*Nc),
+ 'BGHWsbuu4p' : (-2*Fpsbuu['Fsbuu2p'])/3 + (8*Fpsbuu['Fsbuu4p'])/3,
+ 'BGHWsbuu5p' : Fpsbuu['Fsbuu1p']/12 - Fpsbuu['Fsbuu3p']/12 + Fpsbuu['Fsbuu2p']/(12*Nc) - Fpsbuu['Fsbuu4p']/(12*Nc),
+ 'BGHWsbuu6p' : Fpsbuu['Fsbuu2p']/6 - Fpsbuu['Fsbuu4p']/6,
+ 'BGHWsbuu15p' : Fpsbuu['Fsbuu5p'],
+ 'BGHWsbuu16p' : Fpsbuu['Fsbuu6p'],
+ 'BGHWsbuu17p' : Fpsbuu['Fsbuu7p'],
+ 'BGHWsbuu18p' : Fpsbuu['Fsbuu8p'],
+ 'BGHWsbuu19p' : Fpsbuu['Fsbuu9p'],
+ 'BGHWsbuu20p' : Fpsbuu['Fsbuu10p']}
+
+ # dbuu
+
+BGHWdbuu = lambda Fdbuu: {'BGHWdbuu3' : -Fdbuu['Fdbuu1']/3 + (4*Fdbuu['Fdbuu3'])/3 - Fdbuu['Fdbuu2']/(3*Nc) + (4*Fdbuu['Fdbuu4'])/(3*Nc),
+ 'BGHWdbuu4' : (-2*Fdbuu['Fdbuu2'])/3 + (8*Fdbuu['Fdbuu4'])/3,
+ 'BGHWdbuu5' : Fdbuu['Fdbuu1']/12 - Fdbuu['Fdbuu3']/12 + Fdbuu['Fdbuu2']/(12*Nc) - Fdbuu['Fdbuu4']/(12*Nc),
+ 'BGHWdbuu6' : Fdbuu['Fdbuu2']/6 - Fdbuu['Fdbuu4']/6,
+ 'BGHWdbuu15' : Fdbuu['Fdbuu5'],
+ 'BGHWdbuu16' : Fdbuu['Fdbuu6'],
+ 'BGHWdbuu17' : Fdbuu['Fdbuu7'],
+ 'BGHWdbuu18' : Fdbuu['Fdbuu8'],
+ 'BGHWdbuu19' : Fdbuu['Fdbuu9'],
+ 'BGHWdbuu20' : Fdbuu['Fdbuu10']}
+
+
+BGHWpdbuu = lambda Fpdbuu: {'BGHWdbuu3p' : -Fpdbuu['Fdbuu1p']/3 + (4*Fpdbuu['Fdbuu3p'])/3 - Fpdbuu['Fdbuu2p']/(3*Nc) + (4*Fpdbuu['Fdbuu4p'])/(3*Nc),
+ 'BGHWdbuu4p' : (-2*Fpdbuu['Fdbuu2p'])/3 + (8*Fpdbuu['Fdbuu4p'])/3,
+ 'BGHWdbuu5p' : Fpdbuu['Fdbuu1p']/12 - Fpdbuu['Fdbuu3p']/12 + Fpdbuu['Fdbuu2p']/(12*Nc) - Fpdbuu['Fdbuu4p']/(12*Nc),
+ 'BGHWdbuu6p' : Fpdbuu['Fdbuu2p']/6 - Fpdbuu['Fdbuu4p']/6,
+ 'BGHWdbuu15p' : Fpdbuu['Fdbuu5p'],
+ 'BGHWdbuu16p' : Fpdbuu['Fdbuu6p'],
+ 'BGHWdbuu17p' : Fpdbuu['Fdbuu7p'],
+ 'BGHWdbuu18p' : Fpdbuu['Fdbuu8p'],
+ 'BGHWdbuu19p' : Fpdbuu['Fdbuu9p'],
+ 'BGHWdbuu20p' : Fpdbuu['Fdbuu10p']}
+
+
+# sbcc
+
+BGHWsbcc12 = lambda Fsbcc: {'BGHWsbcc1' : Fsbcc['Fsbcc1']/2 - Fsbcc['Fsbcc2']/(2*Nc),
+ 'BGHWsbcc2' : Fsbcc['Fsbcc2']}
+
+BGHWsbcc = lambda Fsbcc: {'BGHWsbcc3' : -Fsbcc['Fsbcc1']/3 + (4*Fsbcc['Fsbcc3'])/3 - Fsbcc['Fsbcc2']/(3*Nc) + (4*Fsbcc['Fsbcc4'])/(3*Nc),
+ 'BGHWsbcc4' : (-2*Fsbcc['Fsbcc2'])/3 + (8*Fsbcc['Fsbcc4'])/3,
+ 'BGHWsbcc5' : Fsbcc['Fsbcc1']/12 - Fsbcc['Fsbcc3']/12 + Fsbcc['Fsbcc2']/(12*Nc) - Fsbcc['Fsbcc4']/(12*Nc),
+ 'BGHWsbcc6' : Fsbcc['Fsbcc2']/6 - Fsbcc['Fsbcc4']/6,
+ 'BGHWsbcc15' : Fsbcc['Fsbcc5'],
+ 'BGHWsbcc16' : Fsbcc['Fsbcc6'],
+ 'BGHWsbcc17' : Fsbcc['Fsbcc7'],
+ 'BGHWsbcc18' : Fsbcc['Fsbcc8'],
+ 'BGHWsbcc19' : Fsbcc['Fsbcc9'],
+ 'BGHWsbcc20' : Fsbcc['Fsbcc10']}
+
+BGHWpsbcc12 = lambda Fsbcc: {'BGHWsbcc1p' : Fpsbcc['Fsbcc1p']/2 - Fpsbcc['Fsbcc2p']/(2*Nc),
+ 'BGHWsbcc2p' : Fpsbcc['Fsbcc2p']}
+
+BGHWpsbcc = lambda Fpsbcc: {'BGHWsbcc3p' : -Fpsbcc['Fsbcc1p']/3 + (4*Fpsbcc['Fsbcc3p'])/3 - Fpsbcc['Fsbcc2p']/(3*Nc) + (4*Fpsbcc['Fsbcc4p'])/(3*Nc),
+ 'BGHWsbcc4p' : (-2*Fpsbcc['Fsbcc2p'])/3 + (8*Fpsbcc['Fsbcc4p'])/3,
+ 'BGHWsbcc5p' : Fpsbcc['Fsbcc1p']/12 - Fpsbcc['Fsbcc3p']/12 + Fpsbcc['Fsbcc2p']/(12*Nc) - Fpsbcc['Fsbcc4p']/(12*Nc),
+ 'BGHWsbcc6p' : Fpsbcc['Fsbcc2p']/6 - Fpsbcc['Fsbcc4p']/6,
+ 'BGHWsbcc15p' : Fpsbcc['Fsbcc5p'],
+ 'BGHWsbcc16p' : Fpsbcc['Fsbcc6p'],
+ 'BGHWsbcc17p' : Fpsbcc['Fsbcc7p'],
+ 'BGHWsbcc18p' : Fpsbcc['Fsbcc8p'],
+ 'BGHWsbcc19p' : Fpsbcc['Fsbcc9p'],
+ 'BGHWsbcc20p' : Fpsbcc['Fsbcc10p']}
+
+# dbcc
+
+BGHWdbcc12 = lambda Fdbcc: {'BGHWdbcc1' : Fdbcc['Fdbcc1']/2 - Fdbcc['Fdbcc2']/(2*Nc),
+ 'BGHWdbcc2' : Fdbcc['Fdbcc2']}
+
+BGHWdbcc = lambda Fdbcc: {'BGHWdbcc3' : -Fdbcc['Fdbcc1']/3 + (4*Fdbcc['Fdbcc3'])/3 - Fdbcc['Fdbcc2']/(3*Nc) + (4*Fdbcc['Fdbcc4'])/(3*Nc),
+ 'BGHWdbcc4' : (-2*Fdbcc['Fdbcc2'])/3 + (8*Fdbcc['Fdbcc4'])/3,
+ 'BGHWdbcc5' : Fdbcc['Fdbcc1']/12 - Fdbcc['Fdbcc3']/12 + Fdbcc['Fdbcc2']/(12*Nc) - Fdbcc['Fdbcc4']/(12*Nc),
+ 'BGHWdbcc6' : Fdbcc['Fdbcc2']/6 - Fdbcc['Fdbcc4']/6,
+ 'BGHWdbcc15' : Fdbcc['Fdbcc5'],
+ 'BGHWdbcc16' : Fdbcc['Fdbcc6'],
+ 'BGHWdbcc17' : Fdbcc['Fdbcc7'],
+ 'BGHWdbcc18' : Fdbcc['Fdbcc8'],
+ 'BGHWdbcc19' : Fdbcc['Fdbcc9'],
+ 'BGHWdbcc20' : Fdbcc['Fdbcc10']}
+
+BGHWpdbcc12 = lambda Fdbcc: {'BGHWdbcc1p' : Fpdbcc['Fdbcc1p']/2 - Fpdbcc['Fdbcc2p']/(2*Nc),
+ 'BGHWdbcc2p' : Fpdbcc['Fdbcc2p']}
+
+
+BGHWpdbcc = lambda Fpdbcc: {'BGHWdbcc3p' : -Fpdbcc['Fdbcc1p']/3 + (4*Fpdbcc['Fdbcc3p'])/3 - Fpdbcc['Fdbcc2p']/(3*Nc) + (4*Fpdbcc['Fdbcc4p'])/(3*Nc),
+ 'BGHWdbcc4p' : (-2*Fpdbcc['Fdbcc2p'])/3 + (8*Fpdbcc['Fdbcc4p'])/3,
+ 'BGHWdbcc5p' : Fpdbcc['Fdbcc1p']/12 - Fpdbcc['Fdbcc3p']/12 + Fpdbcc['Fdbcc2p']/(12*Nc) - Fpdbcc['Fdbcc4p']/(12*Nc),
+ 'BGHWdbcc6p' : Fpdbcc['Fdbcc2p']/6 - Fpdbcc['Fdbcc4p']/6,
+ 'BGHWdbcc15p' : Fpdbcc['Fdbcc5p'],
+ 'BGHWdbcc16p' : Fpdbcc['Fdbcc6p'],
+ 'BGHWdbcc17p' : Fpdbcc['Fdbcc7p'],
+ 'BGHWdbcc18p' : Fpdbcc['Fdbcc8p'],
+ 'BGHWdbcc19p' : Fpdbcc['Fdbcc9p'],
+ 'BGHWdbcc20p' : Fpdbcc['Fdbcc10p']}
+
+# sbdd
+
+BGHWsbdd = lambda Fsbdd: {'BGHWsbdd3' : -Fsbdd['Fsbdd1']/3 + (4*Fsbdd['Fsbdd3'])/3 - Fsbdd['Fsbdd2']/(3*Nc) + (4*Fsbdd['Fsbdd4'])/(3*Nc),
+ 'BGHWsbdd4' : (-2*Fsbdd['Fsbdd2'])/3 + (8*Fsbdd['Fsbdd4'])/3,
+ 'BGHWsbdd5' : Fsbdd['Fsbdd1']/12 - Fsbdd['Fsbdd3']/12 + Fsbdd['Fsbdd2']/(12*Nc) - Fsbdd['Fsbdd4']/(12*Nc),
+ 'BGHWsbdd6' : Fsbdd['Fsbdd2']/6 - Fsbdd['Fsbdd4']/6,
+ 'BGHWsbdd15' : Fsbdd['Fsbdd5'],
+ 'BGHWsbdd16' : Fsbdd['Fsbdd6'],
+ 'BGHWsbdd17' : Fsbdd['Fsbdd7'],
+ 'BGHWsbdd18' : Fsbdd['Fsbdd8'],
+ 'BGHWsbdd19' : Fsbdd['Fsbdd9'],
+ 'BGHWsbdd20' : Fsbdd['Fsbdd10']}
+
+BGHWpsbdd = lambda Fpsbdd: {'BGHWsbdd3p' : -Fpsbdd['Fsbdd1p']/3 + (4*Fpsbdd['Fsbdd3p'])/3 - Fpsbdd['Fsbdd2p']/(3*Nc) + (4*Fpsbdd['Fsbdd4p'])/(3*Nc),
+ 'BGHWsbdd4p' : (-2*Fpsbdd['Fsbdd2p'])/3 + (8*Fpsbdd['Fsbdd4p'])/3,
+ 'BGHWsbdd5p' : Fpsbdd['Fsbdd1p']/12 - Fpsbdd['Fsbdd3p']/12 + Fpsbdd['Fsbdd2p']/(12*Nc) - Fpsbdd['Fsbdd4p']/(12*Nc),
+ 'BGHWsbdd6p' : Fpsbdd['Fsbdd2p']/6 - Fpsbdd['Fsbdd4p']/6,
+ 'BGHWsbdd15p' : Fpsbdd['Fsbdd5p'],
+ 'BGHWsbdd16p' : Fpsbdd['Fsbdd6p'],
+ 'BGHWsbdd17p' : Fpsbdd['Fsbdd7p'],
+ 'BGHWsbdd18p' : Fpsbdd['Fsbdd8p'],
+ 'BGHWsbdd19p' : Fpsbdd['Fsbdd9p'],
+ 'BGHWsbdd20p' : Fpsbdd['Fsbdd10p']}
+
+ # dbdd
+
+BGHWdbdd = lambda Fdbdd: {'BGHWdbdd3' : -Fdbdd['Fdbdd1']/3 + (4*Fdbdd['Fdbdd3'])/3 - Fdbdd['Fdbdd2']/(3*Nc) + (4*Fdbdd['Fdbdd4'])/(3*Nc),
+ 'BGHWdbdd4' : (-2*Fdbdd['Fdbdd2'])/3 + (8*Fdbdd['Fdbdd4'])/3,
+ 'BGHWdbdd5' : Fdbdd['Fdbdd1']/12 - Fdbdd['Fdbdd3']/12 + Fdbdd['Fdbdd2']/(12*Nc) - Fdbdd['Fdbdd4']/(12*Nc),
+ 'BGHWdbdd6' : Fdbdd['Fdbdd2']/6 - Fdbdd['Fdbdd4']/6,
+ 'BGHWdbdd15' : Fdbdd['Fdbdd5'],
+ 'BGHWdbdd16' : Fdbdd['Fdbdd6'],
+ 'BGHWdbdd17' : Fdbdd['Fdbdd7'],
+ 'BGHWdbdd18' : Fdbdd['Fdbdd8'],
+ 'BGHWdbdd19' : Fdbdd['Fdbdd9'],
+ 'BGHWdbdd20' : Fdbdd['Fdbdd10']}
+
+BGHWpdbdd = lambda Fpdbdd: {'BGHWdbdd3p' : -Fpdbdd['Fdbdd1p']/3 + (4*Fpdbdd['Fdbdd3p'])/3 - Fpdbdd['Fdbdd2p']/(3*Nc) + (4*Fpdbdd['Fdbdd4p'])/(3*Nc),
+ 'BGHWdbdd4p' : (-2*Fpdbdd['Fdbdd2p'])/3 + (8*Fpdbdd['Fdbdd4p'])/3,
+ 'BGHWdbdd5p' : Fpdbdd['Fdbdd1p']/12 - Fpdbdd['Fdbdd3p']/12 + Fpdbdd['Fdbdd2p']/(12*Nc) - Fpdbdd['Fdbdd4p']/(12*Nc),
+ 'BGHWdbdd6p' : Fpdbdd['Fdbdd2p']/6 - Fpdbdd['Fdbdd4p']/6,
+ 'BGHWdbdd15p' : Fpdbdd['Fdbdd5p'],
+ 'BGHWdbdd16p' : Fpdbdd['Fdbdd6p'],
+ 'BGHWdbdd17p' : Fpdbdd['Fdbdd7p'],
+ 'BGHWdbdd18p' : Fpdbdd['Fdbdd8p'],
+ 'BGHWdbdd19p' : Fpdbdd['Fdbdd9p'],
+ 'BGHWdbdd20p' : Fpdbdd['Fdbdd10p']}
+
+
+
+# sbss
+
+BGHWsbss = lambda Fsbss: {'BGHWsbss3' : -Fsbss['Fsbss1']/3 + (4*Fsbss['Fsbss3'])/3 - Fsbss['Fsbss2']/(3*Nc) + (4*Fsbss['Fsbss4'])/(3*Nc),
+ 'BGHWsbss4' : (-2*Fsbss['Fsbss2'])/3 + (8*Fsbss['Fsbss4'])/3,
+ 'BGHWsbss5' : Fsbss['Fsbss1']/12 - Fsbss['Fsbss3']/12 + Fsbss['Fsbss2']/(12*Nc) - Fsbss['Fsbss4']/(12*Nc),
+ 'BGHWsbss6' : Fsbss['Fsbss2']/6 - Fsbss['Fsbss4']/6,
+ 'BGHWsbss15' : Fsbss['Fsbss5'],
+ 'BGHWsbss16' : Fsbss['Fsbss6'],
+ 'BGHWsbss17' : Fsbss['Fsbss7'],
+ 'BGHWsbss18' : Fsbss['Fsbss8'],
+ 'BGHWsbss19' : Fsbss['Fsbss9'],
+ 'BGHWsbss20' : Fsbss['Fsbss10']}
+
+
+BGHWpsbss = lambda Fpsbss: {'BGHWsbss3p' : -Fpsbss['Fsbss1p']/3 + (4*Fpsbss['Fsbss3p'])/3 - Fpsbss['Fsbss2p']/(3*Nc) + (4*Fpsbss['Fsbss4p'])/(3*Nc),
+ 'BGHWsbss4p' : (-2*Fpsbss['Fsbss2p'])/3 + (8*Fpsbss['Fsbss4p'])/3,
+ 'BGHWsbss5p' : Fpsbss['Fsbss1p']/12 - Fpsbss['Fsbss3p']/12 + Fpsbss['Fsbss2p']/(12*Nc) - Fpsbss['Fsbss4p']/(12*Nc),
+ 'BGHWsbss6p' : Fpsbss['Fsbss2p']/6 - Fpsbss['Fsbss4p']/6,
+ 'BGHWsbss15p' : Fpsbss['Fsbss5p'],
+ 'BGHWsbss16p' : Fpsbss['Fsbss6p'],
+ 'BGHWsbss17p' : Fpsbss['Fsbss7p'],
+ 'BGHWsbss18p' : Fpsbss['Fsbss8p'],
+ 'BGHWsbss19p' : Fpsbss['Fsbss9p'],
+ 'BGHWsbss20p' : Fpsbss['Fsbss10p']}
+
+
+# dbss
+
+BGHWdbss = lambda Fdbss: {'BGHWdbss3' : -Fdbss['Fdbss1']/3 + (4*Fdbss['Fdbss3'])/3 - Fdbss['Fdbss2']/(3*Nc) + (4*Fdbss['Fdbss4'])/(3*Nc),
+ 'BGHWdbss4' : (-2*Fdbss['Fdbss2'])/3 + (8*Fdbss['Fdbss4'])/3,
+ 'BGHWdbss5' : Fdbss['Fdbss1']/12 - Fdbss['Fdbss3']/12 + Fdbss['Fdbss2']/(12*Nc) - Fdbss['Fdbss4']/(12*Nc),
+ 'BGHWdbss6' : Fdbss['Fdbss2']/6 - Fdbss['Fdbss4']/6,
+ 'BGHWdbss15' : Fdbss['Fdbss5'],
+ 'BGHWdbss16' : Fdbss['Fdbss6'],
+ 'BGHWdbss17' : Fdbss['Fdbss7'],
+ 'BGHWdbss18' : Fdbss['Fdbss8'],
+ 'BGHWdbss19' : Fdbss['Fdbss9'],
+ 'BGHWdbss20' : Fdbss['Fdbss10']}
+
+
+BGHWpdbss = lambda Fpdbss: {'BGHWdbss3p' : -Fpdbss['Fdbss1p']/3 + (4*Fpdbss['Fdbss3p'])/3 - Fpdbss['Fdbss2p']/(3*Nc) + (4*Fpdbss['Fdbss4p'])/(3*Nc),
+ 'BGHWdbss4p' : (-2*Fpdbss['Fdbss2p'])/3 + (8*Fpdbss['Fdbss4p'])/3,
+ 'BGHWdbss5p' : Fpdbss['Fdbss1p']/12 - Fpdbss['Fdbss3p']/12 + Fpdbss['Fdbss2p']/(12*Nc) - Fpdbss['Fdbss4p']/(12*Nc),
+ 'BGHWdbss6p' : Fpdbss['Fdbss2p']/6 - Fpdbss['Fdbss4p']/6,
+ 'BGHWdbss15p' : Fpdbss['Fdbss5p'],
+ 'BGHWdbss16p' : Fpdbss['Fdbss6p'],
+ 'BGHWdbss17p' : Fpdbss['Fdbss7p'],
+ 'BGHWdbss18p' : Fpdbss['Fdbss8p'],
+ 'BGHWdbss19p' : Fpdbss['Fdbss9p'],
+ 'BGHWdbss20p' : Fpdbss['Fdbss10p']}
+
+
+# sbbb
+
+BGHWsbbb = lambda Fsbbb: {'BGHWsbbb3' : -Fsbbb['Fsbbb1']/3 + (4*Fsbbb['Fsbbb3'])/3 - Fsbbb['Fsbbb2']/(3*Nc) + (4*Fsbbb['Fsbbb4'])/(3*Nc),
+ 'BGHWsbbb4' : (-2*Fsbbb['Fsbbb2'])/3 + (8*Fsbbb['Fsbbb4'])/3,
+ 'BGHWsbbb5' : Fsbbb['Fsbbb1']/12 - Fsbbb['Fsbbb3']/12 + Fsbbb['Fsbbb2']/(12*Nc) - Fsbbb['Fsbbb4']/(12*Nc),
+ 'BGHWsbbb6' : Fsbbb['Fsbbb2']/6 - Fsbbb['Fsbbb4']/6,
+ 'BGHWsbbb15' : Fsbbb['Fsbbb5'],
+ 'BGHWsbbb16' : Fsbbb['Fsbbb6'],
+ 'BGHWsbbb17' : Fsbbb['Fsbbb7'],
+ 'BGHWsbbb18' : Fsbbb['Fsbbb8'],
+ 'BGHWsbbb19' : Fsbbb['Fsbbb9'],
+ 'BGHWsbbb20' : Fsbbb['Fsbbb10']}
+
+
+BGHWpsbbb = lambda Fpsbbb: {'BGHWsbbb3p' : -Fpsbbb['Fsbbb1p']/3 + (4*Fpsbbb['Fsbbb3p'])/3 - Fpsbbb['Fsbbb2p']/(3*Nc) + (4*Fpsbbb['Fsbbb4p'])/(3*Nc),
+ 'BGHWsbbb4p' : (-2*Fpsbbb['Fsbbb2p'])/3 + (8*Fpsbbb['Fsbbb4p'])/3,
+ 'BGHWsbbb5p' : Fpsbbb['Fsbbb1p']/12 - Fpsbbb['Fsbbb3p']/12 + Fpsbbb['Fsbbb2p']/(12*Nc) - Fpsbbb['Fsbbb4p']/(12*Nc),
+ 'BGHWsbbb6p' : Fpsbbb['Fsbbb2p']/6 - Fpsbbb['Fsbbb4p']/6,
+ 'BGHWsbbb15p' : Fpsbbb['Fsbbb5p'],
+ 'BGHWsbbb16p' : Fpsbbb['Fsbbb6p'],
+ 'BGHWsbbb17p' : Fpsbbb['Fsbbb7p'],
+ 'BGHWsbbb18p' : Fpsbbb['Fsbbb8p'],
+ 'BGHWsbbb19p' : Fpsbbb['Fsbbb9p'],
+ 'BGHWsbbb20p' : Fpsbbb['Fsbbb10p']}
+
+# dbbb
+
+
+BGHWdbbb = lambda Fdbbb: {'BGHWdbbb3' : -Fdbbb['Fdbbb1']/3 + (4*Fdbbb['Fdbbb3'])/3 - Fdbbb['Fdbbb2']/(3*Nc) + (4*Fdbbb['Fdbbb4'])/(3*Nc),
+ 'BGHWdbbb4' : (-2*Fdbbb['Fdbbb2'])/3 + (8*Fdbbb['Fdbbb4'])/3,
+ 'BGHWdbbb5' : Fdbbb['Fdbbb1']/12 - Fdbbb['Fdbbb3']/12 + Fdbbb['Fdbbb2']/(12*Nc) - Fdbbb['Fdbbb4']/(12*Nc),
+ 'BGHWdbbb6' : Fdbbb['Fdbbb2']/6 - Fdbbb['Fdbbb4']/6,
+ 'BGHWdbbb15' : Fdbbb['Fdbbb5'],
+ 'BGHWdbbb16' : Fdbbb['Fdbbb6'],
+ 'BGHWdbbb17' : Fdbbb['Fdbbb7'],
+ 'BGHWdbbb18' : Fdbbb['Fdbbb8'],
+ 'BGHWdbbb19' : Fdbbb['Fdbbb9'],
+ 'BGHWdbbb20' : Fdbbb['Fdbbb10']}
+
+
+BGHWpdbbb = lambda Fpdbbb: {'BGHWdbbb3p' : -Fpdbbb['Fdbbb1p']/3 + (4*Fpdbbb['Fdbbb3p'])/3 - Fpdbbb['Fdbbb2p']/(3*Nc) + (4*Fpdbbb['Fdbbb4p'])/(3*Nc),
+ 'BGHWdbbb4p' : (-2*Fpdbbb['Fdbbb2p'])/3 + (8*Fpdbbb['Fdbbb4p'])/3,
+ 'BGHWdbbb5p' : Fpdbbb['Fdbbb1p']/12 - Fpdbbb['Fdbbb3p']/12 + Fpdbbb['Fdbbb2p']/(12*Nc) - Fpdbbb['Fdbbb4p']/(12*Nc),
+ 'BGHWdbbb6p' : Fpdbbb['Fdbbb2p']/6 - Fpdbbb['Fdbbb4p']/6,
+ 'BGHWdbbb15p' : Fpdbbb['Fdbbb5p'],
+ 'BGHWdbbb16p' : Fpdbbb['Fdbbb6p'],
+ 'BGHWdbbb17p' : Fpdbbb['Fdbbb7p'],
+ 'BGHWdbbb18p' : Fpdbbb['Fdbbb8p'],
+ 'BGHWdbbb19p' : Fpdbbb['Fdbbb9p'],
+ 'BGHWdbbb20p' : Fpdbbb['Fdbbb10p']}
+
+
+# Delta F =1 basis
+
+# sbqq
+
+DF1sbqq = lambda Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb: {'DF1sbqq1' : -Fsbcc['Fsbcc1']/4 + Fsbuu['Fsbuu1']/4,
+ 'DF1sbqq2' : -Fsbcc['Fsbcc2']/4 + Fsbuu['Fsbuu2']/4,
+ 'DF1sbqq3' : Fsbbb['Fsbbb1']/18 + Fsbcc['Fsbcc1']/12 + Fsbdd['Fsbdd1']/18 + Fsbss['Fsbss1']/18,
+ 'DF1sbqq4' : Fsbbb['Fsbbb2']/18 + Fsbcc['Fsbcc2']/12 + Fsbdd['Fsbdd2']/18 + Fsbss['Fsbss2']/18,
+ 'DF1sbqq5' : Fsbbb['Fsbbb3']/18 + Fsbcc['Fsbcc3']/24 + Fsbdd['Fsbdd3']/18 + Fsbss['Fsbss3']/18 + Fsbuu['Fsbuu3']/24,
+ 'DF1sbqq6' : Fsbbb['Fsbbb4']/18 + Fsbcc['Fsbcc4']/24 + Fsbdd['Fsbdd4']/18 + Fsbss['Fsbss4']/18 + Fsbuu['Fsbuu4']/24,
+ 'DF1sbqq7' : -Fsbbb['Fsbbb3']/18 + Fsbcc['Fsbcc3']/12 - Fsbdd['Fsbdd3']/18 - Fsbss['Fsbss3']/18 + Fsbuu['Fsbuu3']/12,
+ 'DF1sbqq8' : -Fsbbb['Fsbbb4']/18 + Fsbcc['Fsbcc4']/12 - Fsbdd['Fsbdd4']/18 - Fsbss['Fsbss4']/18 + Fsbuu['Fsbuu4']/12,
+ 'DF1sbqq9' : -Fsbbb['Fsbbb1']/18 + Fsbcc['Fsbcc1']/6 - Fsbdd['Fsbdd1']/18 - Fsbss['Fsbss1']/18,
+ 'DF1sbqq10' : -Fsbbb['Fsbbb2']/18 + Fsbcc['Fsbcc2']/6 - Fsbdd['Fsbdd2']/18 - Fsbss['Fsbss2']/18}
+
+DF1psbqq = lambda Fpsbuu,Fpsbdd,Fpsbcc,Fpsbss,Fpsbbb: {'DF1sbqq1p' : -Fpsbcc['Fsbcc1p']/4 + Fpsbuu['Fsbuu1p']/4,
+ 'DF1sbqq2p' : -Fpsbcc['Fsbcc2p']/4 + Fpsbuu['Fsbuu2p']/4,
+ 'DF1sbqq3p' : Fpsbbb['Fsbbb1p']/18 + Fpsbcc['Fsbcc1p']/12 + Fpsbdd['Fsbdd1p']/18 + Fpsbss['Fsbss1p']/18,
+ 'DF1sbqq4p' : Fpsbbb['Fsbbb2p']/18 + Fpsbcc['Fsbcc2p']/12 + Fpsbdd['Fsbdd2p']/18 + Fpsbss['Fsbss2p']/18,
+ 'DF1sbqq5p' : Fpsbbb['Fsbbb3p']/18 + Fpsbcc['Fsbcc3p']/24 + Fpsbdd['Fsbdd3p']/18 + Fpsbss['Fsbss3p']/18 + Fpsbuu['Fsbuu3p']/24,
+ 'DF1sbqq6p' : Fpsbbb['Fsbbb4p']/18 + Fpsbcc['Fsbcc4p']/24 + Fpsbdd['Fsbdd4p']/18 + Fpsbss['Fsbss4p']/18 + Fpsbuu['Fsbuu4p']/24,
+ 'DF1sbqq7p' : -Fpsbbb['Fsbbb3p']/18 + Fpsbcc['Fsbcc3p']/12 - Fpsbdd['Fsbdd3p']/18 - Fpsbss['Fsbss3p']/18 + Fpsbuu['Fsbuu3p']/12,
+ 'DF1sbqq8p' : -Fpsbbb['Fsbbb4p']/18 + Fpsbcc['Fsbcc4p']/12 - Fpsbdd['Fsbdd4p']/18 - Fpsbss['Fsbss4p']/18 + Fpsbuu['Fsbuu4p']/12,
+ 'DF1sbqq9p' : -Fpsbbb['Fsbbb1p']/18 + Fpsbcc['Fsbcc1p']/6 - Fpsbdd['Fsbdd1p']/18 - Fpsbss['Fsbss1p']/18,
+ 'DF1sbqq10p' : -Fpsbbb['Fsbbb2p']/18 + Fpsbcc['Fsbcc2p']/6 - Fpsbdd['Fsbdd2p']/18 - Fpsbss['Fsbss2p']/18}
+
+# dbqq
+
+DF1dbqq = lambda Fdbuu,Fdbdd,Fdbcc,Fdbss,Fdbbb: {'DF1dbqq1' : -Fdbcc['Fdbcc1']/4 + Fdbuu['Fdbuu1']/4,
+ 'DF1dbqq2' : -Fdbcc['Fdbcc2']/4 + Fdbuu['Fdbuu2']/4,
+ 'DF1dbqq3' : Fdbbb['Fdbbb1']/18 + Fdbcc['Fdbcc1']/12 + Fdbdd['Fdbdd1']/18 + Fdbss['Fdbss1']/18,
+ 'DF1dbqq4' : Fdbbb['Fdbbb2']/18 + Fdbcc['Fdbcc2']/12 + Fdbdd['Fdbdd2']/18 + Fdbss['Fdbss2']/18,
+ 'DF1dbqq5' : Fdbbb['Fdbbb3']/18 + Fdbcc['Fdbcc3']/24 + Fdbdd['Fdbdd3']/18 + Fdbss['Fdbss3']/18 + Fdbuu['Fdbuu3']/24,
+ 'DF1dbqq6' : Fdbbb['Fdbbb4']/18 + Fdbcc['Fdbcc4']/24 + Fdbdd['Fdbdd4']/18 + Fdbss['Fdbss4']/18 + Fdbuu['Fdbuu4']/24,
+ 'DF1dbqq7' : -Fdbbb['Fdbbb3']/18 + Fdbcc['Fdbcc3']/12 - Fdbdd['Fdbdd3']/18 - Fdbss['Fdbss3']/18 + Fdbuu['Fdbuu3']/12,
+ 'DF1dbqq8' : -Fdbbb['Fdbbb4']/18 + Fdbcc['Fdbcc4']/12 - Fdbdd['Fdbdd4']/18 - Fdbss['Fdbss4']/18 + Fdbuu['Fdbuu4']/12,
+ 'DF1dbqq9' : -Fdbbb['Fdbbb1']/18 + Fdbcc['Fdbcc1']/6 - Fdbdd['Fdbdd1']/18 - Fdbss['Fdbss1']/18,
+ 'DF1dbqq10' : -Fdbbb['Fdbbb2']/18 + Fdbcc['Fdbcc2']/6 - Fdbdd['Fdbdd2']/18 - Fdbss['Fdbss2']/18}
+
+
+DF1pdbqq = lambda Fpdbuu,Fpdbdd,Fpdbcc,Fpdbss,Fpdbbb: {'DF1dbqq1p' : -Fpdbcc['Fdbcc1p']/4 + Fpdbuu['Fdbuu1p']/4,
+ 'DF1dbqq2p' : -Fpdbcc['Fdbcc2p']/4 + Fpdbuu['Fdbuu2p']/4,
+ 'DF1dbqq3p' : Fpdbbb['Fdbbb1p']/18 + Fpdbcc['Fdbcc1p']/12 + Fpdbdd['Fdbdd1p']/18 + Fpdbss['Fdbss1p']/18,
+ 'DF1dbqq4p' : Fpdbbb['Fdbbb2p']/18 + Fpdbcc['Fdbcc2p']/12 + Fpdbdd['Fdbdd2p']/18 + Fpdbss['Fdbss2p']/18,
+ 'DF1dbqq5p' : Fpdbbb['Fdbbb3p']/18 + Fpdbcc['Fdbcc3p']/24 + Fpdbdd['Fdbdd3p']/18 + Fpdbss['Fdbss3p']/18 + Fpdbuu['Fdbuu3p']/24,
+ 'DF1dbqq6p' : Fpdbbb['Fdbbb4p']/18 + Fpdbcc['Fdbcc4p']/24 + Fpdbdd['Fdbdd4p']/18 + Fpdbss['Fdbss4p']/18 + Fpdbuu['Fdbuu4p']/24,
+ 'DF1dbqq7p' : -Fpdbbb['Fdbbb3p']/18 + Fpdbcc['Fdbcc3p']/12 - Fpdbdd['Fdbdd3p']/18 - Fpdbss['Fdbss3p']/18 + Fpdbuu['Fdbuu3p']/12,
+ 'DF1dbqq8p' : -Fpdbbb['Fdbbb4p']/18 + Fpdbcc['Fdbcc4p']/12 - Fpdbdd['Fdbdd4p']/18 - Fpdbss['Fdbss4p']/18 + Fpdbuu['Fdbuu4p']/12,
+ 'DF1dbqq9p' : -Fpdbbb['Fdbbb1p']/18 + Fpdbcc['Fdbcc1p']/6 - Fpdbdd['Fdbdd1p']/18 - Fpdbss['Fdbss1p']/18,
+ 'DF1dbqq10p' : -Fpdbbb['Fdbbb2p']/18 + Fpdbcc['Fdbcc2p']/6 - Fpdbdd['Fdbdd2p']/18 - Fpdbss['Fdbss2p']/18}
+
+
+# EOS basis not unique!
+#EOS Basis
+EOSsbqq = lambda Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb: {'EOSsbqqu1' : -2*Fsbuu['Fsbuu1'] + 2*Fsbuu['Fsbuu1'],
+ 'EOSsbqqu2' : -Fsbcc['Fsbcc1']/3 - Fsbcc['Fsbcc2'] + Fsbuu['Fsbuu1']/3 + Fsbuu['Fsbuu2'],
+'EOSsbqqc1' : -2*Fsbcc['Fsbcc1'] + 2*Fsbuu['Fsbuu1'],
+ 'EOSsbqqc2' : -Fsbcc['Fsbcc1']/3 - Fsbcc['Fsbcc2'] + Fsbuu['Fsbuu1']/3 + Fsbuu['Fsbuu2'],
+ 'EOSsbqq3' : (-2*Fsbbb['Fsbbb2'])/81 + (8*Fsbbb['Fsbbb3'])/27 + (8*Fsbbb['Fsbbb4'])/81 - Fsbcc['Fsbcc1']/9 - Fsbcc['Fsbcc2']/27 + (2*Fsbcc['Fsbcc3'])/9 + (2*Fsbcc['Fsbcc4'])/27 - Fsbdd['Fsbdd1']/9 - (2*Fsbdd['Fsbdd2'])/81 + (8*Fsbdd['Fsbdd3'])/27 + (8*Fsbdd['Fsbdd4'])/81 - Fsbss['Fsbss1']/9 - (2*Fsbss['Fsbss2'])/81 + (8*Fsbss['Fsbss3'])/27 + (8*Fsbss['Fsbss4'])/81 + (2*Fsbuu['Fsbuu3'])/9 + (2*Fsbuu['Fsbuu4'])/27,
+ 'EOSsbqq4' : (-4*Fsbbb['Fsbbb2'])/27 + (16*Fsbbb['Fsbbb4'])/27 - (2*Fsbcc['Fsbcc2'])/9 + (4*Fsbcc['Fsbcc4'])/9 - (4*Fsbdd['Fsbdd2'])/27 + (16*Fsbdd['Fsbdd4'])/27 - (4*Fsbss['Fsbss2'])/27 + (16*Fsbss['Fsbss4'])/27 + (4*Fsbuu['Fsbuu4'])/9,
+ 'EOSsbqq5' : Fsbbb['Fsbbb2']/162 - Fsbbb['Fsbbb3']/54 - Fsbbb['Fsbbb4']/162 + Fsbcc['Fsbcc1']/36 + Fsbcc['Fsbcc2']/108 - Fsbcc['Fsbcc3']/72 - Fsbcc['Fsbcc4']/216 + Fsbdd['Fsbdd1']/36 + Fsbdd['Fsbdd2']/162 - Fsbdd['Fsbdd3']/54 - Fsbdd['Fsbdd4']/162 + Fsbss['Fsbss1']/36 + Fsbss['Fsbss2']/162 - Fsbss['Fsbss3']/54 - Fsbss['Fsbss4']/162 - Fsbuu['Fsbuu3']/72 - Fsbuu['Fsbuu4']/216,
+ 'EOSsbqq6' : Fsbbb['Fsbbb2']/27 - Fsbbb['Fsbbb4']/27 + Fsbcc['Fsbcc2']/18 - Fsbcc['Fsbcc4']/36 + Fsbdd['Fsbdd2']/27 - Fsbdd['Fsbdd4']/27 + Fsbss['Fsbss2']/27 - Fsbss['Fsbss4']/27 - Fsbuu['Fsbuu4']/36,
+ 'EOSsbqq3Q' : Fsbbb['Fsbbb2']/27 - (4*Fsbbb['Fsbbb3'])/9 - (4*Fsbbb['Fsbbb4'])/27 - Fsbcc['Fsbcc1']/3 - Fsbcc['Fsbcc2']/9 + (2*Fsbcc['Fsbcc3'])/3 + (2*Fsbcc['Fsbcc4'])/9 + Fsbdd['Fsbdd1']/6 + Fsbdd['Fsbdd2']/27 - (4*Fsbdd['Fsbdd3'])/9 - (4*Fsbdd['Fsbdd4'])/27 + Fsbss['Fsbss1']/6 + Fsbss['Fsbss2']/27 - (4*Fsbss['Fsbss3'])/9 - (4*Fsbss['Fsbss4'])/27 + (2*Fsbuu['Fsbuu3'])/3 + (2*Fsbuu['Fsbuu4'])/9,
+ 'EOSsbqq4Q' : (2*Fsbbb['Fsbbb2'])/9 - (8*Fsbbb['Fsbbb4'])/9 - (2*Fsbcc['Fsbcc2'])/3 + (4*Fsbcc['Fsbcc4'])/3 + (2*Fsbdd['Fsbdd2'])/9 - (8*Fsbdd['Fsbdd4'])/9 + (2*Fsbss['Fsbss2'])/9 - (8*Fsbss['Fsbss4'])/9 + (4*Fsbuu['Fsbuu4'])/3,
+ 'EOSsbqq5Q' : -Fsbbb['Fsbbb2']/108 + Fsbbb['Fsbbb3']/36 + Fsbbb['Fsbbb4']/108 + Fsbcc['Fsbcc1']/12 + Fsbcc['Fsbcc2']/36 - Fsbcc['Fsbcc3']/24 - Fsbcc['Fsbcc4']/72 - Fsbdd['Fsbdd1']/24 - Fsbdd['Fsbdd2']/108 + Fsbdd['Fsbdd3']/36 + Fsbdd['Fsbdd4']/108 - Fsbss['Fsbss1']/24 - Fsbss['Fsbss2']/108 + Fsbss['Fsbss3']/36 + Fsbss['Fsbss4']/108 - Fsbuu['Fsbuu3']/24 - Fsbuu['Fsbuu4']/72,
+ 'EOSsbqq6Q' : -Fsbbb['Fsbbb2']/18 + Fsbbb['Fsbbb4']/18 + Fsbcc['Fsbcc2']/6 - Fsbcc['Fsbcc4']/12 - Fsbdd['Fsbdd2']/18 + Fsbdd['Fsbdd4']/18 - Fsbss['Fsbss2']/18 + Fsbss['Fsbss4']/18 - Fsbuu['Fsbuu4']/12,
+ 'EOSsbqqb' : Fsbbb['Fsbbb1'] - Fsbdd['Fsbdd1']/2 - Fsbss['Fsbss1']/2}
+
+
+EOSpsbqq = lambda Fpsbuu,Fpsbdd,Fpsbcc,Fpsbss,Fpsbbb: {'EOSsbqq1p' : -2*Fpsbcc['Fsbcc1p'] + 2*Fpsbuu['Fsbuu1p'],
+ 'EOSsbqq2p' : -Fpsbcc['Fsbcc1p']/3 - Fpsbcc['Fsbcc2p'] + Fpsbuu['Fsbuu1p']/3 + Fpsbuu['Fsbuu2p'],
+ 'EOSsbqq3p' : (-2*Fpsbbb['Fsbbb2p'])/81 + (8*Fpsbbb['Fsbbb3p'])/27 + (8*Fpsbbb['Fsbbb4p'])/81 - Fpsbcc['Fsbcc1p']/9 - Fpsbcc['Fsbcc2p']/27 + (2*Fpsbcc['Fsbcc3p'])/9 + (2*Fpsbcc['Fsbcc4p'])/27 - Fpsbdd['Fsbdd1p']/9 - (2*Fpsbdd['Fsbdd2p'])/81 + (8*Fpsbdd['Fsbdd3p'])/27 + (8*Fpsbdd['Fsbdd4p'])/81 - Fpsbss['Fsbss1p']/9 - (2*Fpsbss['Fsbss2p'])/81 + (8*Fpsbss['Fsbss3p'])/27 + (8*Fpsbss['Fsbss4p'])/81 + (2*Fpsbuu['Fsbuu3p'])/9 + (2*Fpsbuu['Fsbuu4p'])/27,
+ 'EOSsbqq4p' : (-4*Fpsbbb['Fsbbb2p'])/27 + (16*Fpsbbb['Fsbbb4p'])/27 - (2*Fpsbcc['Fsbcc2p'])/9 + (4*Fpsbcc['Fsbcc4p'])/9 - (4*Fpsbdd['Fsbdd2p'])/27 + (16*Fpsbdd['Fsbdd4p'])/27 - (4*Fpsbss['Fsbss2p'])/27 + (16*Fpsbss['Fsbss4p'])/27 + (4*Fpsbuu['Fsbuu4p'])/9,
+ 'EOSsbqq5p' : Fpsbbb['Fsbbb2p']/162 - Fpsbbb['Fsbbb3p']/54 - Fpsbbb['Fsbbb4p']/162 + Fpsbcc['Fsbcc1p']/36 + Fpsbcc['Fsbcc2p']/108 - Fpsbcc['Fsbcc3p']/72 - Fpsbcc['Fsbcc4p']/216 + Fpsbdd['Fsbdd1p']/36 + Fpsbdd['Fsbdd2p']/162 - Fpsbdd['Fsbdd3p']/54 - Fpsbdd['Fsbdd4p']/162 + Fpsbss['Fsbss1p']/36 + Fpsbss['Fsbss2p']/162 - Fpsbss['Fsbss3p']/54 - Fpsbss['Fsbss4p']/162 - Fpsbuu['Fsbuu3p']/72 - Fpsbuu['Fsbuu4p']/216,
+ 'EOSsbqq6p' : Fpsbbb['Fsbbb2p']/27 - Fpsbbb['Fsbbb4p']/27 + Fpsbcc['Fsbcc2p']/18 - Fpsbcc['Fsbcc4p']/36 + Fpsbdd['Fsbdd2p']/27 - Fpsbdd['Fsbdd4p']/27 + Fpsbss['Fsbss2p']/27 - Fpsbss['Fsbss4p']/27 - Fpsbuu['Fsbuu4p']/36,
+ 'EOSsbqq7p' : Fpsbbb['Fsbbb2p']/27 - (4*Fpsbbb['Fsbbb3p'])/9 - (4*Fpsbbb['Fsbbb4p'])/27 - Fpsbcc['Fsbcc1p']/3 - Fpsbcc['Fsbcc2p']/9 + (2*Fpsbcc['Fsbcc3p'])/3 + (2*Fpsbcc['Fsbcc4p'])/9 + Fpsbdd['Fsbdd1p']/6 + Fpsbdd['Fsbdd2p']/27 - (4*Fpsbdd['Fsbdd3p'])/9 - (4*Fpsbdd['Fsbdd4p'])/27 + Fpsbss['Fsbss1p']/6 + Fpsbss['Fsbss2p']/27 - (4*Fpsbss['Fsbss3p'])/9 - (4*Fpsbss['Fsbss4p'])/27 + (2*Fpsbuu['Fsbuu3p'])/3 + (2*Fpsbuu['Fsbuu4p'])/9,
+ 'EOSsbqq8p' : (2*Fpsbbb['Fsbbb2p'])/9 - (8*Fpsbbb['Fsbbb4p'])/9 - (2*Fpsbcc['Fsbcc2p'])/3 + (4*Fpsbcc['Fsbcc4p'])/3 + (2*Fpsbdd['Fsbdd2p'])/9 - (8*Fpsbdd['Fsbdd4p'])/9 + (2*Fpsbss['Fsbss2p'])/9 - (8*Fpsbss['Fsbss4p'])/9 + (4*Fpsbuu['Fsbuu4p'])/3,
+ 'EOSsbqq9p' : -Fpsbbb['Fsbbb2p']/108 + Fpsbbb['Fsbbb3p']/36 + Fpsbbb['Fsbbb4p']/108 + Fpsbcc['Fsbcc1p']/12 + Fpsbcc['Fsbcc2p']/36 - Fpsbcc['Fsbcc3p']/24 - Fpsbcc['Fsbcc4p']/72 - Fpsbdd['Fsbdd1p']/24 - Fpsbdd['Fsbdd2p']/108 + Fpsbdd['Fsbdd3p']/36 + Fpsbdd['Fsbdd4p']/108 - Fpsbss['Fsbss1p']/24 - Fpsbss['Fsbss2p']/108 + Fpsbss['Fsbss3p']/36 + Fpsbss['Fsbss4p']/108 - Fpsbuu['Fsbuu3p']/24 - Fpsbuu['Fsbuu4p']/72,
+ 'EOSsbqq10p' : -Fpsbbb['Fsbbb2p']/18 + Fpsbbb['Fsbbb4p']/18 + Fpsbcc['Fsbcc2p']/6 - Fpsbcc['Fsbcc4p']/12 - Fpsbdd['Fsbdd2p']/18 + Fpsbdd['Fsbdd4p']/18 - Fpsbss['Fsbss2p']/18 + Fpsbss['Fsbss4p']/18 - Fpsbuu['Fsbuu4p']/12,
+ 'EOSsbqq11p' : Fpsbbb['Fsbbb1p'] - Fpsbdd['Fsbdd1p']/2 - Fpsbss['Fsbss1p']/2}
+
+
+
+# semileptonic operators sbllp
+
+Fsbllp = lambda C: {
+"F9sbllp": C["VdeLR"][:,:,1,2]/2 + C["VedLL"][:,:,1,2]/2,
+"F10sbllp": C["VdeLR"][:,:,1,2]/2 - C["VedLL"][:,:,1,2]/2,
+"FSsbllp": np.swapaxes(C["SedRL"], 0, 1)[:,:,2,1].conjugate()/2 + C["SedRR"][:,:,1,2]/2,
+"FPsbllp": -np.swapaxes(C["SedRL"], 0, 1)[:,:,2,1].conjugate()/2 + C["SedRR"][:,:,1,2]/2,
+"FTsbllp": C["TedRR"][:,:,1,2]/2 + np.swapaxes(C["TedRR"], 0, 1)[:,:,2,1].conjugate()/2,
+"FT5sbllp": C["TedRR"][:,:,1,2]/2 - np.swapaxes(C["TedRR"], 0, 1)[:,:,2,1].conjugate()/2,
+"F9psbllp": C["VedLR"][:,:,1,2]/2 + C["VedRR"][:,:,1,2]/2,
+"F10psbllp": -C["VedLR"][:,:,1,2]/2 + C["VedRR"][:,:,1,2]/2,
+"FSpsbllp": C["SedRL"][:,:,1,2]/2 + np.swapaxes(C["SedRR"], 0, 1)[:,:,2,1].conjugate()/2,
+"FPpsbllp": C["SedRL"][:,:,1,2]/2 - np.swapaxes(C["SedRR"], 0, 1)[:,:,2,1].conjugate()/2,
+"Fnusbllp": C["VnudLL"][:,:,1,2],
+"Fnupsbllp": C["VnudLR"][:,:,1,2]}
+
+
+CMMsbllp = lambda Fsbllp: {"O1sbllp": (5*Fsbllp["F10sbllp"])/3 + Fsbllp["F9sbllp"],
+"O2sbllp": -Fsbllp["F10sbllp"]/6,
+"O3sbllp": (-5*Fsbllp["FPsbllp"])/3 + Fsbllp["FSsbllp"],
+"O4sbllp": (2*Fsbllp["FPsbllp"])/3 + Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
+"O5sbllp": Fsbllp["FPsbllp"]/24,
+"O6sbllp": (-5*Fsbllp["F10psbllp"])/3 + Fsbllp["F9psbllp"],
+"O7sbllp": Fsbllp["F10psbllp"]/6,
+"O8sbllp": (5*Fsbllp["FPpsbllp"])/3 + Fsbllp["FSpsbllp"],
+"O9sbllp": (-2*Fsbllp["FPpsbllp"])/3 - Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
+"O10sbllp": -Fsbllp["FPpsbllp"]/24,
+"Onusbllp": Fsbllp["Fnusbllp"],
+"Onupsbllp": Fsbllp["Fnupsbllp"]}
+
+
+Flaviosbllp = lambda Fsbllp: {
+"C9_bs": (16*pi**2)/e**2*Fsbllp["F9sbllp"],
+"C9p_bs": (16*pi**2)/e**2*Fsbllp["F9psbllp"],
+"C10_bs": (16*pi**2)/e**2*Fsbllp["F10sbllp"],
+"C10p_bs": (16*pi**2)/e**2*Fsbllp["F10psbllp"],
+"CS_bs": (16*pi**2)/e**2/mb*Fsbllp["FSsbllp"],
+"CSp_bs": (16*pi**2)/e**2/mb*Fsbllp["FSpsbllp"],
+"CP_bs": (16*pi**2)/e**2/mb*Fsbllp["FPsbllp"],
+"CPp_bs": (16*pi**2)/e**2/mb*Fsbllp["FPpsbllp"],
+"CL_bs": (8*pi**2)/e**2*Fsbllp["Fnusbllp"],
+"CR_bs": (8*pi**2)/e**2*Fsbllp["Fnupsbllp"]
+}
+
+EOSsbllp = lambda Fsbllp: {
+"C9_bs": (16*pi**2)/e**2*Fsbllp["F9sbllp"],
+"C9p_bs": (16*pi**2)/e**2*Fsbllp["F9psbllp"],
+"C10_bs": (16*pi**2)/e**2*Fsbllp["F10sbllp"],
+"C10p_bs": (16*pi**2)/e**2*Fsbllp["F10psbllp"],
+"CS_bs": (16*pi**2)/e**2*Fsbllp["FSsbllp"],
+"CSp_bs": (16*pi**2)/e**2*Fsbllp["FSpsbllp"],
+"CP_bs": (16*pi**2)/e**2**Fsbllp["FPsbllp"],
+"CPp_bs": (16*pi**2)/e**2*Fsbllp["FPpsbllp"],
+"CT_bs": (16*pi**2)/e**2*Fsbllp["FTsbllp"],
+"CT5_bs": (16*pi**2)/e**2*Fsbllp["FT5sbllp"]
+}
+
+
+# chromomagnetic operators sbF,
+# sbG,
+
+Fchrombs = lambda C: {
+"F7bsgamma": C['dgamma'][1,2],
+"F8bsg": C['dG'][1,2],
+"F7pbsgamma": C['dgamma'][2,1].conjugate(),
+"F8pbsg": C['dG'][2,1].conjugate()
+ }
+
+
+CMMchrombs = lambda Fchrombs: {
+"Os7gamma": (gs**2)/e/mb*Fchrombs['F7bsgamma'],
+"Os8g": gs/mb*Fchrombs['F8bsg'],
+"Os7pgamma": (gs**2)/e/mb*Fchrombs['F7pbsgamma'],
+"Os8pg": gs/mb*Fchrombs['F8pbsg']
+}
+
+
+Flaviochrombs = lambda Fchrombs: {
+"C7_bs": (16*pi**2)/e/mb*Fchrombs['F7bsgamma'],
+"C8_bs": (16*pi**2)/gs/mb*Fchrombs['F8bsg'],
+"C7p_bs": (16*pi**2)/e/mb*Fchrombs['F7pbsgamma'],
+"C8p_bs": (16*pi**2)/gs/mb*Fchrombs['F8pbsg']
+}
+
+EOSchrombs = lambda Fchrombs: {
+"C7_bs": (gs**2/e)/(mb**2+ms**2)*(mb*Fchrombs['F7bsgamma']+ms*Fchrombs['F7pbsgamma']),
+"C8_bs": gs/(mb**2+ms**2)*(mb*Fchrombs['F8bsg']+ms*Fchrombs['F8pbsg'])
+}
+
+# Class I
+
+def JMS_to_SUSY(C):
+    d = {}
+    d.update(SUSYsbsb(C))
+    d.update(SUSYdbdb(C))
+    return d
+
+def SUSY_to_Flavio(C):
+    d = {}
+    d.update(Flaviosbsb(C))
+    d.update(Flaviodbdb(C))
+    return d
+
+# Class II
+
+def JMS_to_CMM(C):
+    d = {}
+    d.update(CMMublnu(C))
+    d.update(CMMcblnu(C))
+    return d
+
+def CMM_to_ACFG(C):
+    d = {}
+    d.update(ACFGublnu(C))
+    d.update(ACFGcblnu(C))
+    return d
+
+def CMM_to_Flavio(C):
+    d = {}
+    d.update(Flavioublnu(C))
+    d.update(Flaviouclnu(C))
+    return d
+
+def Fierz_to_CMM(C):
+    d = {}
+    d.update(CMMsbuc(C))
+    d.update(CMMpsbuc(C))
+    d.update(CMMsbcu(C))
+    d.update(CMMpsbcu(C))
+    d.update(CMMdbuc(C))
+    d.update(CMMpdbuc(C))
+    d.update(CMMdbcu(C))
+    d.update(CMMpdbcu(C))
+    d.update(CMMsbsd(C))
+    d.update(CMMpsbsd(C))
+    d.update(CMMdbsd(C))
+    d.update(CMMpdbsd(C))
+    d.update(CMMdbsb(C))
+    d.update(CMMpdbsb(C))
+    d.update(CMMsbuu(C))
+    d.update(CMMpsbuu(C))
+    d.update(CMMsbcc(C))
+    d.update(CMMpsbcc(C))
+    d.update(CMMsbdd(C))
+    d.update(CMMpsbdd(C))
+    d.update(CMMsbss(C))
+    d.update(CMMpsbss(C))
+    d.update(CMMsbbb(C))
+    d.update(CMMpsbbb(C))
+    d.update(CMMsbllp(C))
+    d.update(CMMchrombs(C))
+    return d
+
+def JMS_to_Fierz(C):
+    d = {}
+    d.update(Fsbuu(C))
+    d.update(Fpsbuu(C))
+    d.update(Fdbuu(C))
+    d.update(Fpdbuu(C))
+    d.update(Fsbdd(C))
+    d.update(Fpsbdd(C))
+    d.update(Fdbdd(C))
+    d.update(Fpdbdd(C))
+    d.update(Fsbllp(C))
+    d.update(Fchrombs(C))
+    return d
+
+def Fierz_to_Buras(C):
+    d = {}
+    d.update(Bursbqq(C))
+    d.update(Burpsbqq(C))
+    return d
+
+def Fierz_to_BGHW(C):
+    d = {}
+    d.update(BGHWsbuu(C))
+    d.update(BGHWpsbuu(C))
+    d.update(BGHWsbcc(C))
+    d.update(BGHWpsbcc(C))
+    d.update(BGHWsbdd(C))
+    d.update(BGHWpsbdd(C))
+    d.update(BGHWsbss(C))
+    d.update(BGHWpsbss(C))
+    d.update(BGHWsbbb(C))
+    d.update(BGHWpsbbb(C))
+    return d
+
+def Fierz_to_DeltaF1(C):
+    d = {}
+    d.update(DeltaF1sbqq(C))
+    d.update(DeltaF1psbqq(C))
+    return d
+
+def Fierz_to_Flavio(C):
+    d = {}
+    d.update(Flaviosbllp(C))
+    d.update(Flaviochrombs(C))
+    return d
+
+# Combined translators
+
+def JMS_to_flavio(C):
+    Ca = _scalar2array(C)
+    d = {}
+    SUSY = JMS_to_SUSY(Ca)
+    d.update(SUSY_to_Flavio(SUSY))
+    Fierz = JMS_to_Fierz(Ca)
+    d.update(Fierz_to_Flavio(Fierz))
+    # transition from tensor-valued dictionary to flat dictionary
+    l = ['e', 'mu', 'tau']
+    nu = ['nue', 'numu', 'nutau']
+    for op in ['C9', 'C10', 'CS', 'CP']:
+        for prime in ['', 'p']:
+            for bq in ['_bs']:
+                label = op + prime + bq
+                for i, l1 in enumerate(l):
+                    for j, l2 in enumerate(l):
+                        d[label + l1 + l2] = d[label][i, j]
+                del d[label]
+    for op in ['CL', 'CR']:
+        for bq in ['_bs']:
+            label = op + bq
+            for i, l1 in enumerate(nu):
+                for j, l2 in enumerate(nu):
+                    d[label + l1 + l2] = d[label][i, j]
+            del d[label]
+    return d
