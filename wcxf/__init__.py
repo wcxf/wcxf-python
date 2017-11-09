@@ -1,5 +1,6 @@
 from .classes import *
 from . import matchers
+from . import translators
 
 # read all EFTs and bases from the wcxf-bases submodule
 
