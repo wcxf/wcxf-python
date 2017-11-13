@@ -46,3 +46,39 @@ def translate():
     wc_in = wcxf.WC.load(args.FILE)
     wc_out = wc_in.translate(args.BASIS)
     wc_out.dump(stream=args.output, fmt=args.format)
+
+def match():
+    parser = argparse.ArgumentParser(description="""Command line script for matching of WCxf files.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("EFT", help="Output EFT", type=str)
+    parser.add_argument("BASIS", help="Output basis", type=str)
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
+                        type=argparse.FileType('w'), default=sys.stdout)
+    parser.add_argument("--format", help="Output format (default: json)", type=str, default="json")
+    args = parser.parse_args()
+    wc_in = wcxf.WC.load(args.FILE)
+    wc_out = wc_in.match(args.EFT, args.BASIS)
+    wc_out.dump(stream=args.output, fmt=args.format)
+
+def validate():
+    parser = argparse.ArgumentParser(description="""Command line script for validation of WCxf files.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("TYPE", help="Type of file to validate: should be 'eft', 'basis', or 'wc'", type=str)
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    args = parser.parse_args()
+    if args.TYPE == 'eft':
+        eft = wcxf.EFT.load(args.FILE)
+    elif args.TYPE == 'basis':
+        basis = wcxf.Basis.load(args.FILE)
+        basis.validate()
+    elif args.TYPE == 'wc':
+        wc = wcxf.WC.load(args.FILE)
+        wc.validate()
+    else:
+        logging.error("TYPE should be 'eft', 'basis', or 'wc'")
+        return 1
+    print("Validation successful.")
+    return 0
