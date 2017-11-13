@@ -53,3 +53,36 @@ optional arguments:
   --output [OUTPUT]  Output file. If absent, print to standard output
   --format FORMAT    Output format (default: json)
   ```
+
+### match
+
+```
+usage: wcxf-match [-h] [--output [OUTPUT]] [--format FORMAT] EFT BASIS [FILE]
+
+Command line script for matching of WCxf files.
+
+positional arguments:
+  EFT                Output EFT
+  BASIS              Output basis
+  FILE               Input file. If "-", read from standard input
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --output [OUTPUT]  Output file. If absent, print to standard output
+  --format FORMAT    Output format (default: json)
+```
+
+### validate
+
+```
+usage: wcxf-validate [-h] TYPE [FILE]
+
+Command line script for validation of WCxf files.
+
+positional arguments:
+  TYPE        Type of file to validate: should be 'eft', 'basis', or 'wc'
+  FILE        Input file. If "-", read from standard input
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
