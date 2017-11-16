@@ -77,8 +77,8 @@ def eos():
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
                         type=argparse.FileType('r'), default=sys.stdin)
-    parser.add_argument("--eosdir", help="Root directory of the EOS installation. Defaults to /usr/share/eos",
-                        default='/usr/share/eos')
+    parser.add_argument("--eosprefix", help="Installation prefix for the EOS installation. Defaults to /usr",
+                        default='/usr')
     parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
                         type=argparse.FileType('w'), default=sys.stdout)
     parser.add_argument("--eoshome", help="EOS home directory. If specified, values will be written to EOSHOME/parameters/wcxf.yaml. Cannot be used simultaneously with output",
@@ -100,7 +100,7 @@ def eos():
     wc = wcxf.WC.load(args.FILE)
     wc.validate()
     # read EOS SM contributions
-    sm_wc_dict = get_sm_wcs(os.path.join(args.eosdir, 'parameters'))
+    sm_wc_dict = get_sm_wcs(os.path.join(args.eosprefix, 'share/eos', 'parameters'))
     # convert to EOS parameters
     eos_dict = wcxf2eos(wc, sm_wc_dict)
     yaml.dump(eos_dict, f, default_flow_style=False)
