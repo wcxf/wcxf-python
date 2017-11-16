@@ -16,6 +16,7 @@ setup(name='wcxf',
             'wcxf-translate = wcxf.cli:translate',
             'wcxf-match = wcxf.cli:match',
             'wcxf-validate = wcxf.cli:validate',
+            'wcxf2eos = wcxf.cli:eos',
         ]
       },
     )

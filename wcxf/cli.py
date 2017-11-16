@@ -70,3 +70,39 @@ def validate():
         return 1
     print("Validation successful.")
     return 0
+
+def eos():
+    from wcxf.converters.eos import wcxf2eos, get_sm_wcs
+    parser = argparse.ArgumentParser(description="""Command line script to convert a WCxf file to an EOS Wilson coefficient parameter file.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("--eosdir", help="Root directory of the EOS installation. Defaults to /usr/share/eos",
+                        default='/usr/share/eos')
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
+                        type=argparse.FileType('w'), default=sys.stdout)
+    parser.add_argument("--eoshome", help="EOS home directory. If specified, values will be written to EOSHOME/parameters/wcxf.yaml. Cannot be used simultaneously with output",
+                        default=None)
+    args = parser.parse_args()
+    # check sanity of inputs
+    if args.output != sys.stdout and args.eoshome is not None:
+        logging.error("Cannot use --output and --eoshome arguments simultaneously")
+        return 1
+    elif args.output == sys.stdout and args.eoshome is not None:
+        output_dir = os.path.join(args.eoshome, 'parameters')
+        if not os.path.isdir(output_dir):
+            logging.error("Output directory {} does not exist".format(output_dir))
+            return 1
+        f = open(os.path.join(output_dir, 'wcxf.yaml'), 'w')
+    else:
+        f = args.output
+    # read in & validate WCxf file
+    wc = wcxf.WC.load(args.FILE)
+    wc.validate()
+    # read EOS SM contributions
+    sm_wc_dict = get_sm_wcs(os.path.join(args.eosdir, 'parameters'))
+    # convert to EOS parameters
+    eos_dict = wcxf2eos(wc, sm_wc_dict)
+    yaml.dump(eos_dict, f, default_flow_style=False)
+    f.close()
+    return 0
