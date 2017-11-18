@@ -1,7 +1,7 @@
 import json
 import yaml
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 
 # the following is necessary to get pretty representations of
 # OrderedDict and defaultdict instances in YAML
@@ -172,10 +172,13 @@ class Basis(WCxf, NamedInstanceClass):
         unknown_sectors = set(self.sectors.keys()) - set(eft_instance.sectors.keys())
         if unknown_sectors:
             raise ValueError("Unkown sectors: {}".format(unknown_sectors))
-        # for name, wcs in self.sectors.items():
-        #     for k, v in wcs.items():
-        #         if v is not None and 'real' not in v:
-        #             raise ValueError("Coefficient {} has an invalid format".format(k))
+        all_keys = [k for s in self.sectors.values() for k, v in s.items()]
+        if len(all_keys) != len(set(all_keys)): # we have duplicate keys!
+            cnt = Counter(all_keys)
+            dupes = [k for k, v in cnt.items() if v > 1]
+            raise ValueError("Duplicate coefficients in different sectors:"
+                             " {}".format(dupes))
+
 
 class WC(WCxf):
     """Class representing Wilson coefficient files."""
