@@ -24,7 +24,7 @@ The CLI provides the following commands:
 ### convert
 
 ```
-usage: wcxf-convert [-h] [--output [OUTPUT]] FORMAT [FILE]
+usage: wcxf convert [-h] [--output [OUTPUT]] FORMAT [FILE]
 
 Command line script to convert WCxf files between YAML and JSON.
 
@@ -40,7 +40,7 @@ optional arguments:
 ### translate
 
 ```
-usage: wcxf-translate [-h] [--output [OUTPUT]] [--format FORMAT] BASIS [FILE]
+usage: wcxf translate [-h] [--output [OUTPUT]] [--format FORMAT] BASIS [FILE]
 
 Command line script for basis translation of WCxf files.
 
@@ -57,7 +57,7 @@ optional arguments:
 ### match
 
 ```
-usage: wcxf-match [-h] [--output [OUTPUT]] [--format FORMAT] EFT BASIS [FILE]
+usage: wcxf match [-h] [--output [OUTPUT]] [--format FORMAT] EFT BASIS [FILE]
 
 Command line script for matching of WCxf files.
 
@@ -75,7 +75,7 @@ optional arguments:
 ### validate
 
 ```
-usage: wcxf-validate [-h] TYPE [FILE]
+usage: wcxf validate [-h] TYPE [FILE]
 
 Command line script for validation of WCxf files.
 
