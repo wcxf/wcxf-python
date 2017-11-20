@@ -12,10 +12,7 @@ setup(name='wcxf',
       install_requires=['pyyaml'],
       entry_points={
         'console_scripts': [
-            'wcxf-convert = wcxf.cli:convert',
-            'wcxf-translate = wcxf.cli:translate',
-            'wcxf-match = wcxf.cli:match',
-            'wcxf-validate = wcxf.cli:validate',
+            'wcxf = wcxf.cli:wcxf_cli',
             'wcxf2eos = wcxf.cli:eos',
         ]
       },
