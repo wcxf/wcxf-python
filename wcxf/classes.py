@@ -2,6 +2,10 @@ import json
 import yaml
 import logging
 from collections import OrderedDict, Counter
+import tempfile
+import shutil
+import os
+import subprocess
 
 # the following is necessary to get pretty representations of
 # OrderedDict and defaultdict instances in YAML
@@ -41,6 +45,58 @@ def _yaml_to_json(stream_in, stream_out, **kwargs):
 def _json_to_yaml(stream_in, stream_out, **kwargs):
     d = json.load(stream_in)
     return yaml.dump(d, stream_out, **kwargs)
+
+
+def _testtex(s, delete=True):
+    """Function that takes a string and tries to compile a LaTeX file with
+    the string as document body. Returns a dictionary with keys 'success'
+    (True or False) and 'log', trying to extract the first error message."""
+    _preamble = r"""\documentclass{article}
+    \usepackage{amsmath,amssymb}
+    \begin{document}
+    """
+    _enddoc = r"""
+    \end{document}"""
+    doc = _preamble + s + _enddoc
+    tmpd = tempfile.mkdtemp()
+    tmpf = os.path.join(tmpd, 'textest.tex')
+    with open(tmpf, 'w') as f:
+        f.write(doc)
+    try:
+        p = subprocess.run(['latex', '-halt-on-error',
+                            '-output-directory', tmpd, tmpf],
+                           stdout=subprocess.DEVNULL)
+    except FileNotFoundError:
+        logging.warn('latex executable not found. Cannot check tex code')
+    if p.returncode == 0:
+        res = {'success': True}
+    else:
+        res = {'success': False}
+    logf = os.path.join(tmpd, 'textest.log')
+    res['log'] = ''
+    try:
+        with open(logf, 'r') as f:
+            logl = f.readlines()
+    except FileNotFoundError:
+        pass
+    fail = False
+    for i, l in enumerate(logl):
+        if 'Undefined control sequence' in l or 'Emergency stop' in l:
+            fail = True
+            break
+    if fail:
+        l = logl[i]
+        while l.strip() != '':
+            res['log'] += logl[i]
+            i += 1
+            try:
+                l = logl[i]
+            except IndexError:
+                break
+    if delete:
+        shutil.rmtree(tmpd)
+    return res
+
 
 class NamedInstanceMetaclass(type):
     # this is just needed to implement the getitem method on NamedInstanceClass
@@ -178,6 +234,39 @@ class Basis(WCxf, NamedInstanceClass):
             dupes = [k for k, v in cnt.items() if v > 1]
             raise ValueError("Duplicate coefficients in different sectors:"
                              " {}".format(dupes))
+        # check for LaTeX errors
+        # string with all tex values
+        alltex = '${}$'.format('$, $'.join([d.get('tex', '')
+                                            for c in self.sectors.values()
+                                            for d in c.values()
+                                            if d is not None]))
+        res = _testtex(alltex)
+        if not res['success']:
+            raise ValueError("Validation of basis {}/{}: ".format(self.eft, self.basis)
+                             + "LaTeX compilation errors encountered:\n"
+                             + "{}".format(res['log']))
+
+
+    def __str__(self):
+        md = "# Basis `{}` (EFT `{}`)\n\n".format(self.basis, self.eft)
+        if hasattr(self, 'metadata') and 'description' in self.metadata:
+            md += self.metadata['description'] + "\n\n"
+        md += "## Sectors\n\n"
+        for s, wcs in self.sectors.items():
+            md += "### `{}`\n\n".format(s)
+            if wcs:
+                md += "| WC name | Operator | Type |\n"
+                # NB: this is meant for pandoc; it computes column widths
+                # in latex by counting the number of "-" separators as
+                # fractions of line width (default: 72)
+                md += "|" + 18*"-" + "|" + 48*"-" + "|" + 6*"-" + "|\n"
+                for name, d in wcs.items():
+                    if 'real' not in d or not d['real']:
+                        t = 'C'
+                    else:
+                        t = 'R'
+                    md += "| `{}` | ${}$ | {} |\n".format(name, d.get('tex', ''), t)
+        return md
 
 
 class WC(WCxf):
