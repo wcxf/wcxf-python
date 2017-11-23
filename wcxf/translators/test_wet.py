@@ -31,12 +31,21 @@ class TestTranslateWET(unittest.TestCase):
     def test_jms_flavio(self):
         jms_wc = get_random_wc('WET', 'JMS')
         flavio_wc = jms_wc.translate('flavio')
-        with open('test_flavio.yaml', 'w') as f:
-            flavio_wc.dump(f, fmt='yaml', default_flow_style=False)
+        flavio_wc.validate()
         for k, v in flavio_wc.dict.items():
             self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
-        flavio_wc.validate()
         # check that all flavio WCs are nonzero
         fkeys = set(flavio_wc.values.keys())
         fkeys_all = set([k for s in wcxf.Basis['WET', 'flavio'].sectors.values() for k in s])
-        self.assertSetEqual(fkeys_all - fkeys, set())
+        self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
+
+    def test_jms_bern(self):
+        jms_wc = get_random_wc('WET', 'JMS')
+        bern_wc = jms_wc.translate('AFGV')
+        bern_wc.validate()
+        for k, v in bern_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+        # check that all flavio WCs are nonzero
+        bkeys = set(bern_wc.values.keys())
+        bkeys_all = set([k for s in wcxf.Basis['WET', 'AFGV'].sectors.values() for k in s])
+        self.assertSetEqual(bkeys_all - bkeys, set(), msg="Missing coefficients")
