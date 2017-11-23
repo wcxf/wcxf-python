@@ -19,6 +19,11 @@ def represent_none(self, _):
     return self.represent_scalar('tag:yaml.org,2002:null', '')
 yaml.add_representer(type(None), represent_none)
 
+# the following is necessary to load YAML mappings as OrderedDicts
+_mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+def _dict_constructor(loader, node):
+    return OrderedDict(loader.construct_pairs(node))
+yaml.add_constructor(_mapping_tag, _dict_constructor)
 
 def _load_yaml_json(stream, **kwargs):
     """Load a JSON or YAML file from a string or stream."""
@@ -157,12 +162,30 @@ class WCxf(object):
         return cls(**wcxf)
 
     def dump(self, stream=None, fmt='json', **kwargs):
-        """Dump the object data to a JSON or YAML file."""
+        """Dump the object data to a JSON or YAML file.
+
+        Optional arguments:
+
+        - `stream`: if None (default), return a string. Otherwise,
+          should be a writable file-like object
+        - `fmt`: format, should be 'json' (default) or 'yaml'
+
+        Additional keyword arguments will be passed to the `json.dump(s)`
+        or `yaml.dump` methods.
+        """
         d = {k: v for k,v in self.__dict__.items() if k[0] != '_'}
         if fmt.lower() == 'json':
-            return _dump_json(d, stream=stream, **kwargs)
+            # set indent=2 unless specified otherwise
+            indent = kwargs.pop('indent', 2)
+            return _dump_json(d, stream=stream,
+                              indent=indent,
+                              **kwargs)
         elif fmt.lower() == 'yaml':
-            return yaml.dump(d, stream, **kwargs)
+            # set default_flow_style=False unless specified otherwise
+            default_flow_style = kwargs.pop('default_flow_style', False)
+            return yaml.dump(d, stream,
+                             default_flow_style=default_flow_style,
+                            **kwargs)
         else:
             raise ValueError("Format {} unknown: use 'json' or 'yaml'.".format(fmt))
 
@@ -227,7 +250,7 @@ class Basis(WCxf, NamedInstanceClass):
             raise ValueError("EFT {} not defined".format(self.eft))
         unknown_sectors = set(self.sectors.keys()) - set(eft_instance.sectors.keys())
         if unknown_sectors:
-            raise ValueError("Unkown sectors: {}".format(unknown_sectors))
+            raise ValueError("Unknown sectors: {}".format(unknown_sectors))
         all_keys = [k for s in self.sectors.values() for k, v in s.items()]
         if len(all_keys) != len(set(all_keys)): # we have duplicate keys!
             cnt = Counter(all_keys)
