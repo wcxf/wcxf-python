@@ -1360,18 +1360,18 @@ Fsbllp = lambda C: {
 "Fnupsbllp": C["VnudLR"][:,:,1,2]}
 
 
-Bernsbllp = lambda Fsbllp: {"O1sbllp": (5*Fsbllp["F10sbllp"])/3 + Fsbllp["F9sbllp"],
-"O2sbllp": -Fsbllp["F10sbllp"]/6,
-"O3sbllp": (-5*Fsbllp["FPsbllp"])/3 + Fsbllp["FSsbllp"],
-"O4sbllp": (2*Fsbllp["FPsbllp"])/3 + Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
-"O5sbllp": Fsbllp["FPsbllp"]/24,
-"O6sbllp": (-5*Fsbllp["F10psbllp"])/3 + Fsbllp["F9psbllp"],
-"O7sbllp": Fsbllp["F10psbllp"]/6,
-"O8sbllp": (5*Fsbllp["FPpsbllp"])/3 + Fsbllp["FSpsbllp"],
-"O9sbllp": (-2*Fsbllp["FPpsbllp"])/3 - Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
-"O10sbllp": -Fsbllp["FPpsbllp"]/24,
-"Onusbllp": Fsbllp["Fnusbllp"],
-"Onupsbllp": Fsbllp["Fnupsbllp"]}
+Bernsbllp = lambda Fsbllp: {"1sbllp": (5*Fsbllp["F10sbllp"])/3 + Fsbllp["F9sbllp"],
+"2sbllp": -Fsbllp["F10sbllp"]/6,
+"3sbllp": (-5*Fsbllp["FPsbllp"])/3 + Fsbllp["FSsbllp"],
+"4sbllp": (2*Fsbllp["FPsbllp"])/3 + Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
+"5sbllp": Fsbllp["FPsbllp"]/24,
+"6sbllp": (-5*Fsbllp["F10psbllp"])/3 + Fsbllp["F9psbllp"],
+"7sbllp": Fsbllp["F10psbllp"]/6,
+"8sbllp": (5*Fsbllp["FPpsbllp"])/3 + Fsbllp["FSpsbllp"],
+"9sbllp": (-2*Fsbllp["FPpsbllp"])/3 - Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
+"10sbllp": -Fsbllp["FPpsbllp"]/24,
+"Lsbllp": Fsbllp["Fnusbllp"],
+"Rsbllp": Fsbllp["Fnupsbllp"]}
 
 
 Flaviosbllp = lambda Fsbllp: {
@@ -1492,7 +1492,6 @@ def _Fierz_to_Bern(C):
     d.update(Bernpsbss(C))
     d.update(Bernsbbb(C))
     d.update(Bernpsbbb(C))
-    # d.update(Bernsbllp(C))
     d.update(Bernchrombs(C))
     d.update(Berndbcc(C))
     d.update(Berndbdd(C))
@@ -1505,6 +1504,9 @@ def _Fierz_to_Bern(C):
     d.update(Bernpdbss(C))
     d.update(Bernpdbuu(C))
     return d
+
+def _Fierz_to_Bern_bsll(C):
+    return Bernsbllp(C)
 
 def _JMS_to_Fierz(C):
     d = {}
@@ -1615,4 +1617,11 @@ def JMS_to_Bern(C):
     d={ }
     Fierz = _JMS_to_Fierz(Ca)
     d.update(_Fierz_to_Bern(Fierz))
+    d_bsll = _Fierz_to_Bern_bsll(Fierz)
+    l = ['e', 'mu', 'tau']
+    for k, v in d_bsll.items():
+        for i, l1 in enumerate(l):
+            for j, l2 in enumerate(l):
+                label = k.replace('llp', l1 + l2)
+                d[label] = v[i, j]
     return d
