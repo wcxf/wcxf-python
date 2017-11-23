@@ -93,53 +93,53 @@ Flaviodbdb = lambda SUSYdbdb: {
 # ublnu
 
 Bernublnu = lambda C: {
-"C1ubllp": C["VnueduLL"][:,:,2,0].conjugate(),
-"C5ubllp" : C["SnueduRL"][:,:,2,0].conjugate(),
-"C1publlp" : C["VnueduLR"][:,:,2,0].conjugate(),
-"C5publlp" : C["SnueduRR"][:,:,2,0].conjugate(),
-"C7publlp" : C["TnueduRR"][:,:,2,0].conjugate(),
+"1ubllp": C["VnueduLL"][:,:,2,0].conjugate(),
+"5ubllp" : C["SnueduRL"][:,:,2,0].conjugate(),
+"1publlp" : C["VnueduLR"][:,:,2,0].conjugate(),
+"5publlp" : C["SnueduRR"][:,:,2,0].conjugate(),
+"7publlp" : C["TnueduRR"][:,:,2,0].conjugate(),
 }
 
 ACFGublnu = lambda Bernublnu: {
-'OVublnu': Bernublnu['C1ubllp'],
-'OVpublnu': Bernublnu['C1publlp'],
-'OSpublnu': Bernublnu['C5ubllp'],
-'OSublnu': Bernublnu['C5publlp'],
-'OTublnu': Bernublnu['C7publlp']
+'OVublnu': Bernublnu['1ubllp'],
+'OVpublnu': Bernublnu['1publlp'],
+'OSpublnu': Bernublnu['5ubllp'],
+'OSublnu': Bernublnu['5publlp'],
+'OTublnu': Bernublnu['7publlp']
 }
 
 Flavioublnu = lambda Bernublnu: {
-'OVublnu': Bernublnu['C1ubllp'],
-'OVpublnu': Bernublnu['C1publlp'],
-'OSublnu': Bernublnu['C5ubllp']/mb,
-'OSpublnu': Bernublnu['C5publlp']/mb,
-'OTublnu': Bernublnu['C7publlp']
+'OVublnu': Bernublnu['1ubllp'],
+'OVpublnu': Bernublnu['1publlp'],
+'OSublnu': Bernublnu['5ubllp']/mb,
+'OSpublnu': Bernublnu['5publlp']/mb,
+'OTublnu': Bernublnu['7publlp']
 }
 
 # cblnu
 
 Berncblnu = lambda C: {
-"C1cbllp": C["VnueduLL"][:,:,2,1].conjugate(),
-"C5cbllp" : C["SnueduRL"][:,:,2,1].conjugate(),
-"C1pcbllp" : C["VnueduLR"][:,:,2,1].conjugate(),
-"C5pcbllp" : C["SnueduRR"][:,:,2,1].conjugate(),
-"C7pcbllp" : C["TnueduRR"][:,:,2,1].conjugate(),
+"1cbllp": C["VnueduLL"][:,:,2,1].conjugate(),
+"5cbllp" : C["SnueduRL"][:,:,2,1].conjugate(),
+"1pcbllp" : C["VnueduLR"][:,:,2,1].conjugate(),
+"5pcbllp" : C["SnueduRR"][:,:,2,1].conjugate(),
+"7pcbllp" : C["TnueduRR"][:,:,2,1].conjugate(),
 }
 
 ACFGcblnu = lambda Berncblnu: {
-'OVcblnu': Berncblnu['C1cbllp'],
-'OVpcblnu': Berncblnu['C1pcbllp'],
-'OSpcblnu': Berncblnu['C5cbllp'],
-'OScblnu': Berncblnu['C5pcbllp'],
-'OTcblnu': Berncblnu['C7pcbllp']}
+'OVcblnu': Berncblnu['1cbllp'],
+'OVpcblnu': Berncblnu['1pcbllp'],
+'OSpcblnu': Berncblnu['5cbllp'],
+'OScblnu': Berncblnu['5pcbllp'],
+'OTcblnu': Berncblnu['7pcbllp']}
 
 
 Flaviocblnu = lambda Berncblnu: {
-'OVcblnu': Berncblnu['C1cbllp'],
-'OVpcblnu': Berncblnu['C1pcbllp'],
-'OScblnu': Berncblnu['C5cbllp']/mb,
-'OSpcblnu': Berncblnu['C5pcbllp']/mb,
-'OTcblnu': Berncblnu['C7pcbllp']}
+'OVcblnu': Berncblnu['1cbllp'],
+'OVpcblnu': Berncblnu['1pcbllp'],
+'OScblnu': Berncblnu['5cbllp']/mb,
+'OSpcblnu': Berncblnu['5pcbllp']/mb,
+'OTcblnu': Berncblnu['7pcbllp']}
 
 
 ## Class III ##
@@ -1613,13 +1613,18 @@ def JMS_to_flavio(C):
 
 def JMS_to_Bern(C):
     Ca = _scalar2array(C)
-    # d = _JMS_to_Bern(Ca)
-    d={ }
+    d = {}
     Fierz = _JMS_to_Fierz(Ca)
     d.update(_Fierz_to_Bern(Fierz))
     d_bsll = _Fierz_to_Bern_bsll(Fierz)
     l = ['e', 'mu', 'tau']
     for k, v in d_bsll.items():
+        for i, l1 in enumerate(l):
+            for j, l2 in enumerate(l):
+                label = k.replace('llp', l1 + l2)
+                d[label] = v[i, j]
+    d_bqlnu = _JMS_to_Bern(Ca)
+    for k, v in d_bqlnu.items():
         for i, l1 in enumerate(l):
             for j, l2 in enumerate(l):
                 label = k.replace('llp', l1 + l2)
