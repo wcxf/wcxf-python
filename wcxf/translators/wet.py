@@ -55,51 +55,51 @@ ms = 0.095
 # sbsb
 
 SUSYsbsb = lambda C: {
-"C1sbsb" : C['VddLL'][1,2,1,2],
-"C2sbsb" : C['S1ddRR'][2,1,2,1].conjugate()-1/(2*Nc)*C['S8ddRR'][2,1,2,1].conjugate() ,
-"C3sbsb" :  1/2.*C['S8ddRR'][2,1,2,1].conjugate(),
-"C4sbsb" : -C['V8ddLR'][1,2,1,2],
-"C5sbsb" : -2*C['V1ddLR'][1,2,1,2]+1/Nc*C['V8ddLR'][1,2,1,2],
-"C1psbsb" : C['VddRR'][1,2,1,2],
-"C2psbsb" : C['S1ddRR'][1,2,1,2]-1/(2*Nc)*C['S8ddRR'][1,2,1,2],
-"C3psbsb" :  1/2*C['S8ddRR'][1,2,1,2]
+"1sbsb" : C['VddLL'][1,2,1,2],
+"2sbsb" : C['S1ddRR'][2,1,2,1].conjugate()-1/(2*Nc)*C['S8ddRR'][2,1,2,1].conjugate() ,
+"3sbsb" :  1/2.*C['S8ddRR'][2,1,2,1].conjugate(),
+"4sbsb" : -C['V8ddLR'][1,2,1,2],
+"5sbsb" : -2*C['V1ddLR'][1,2,1,2]+1/Nc*C['V8ddLR'][1,2,1,2],
+"1psbsb" : C['VddRR'][1,2,1,2],
+"2psbsb" : C['S1ddRR'][1,2,1,2]-1/(2*Nc)*C['S8ddRR'][1,2,1,2],
+"3psbsb" :  1/2*C['S8ddRR'][1,2,1,2]
 }
 
 Flaviosbsb = lambda SUSYsbsb: {
-'CVLL_bsbs' : SUSYsbsb["C1sbsb"],
-'CSLL_bsbs' : SUSYsbsb["C2sbsb"]+1/2.*SUSYsbsb["C3sbsb"],
-'CTLL_bsbs' : -1/8.*SUSYsbsb["C3sbsb"],
-'CVLR_bsbs' : -1/2.*SUSYsbsb["C5sbsb"],
-'CVRR_bsbs' : SUSYsbsb["C1psbsb"],
-'CSRR_bsbs' : SUSYsbsb["C2psbsb"]+1/2.*SUSYsbsb["C3psbsb"],
-'CTRR_bsbs' : -1/8.*SUSYsbsb["C3psbsb"],
-'CSLR_bsbs' : SUSYsbsb["C4sbsb"]
+'CVLL_bsbs' : SUSYsbsb["1sbsb"],
+'CSLL_bsbs' : SUSYsbsb["2sbsb"]+1/2.*SUSYsbsb["3sbsb"],
+'CTLL_bsbs' : -1/8.*SUSYsbsb["3sbsb"],
+'CVLR_bsbs' : -1/2.*SUSYsbsb["5sbsb"],
+'CVRR_bsbs' : SUSYsbsb["1psbsb"],
+'CSRR_bsbs' : SUSYsbsb["2psbsb"]+1/2.*SUSYsbsb["3psbsb"],
+'CTRR_bsbs' : -1/8.*SUSYsbsb["3psbsb"],
+'CSLR_bsbs' : SUSYsbsb["4sbsb"]
 }
 
 # dbdb
 
 
 SUSYdbdb = lambda C: {
-"C1dbdb" : C['VddLL'][0,2,0,2],
-"C2dbdb" : C['S1ddRR'][2,0,2,0].conj()-1/(2*Nc)*C['S8ddRR'][2,0,2,0].conj() ,
-"C3dbdb" :  1/2.*C['S8ddRR'][2,0,2,0].conj(),
-"C4dbdb" : -C['V8ddLR'][0,2,0,2],
-"C5dbdb" : -2*C['V1ddLR'][0,2,0,2]+1/Nc*C['V8ddLR'][0,2,0,2],
-"C1pdbdb" : C['VddRR'][0,2,0,2],
-"C2pdbdb" : C['S1ddRR'][0,2,0,2]-1/(2*Nc)*C['S8ddRR'][0,2,0,2],
-"C3pdbdb" :  1/2*C['S8ddRR'][0,2,0,2]
+"1dbdb" : C['VddLL'][0,2,0,2],
+"2dbdb" : C['S1ddRR'][2,0,2,0].conj()-1/(2*Nc)*C['S8ddRR'][2,0,2,0].conj() ,
+"3dbdb" :  1/2.*C['S8ddRR'][2,0,2,0].conj(),
+"4dbdb" : -C['V8ddLR'][0,2,0,2],
+"5dbdb" : -2*C['V1ddLR'][0,2,0,2]+1/Nc*C['V8ddLR'][0,2,0,2],
+"1pdbdb" : C['VddRR'][0,2,0,2],
+"2pdbdb" : C['S1ddRR'][0,2,0,2]-1/(2*Nc)*C['S8ddRR'][0,2,0,2],
+"3pdbdb" :  1/2*C['S8ddRR'][0,2,0,2]
 }
 
 
 Flaviodbdb = lambda SUSYdbdb: {
-'CVLL_bdbd' : SUSYdbdb["C1dbdb"],
-'CSLL_bdbd' : SUSYdbdb["C2dbdb"]+1/2.*SUSYdbdb["C3dbdb"],
-'CTLL_bdbd' : -1/8.*SUSYdbdb["C3dbdb"],
-'CVLR_bdbd' : -1/2.*SUSYdbdb["C5dbdb"],
-'CVRR_bdbd' : SUSYdbdb["C1pdbdb"],
-'CSRR_bdbd' : SUSYdbdb["C2pdbdb"]+1/2.*SUSYdbdb["C3pdbdb"],
-'CTRR_bdbd' : -1/8.*SUSYdbdb["C3pdbdb"],
-'CSLR_bdbd' : SUSYdbdb["C4dbdb"]
+'CVLL_bdbd' : SUSYdbdb["1dbdb"],
+'CSLL_bdbd' : SUSYdbdb["2dbdb"]+1/2.*SUSYdbdb["3dbdb"],
+'CTLL_bdbd' : -1/8.*SUSYdbdb["3dbdb"],
+'CVLR_bdbd' : -1/2.*SUSYdbdb["5dbdb"],
+'CVRR_bdbd' : SUSYdbdb["1pdbdb"],
+'CSRR_bdbd' : SUSYdbdb["2pdbdb"]+1/2.*SUSYdbdb["3pdbdb"],
+'CTRR_bdbd' : -1/8.*SUSYdbdb["3pdbdb"],
+'CSLR_bdbd' : SUSYdbdb["4dbdb"]
 }
 
 ## Class II ##
@@ -1637,7 +1637,7 @@ def JMS_to_flavio(C):
 
 def JMS_to_Bern(C):
     Ca = _JMS_to_array(C)
-    d = {}
+    d = _JMS_to_SUSY(Ca)
     Fierz = _JMS_to_Fierz(Ca)
     d.update(_Fierz_to_Bern(Fierz))
     d_bsll = _Fierz_to_Bern_bsll(Fierz)
