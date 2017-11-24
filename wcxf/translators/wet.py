@@ -1345,6 +1345,22 @@ EOSpsbqq = lambda Fpsbuu,Fpsbdd,Fpsbcc,Fpsbss,Fpsbbb: {'EOSsbqq1p' : -2*Fpsbcc['
 
 # semileptonic operators sbllp
 
+def sym5(mat):
+    trmat=np.zeros(mat.shape,dtype=complex)
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            if i<=j:
+                trmat[i,j]=mat[i,j]
+            else:
+                trmat[i,j]=mat[j,i].conjugate()
+    return trmat
+
+sym5keys= ["VedLL","VedLR","VdeLR","VedRR","VnudLL","VnudLR"]
+for key in sym5keys:
+    C[key]=sym5(C[key])
+
+
+
 Fsbllp = lambda C: {
 "F9sbllp": C["VdeLR"][:,:,1,2]/2 + C["VedLL"][:,:,1,2]/2,
 "F10sbllp": C["VdeLR"][:,:,1,2]/2 - C["VedLL"][:,:,1,2]/2,
