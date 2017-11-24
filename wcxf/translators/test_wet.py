@@ -28,24 +28,45 @@ class TestTranslateWET(unittest.TestCase):
         self.assertTrue(np.isnan(da['bla'][0, 0, 0]))
         self.assertEqual(da['bla'][0, 1, 2], 3)
 
-    def test_jms_flavio(self):
+
+class TestJMS2Flavio(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
         jms_wc = get_random_wc('WET', 'JMS')
-        flavio_wc = jms_wc.translate('flavio')
-        flavio_wc.validate()
-        for k, v in flavio_wc.dict.items():
+        cls.flavio_wc = jms_wc.translate('flavio')
+
+    def test_validate(self):
+        self.flavio_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.flavio_wc.dict.items():
             self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
-        # check that all flavio WCs are nonzero
-        fkeys = set(flavio_wc.values.keys())
-        fkeys_all = set([k for s in wcxf.Basis['WET', 'flavio'].sectors.values() for k in s])
+
+    def test_missing(self):
+        fkeys = set(self.flavio_wc.values.keys())
+        fkeys_all = set([k for s in wcxf.Basis['WET', 'flavio'].sectors.values()
+                         for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
 
-    def test_jms_bern(self):
+
+class TestJMS2Bern(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
         jms_wc = get_random_wc('WET', 'JMS')
-        bern_wc = jms_wc.translate('AFGV')
-        bern_wc.validate()
-        for k, v in bern_wc.dict.items():
+        cls.bern_wc = jms_wc.translate('AFGV')
+
+    def test_validate(self):
+        self.bern_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.bern_wc.dict.items():
             self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
-        # check that all flavio WCs are nonzero
-        bkeys = set(bern_wc.values.keys())
-        bkeys_all = set([k for s in wcxf.Basis['WET', 'AFGV'].sectors.values() for k in s])
+
+    def test_missing(self):
+        bkeys = set(self.bern_wc.values.keys())
+        bkeys_all = set([k for s in wcxf.Basis['WET', 'AFGV'].sectors.values()
+                         for k in s
+                         if 'b' in k]) # for the time being, only look at b operators
         self.assertSetEqual(bkeys_all - bkeys, set(), msg="Missing coefficients")
