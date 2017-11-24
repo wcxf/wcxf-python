@@ -1362,8 +1362,8 @@ for key in sym5keys:
 
 
 Fsbllp = lambda C: {
-"F9sbllp": C["VdeLR"][:,:,1,2]/2 + C["VedLL"][:,:,1,2]/2,
-"F10sbllp": C["VdeLR"][:,:,1,2]/2 - C["VedLL"][:,:,1,2]/2,
+"F9sbllp": C["VdeLR"][1,2,:,:]/2 + C["VedLL"][:,:,1,2]/2,
+"F10sbllp": C["VdeLR"][1,2,:,:]/2 - C["VedLL"][:,:,1,2]/2,
 "FSsbllp": np.swapaxes(C["SedRL"], 0, 1)[:,:,2,1].conjugate()/2 + C["SedRR"][:,:,1,2]/2,
 "FPsbllp": -np.swapaxes(C["SedRL"], 0, 1)[:,:,2,1].conjugate()/2 + C["SedRR"][:,:,1,2]/2,
 "FTsbllp": C["TedRR"][:,:,1,2]/2 + np.swapaxes(C["TedRR"], 0, 1)[:,:,2,1].conjugate()/2,
