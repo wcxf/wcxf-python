@@ -115,19 +115,19 @@ Bernublnu = lambda C: {
 }
 
 ACFGublnu = lambda Bernublnu: {
-'OVublnu': Bernublnu['1ubllp'],
-'OVpublnu': Bernublnu['1publlp'],
-'OSpublnu': Bernublnu['5ubllp'],
-'OSublnu': Bernublnu['5publlp'],
-'OTublnu': Bernublnu['7publlp']
+'CV_bulnu': Bernublnu['1ubllp'],
+'CVp_bulnu': Bernublnu['1publlp'],
+'CSp_bulnu': Bernublnu['5ubllp'],
+'CS_bulnu': Bernublnu['5publlp'],
+'CT_bulnu': Bernublnu['7publlp']
 }
 
 Flavioublnu = lambda Bernublnu: {
-'OVublnu': Bernublnu['1ubllp'],
-'OVpublnu': Bernublnu['1publlp'],
-'OSublnu': Bernublnu['5ubllp']/mb,
-'OSpublnu': Bernublnu['5publlp']/mb,
-'OTublnu': Bernublnu['7publlp']
+'CV_bulnu': Bernublnu['1ubllp'],
+'CVp_bulnu': Bernublnu['1publlp'],
+'CS_bulnu': Bernublnu['5ubllp']/mb,
+'CSp_bulnu': Bernublnu['5publlp']/mb,
+'CT_bulnu': Bernublnu['7publlp']
 }
 
 # cblnu
@@ -141,19 +141,19 @@ Berncblnu = lambda C: {
 }
 
 ACFGcblnu = lambda Berncblnu: {
-'OVcblnu': Berncblnu['1cbllp'],
-'OVpcblnu': Berncblnu['1pcbllp'],
-'OSpcblnu': Berncblnu['5cbllp'],
-'OScblnu': Berncblnu['5pcbllp'],
-'OTcblnu': Berncblnu['7pcbllp']}
+'CV_bclnu': Berncblnu['1cbllp'],
+'CVp_bclnu': Berncblnu['1pcbllp'],
+'CSp_bclnu': Berncblnu['5cbllp'],
+'CS_bclnu': Berncblnu['5pcbllp'],
+'CT_bclnu': Berncblnu['7pcbllp']}
 
 
 Flaviocblnu = lambda Berncblnu: {
-'OVcblnu': Berncblnu['1cbllp'],
-'OVpcblnu': Berncblnu['1pcbllp'],
-'OScblnu': Berncblnu['5cbllp']/mb,
-'OSpcblnu': Berncblnu['5pcbllp']/mb,
-'OTcblnu': Berncblnu['7pcbllp']}
+'CV_bclnu': Berncblnu['1cbllp'],
+'CVp_bclnu': Berncblnu['1pcbllp'],
+'CS_bclnu': Berncblnu['5cbllp']/mb,
+'CSp_bclnu': Berncblnu['5pcbllp']/mb,
+'CT_bclnu': Berncblnu['7pcbllp']}
 
 
 ## Class III ##
@@ -1633,6 +1633,13 @@ def JMS_to_flavio(C):
                 for j, l2 in enumerate(nu):
                     d[label + l1 + l2] = d[label][i, j]
             del d[label]
+    Bern_bqlnu = _JMS_to_Bern(Ca)
+    d_bqlnu = _Bern_to_Flavio(Bern_bqlnu)
+    for k, v in d_bqlnu.items():
+        for i, l1 in enumerate(l):
+            for j, l2 in enumerate(l):
+                label = k.replace('lnu', l1 + 'nu' + l2)
+                d[label] = v[i, j]
     return d
 
 def JMS_to_Bern(C):
