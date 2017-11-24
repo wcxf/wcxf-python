@@ -21,6 +21,20 @@ def _scalar2array(d):
             da[name][tuple(int(i)-1 for i in ind)] = v
     return da
 
+def _symm_herm(C):
+    """To get rid of NaNs produced by _scalar2array, symmetrize operators
+    where C_ijkl = C_jilk*"""
+    nans = np.isnan(C)
+    C[nans] = np.einsum('jilk', C)[nans].conj()
+    return C
+
+def _symm_current(C):
+    """To get rid of NaNs produced by _scalar2array, symmetrize operators
+    where C_ijkl = C_klij"""
+    nans = np.isnan(C)
+    C[nans] = np.einsum('klij', C)[nans]
+    return C
+
 
 # CONSTANTS
 
@@ -1342,24 +1356,7 @@ EOSpsbqq = lambda Fpsbuu,Fpsbdd,Fpsbcc,Fpsbss,Fpsbbb: {'EOSsbqq1p' : -2*Fpsbcc['
  'EOSsbqq11p' : Fpsbbb['Fsbbb1p'] - Fpsbdd['Fsbdd1p']/2 - Fpsbss['Fsbss1p']/2}
 
 
-
 # semileptonic operators sbllp
-
-def sym5(mat):
-    trmat=np.zeros(mat.shape,dtype=complex)
-    for i in range(mat.shape[0]):
-        for j in range(mat.shape[1]):
-            if i<=j:
-                trmat[i,j]=mat[i,j]
-            else:
-                trmat[i,j]=mat[j,i].conjugate()
-    return trmat
-
-sym5keys= ["VedLL","VedLR","VdeLR","VedRR","VnudLL","VnudLR"]
-for key in sym5keys:
-    C[key]=sym5(C[key])
-
-
 
 Fsbllp = lambda C: {
 "F9sbllp": C["VdeLR"][1,2,:,:]/2 + C["VedLL"][:,:,1,2]/2,
@@ -1598,10 +1595,21 @@ def _Fierz_to_Flavio(C):
     d.update(Flaviochrombs(C))
     return d
 
+def _JMS_to_array(C):
+    """For a dictionary with JMS Wilson coefficients, return an dictionary
+    of arrays."""
+    Ca = _scalar2array(C)
+    for k in Ca:
+        if k in ["VedLL", "VedLR", "VdeLR", "VedRR", "VnudLL", "VnudLR"]:
+            Ca[k] = _symm_herm(Ca[k])
+        if k in ["VddLL", "VddRR"]:
+            Ca[k] = _symm_current(Ca[k])
+    return Ca
+
 # Combined translators
 
 def JMS_to_flavio(C):
-    Ca = _scalar2array(C)
+    Ca = _JMS_to_array(C)
     d = {}
     SUSY = _JMS_to_SUSY(Ca)
     d.update(_SUSY_to_Flavio(SUSY))
@@ -1628,7 +1636,7 @@ def JMS_to_flavio(C):
     return d
 
 def JMS_to_Bern(C):
-    Ca = _scalar2array(C)
+    Ca = _JMS_to_array(C)
     d = {}
     Fierz = _JMS_to_Fierz(Ca)
     d.update(_Fierz_to_Bern(Fierz))
