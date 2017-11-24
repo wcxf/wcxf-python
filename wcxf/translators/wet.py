@@ -1376,18 +1376,18 @@ Fsbllp = lambda C: {
 "Fnupsbllp": C["VnudLR"][:,:,1,2]}
 
 
-Bernsbllp = lambda Fsbllp: {"1sbllp": (5*Fsbllp["F10sbllp"])/3 + Fsbllp["F9sbllp"],
-"2sbllp": -Fsbllp["F10sbllp"]/6,
-"3sbllp": (-5*Fsbllp["FPsbllp"])/3 + Fsbllp["FSsbllp"],
-"4sbllp": (2*Fsbllp["FPsbllp"])/3 + Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
-"5sbllp": Fsbllp["FPsbllp"]/24,
-"6sbllp": (-5*Fsbllp["F10psbllp"])/3 + Fsbllp["F9psbllp"],
-"7sbllp": Fsbllp["F10psbllp"]/6,
-"8sbllp": (5*Fsbllp["FPpsbllp"])/3 + Fsbllp["FSpsbllp"],
-"9sbllp": (-2*Fsbllp["FPpsbllp"])/3 - Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
-"10sbllp": -Fsbllp["FPpsbllp"]/24,
-"Lsbllp": Fsbllp["Fnusbllp"],
-"Rsbllp": Fsbllp["Fnupsbllp"]}
+Bernsbllp = lambda Fsbllp: {"9sbllp": (5*Fsbllp["F10sbllp"])/3 + Fsbllp["F9sbllp"],
+"10sbllp": -Fsbllp["F10sbllp"]/6,
+"Ssbllp": (-5*Fsbllp["FPsbllp"])/3 + Fsbllp["FSsbllp"],
+"Psbllp": (2*Fsbllp["FPsbllp"])/3 + Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
+"Tsbllp": Fsbllp["FPsbllp"]/24,
+"T5sbllp": (-5*Fsbllp["F10psbllp"])/3 + Fsbllp["F9psbllp"],
+"9psbllp": Fsbllp["F10psbllp"]/6,
+"10psbllp": (5*Fsbllp["FPpsbllp"])/3 + Fsbllp["FSpsbllp"],
+"Spsbllp": (-2*Fsbllp["FPpsbllp"])/3 - Fsbllp["FT5sbllp"] + Fsbllp["FTsbllp"],
+"Ppsbllp": -Fsbllp["FPpsbllp"]/24,
+"nusbllp": Fsbllp["Fnusbllp"],
+"nupsbllp": Fsbllp["Fnupsbllp"]}
 
 
 Flaviosbllp = lambda Fsbllp: {
