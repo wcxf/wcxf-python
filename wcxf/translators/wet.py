@@ -918,28 +918,18 @@ def Bernpsbdd(Fpsbdd):
 
 def Berndbdd(Fdbdd):
     return {'1dbdd': -Fdbdd['Fdbdd1'] / 3 + (4 * Fdbdd['Fdbdd3']) / 3 - Fdbdd['Fdbdd2'] / (3 * Nc) + (4 * Fdbdd['Fdbdd4']) / (3 * Nc),
-            '2dbdd': (-2 * Fdbdd['Fdbdd2']) / 3 + (8 * Fdbdd['Fdbdd4']) / 3,
             '3dbdd': Fdbdd['Fdbdd1'] / 12 - Fdbdd['Fdbdd3'] / 12 + Fdbdd['Fdbdd2'] / (12 * Nc) - Fdbdd['Fdbdd4'] / (12 * Nc),
-            '4dbdd': Fdbdd['Fdbdd2'] / 6 - Fdbdd['Fdbdd4'] / 6,
             '5dbdd': -Fdbdd['Fdbdd5'] / 3 + (4 * Fdbdd['Fdbdd7']) / 3 - Fdbdd['Fdbdd6'] / (3 * Nc) + (4 * Fdbdd['Fdbdd8']) / (3 * Nc),
-            '6dbdd': (-2 * Fdbdd['Fdbdd6']) / 3 + (8 * Fdbdd['Fdbdd8']) / 3,
             '7dbdd': Fdbdd['Fdbdd5'] / 3 - Fdbdd['Fdbdd7'] / 3 + Fdbdd['Fdbdd9'] + Fdbdd['Fdbdd10'] / Nc + Fdbdd['Fdbdd6'] / (3 * Nc) - Fdbdd['Fdbdd8'] / (3 * Nc),
-            '8dbdd': 2 * Fdbdd['Fdbdd10'] + (2 * Fdbdd['Fdbdd6']) / 3 - (2 * Fdbdd['Fdbdd8']) / 3,
-            '9dbdd': Fdbdd['Fdbdd5'] / 48 - Fdbdd['Fdbdd7'] / 48 + Fdbdd['Fdbdd6'] / (48 * Nc) - Fdbdd['Fdbdd8'] / (48 * Nc),
-            '10dbdd': Fdbdd['Fdbdd6'] / 24 - Fdbdd['Fdbdd8'] / 24}
+            '9dbdd': Fdbdd['Fdbdd5'] / 48 - Fdbdd['Fdbdd7'] / 48 + Fdbdd['Fdbdd6'] / (48 * Nc) - Fdbdd['Fdbdd8'] / (48 * Nc)}
 
 
 def Bernpdbdd(Fpdbdd):
     return {'1pdbdd': -Fpdbdd['Fdbdd1p'] / 3 + (4 * Fpdbdd['Fdbdd3p']) / 3 - Fpdbdd['Fdbdd2p'] / (3 * Nc) + (4 * Fpdbdd['Fdbdd4p']) / (3 * Nc),
-            '2pdbdd': (-2 * Fpdbdd['Fdbdd2p']) / 3 + (8 * Fpdbdd['Fdbdd4p']) / 3,
             '3pdbdd': Fpdbdd['Fdbdd1p'] / 12 - Fpdbdd['Fdbdd3p'] / 12 + Fpdbdd['Fdbdd2p'] / (12 * Nc) - Fpdbdd['Fdbdd4p'] / (12 * Nc),
-            '4pdbdd': Fpdbdd['Fdbdd2p'] / 6 - Fpdbdd['Fdbdd4p'] / 6,
             '5pdbdd': -Fpdbdd['Fdbdd5p'] / 3 + (4 * Fpdbdd['Fdbdd7p']) / 3 - Fpdbdd['Fdbdd6p'] / (3 * Nc) + (4 * Fpdbdd['Fdbdd8p']) / (3 * Nc),
-            '6pdbdd': (-2 * Fpdbdd['Fdbdd6p']) / 3 + (8 * Fpdbdd['Fdbdd8p']) / 3,
             '7pdbdd': Fpdbdd['Fdbdd5p'] / 3 - Fpdbdd['Fdbdd7p'] / 3 + Fpdbdd['Fdbdd9p'] + Fpdbdd['Fdbdd10p'] / Nc + Fpdbdd['Fdbdd6p'] / (3 * Nc) - Fpdbdd['Fdbdd8p'] / (3 * Nc),
-            '8pdbdd': 2 * Fpdbdd['Fdbdd10p'] + (2 * Fpdbdd['Fdbdd6p']) / 3 - (2 * Fpdbdd['Fdbdd8p']) / 3,
-            '9pdbdd': Fpdbdd['Fdbdd5p'] / 48 - Fpdbdd['Fdbdd7p'] / 48 + Fpdbdd['Fdbdd6p'] / (48 * Nc) - Fpdbdd['Fdbdd8p'] / (48 * Nc),
-            '10pdbdd': Fpdbdd['Fdbdd6p'] / 24 - Fpdbdd['Fdbdd8p'] / 24}
+            '9pdbdd': Fpdbdd['Fdbdd5p'] / 48 - Fpdbdd['Fdbdd7p'] / 48 + Fpdbdd['Fdbdd6p'] / (48 * Nc) - Fpdbdd['Fdbdd8p'] / (48 * Nc)}
 
 
 # sbss
