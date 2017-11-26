@@ -52,62 +52,43 @@ ms = 0.095
 
 # WET with b,c,s,d,u
 
-## Class I ##
+## Class I (DeltaF = 2)##
 
-# sbsb
+def _JMS_to_Bern_I(C, dd):
+    """From JMS to Bern basis (= traditional SUSY basis in this case)
+    for down-typye $\Delta F=2$ operators.
 
-
-def SUSYsbsb(C):
+    `dd` should be 'sb', 'db', or 'ds'"""
+    dflav = {'d': 0, 's': 1, 'b': 2}
+    ij = tuple(dflav[q] for q in dd)
+    ji = (ij[1], ij[0])
     return {
-        '1sbsb': C["VddLL"][1, 2, 1, 2],
-        '2sbsb': C["S1ddRR"][2, 1, 2, 1].conjugate() - C["S8ddRR"][2, 1, 2, 1].conjugate() / (2 * Nc),
-        '3sbsb': C["S8ddRR"][2, 1, 2, 1].conjugate() / 2,
-        '4sbsb': -C["V8ddLR"][1, 2, 1, 2],
-        '5sbsb': -2 * C["V1ddLR"][1, 2, 1, 2] + C["V8ddLR"][1, 2, 1, 2] / Nc,
-        '1psbsb': C["VddRR"][1, 2, 1, 2],
-        '2psbsb': C["S1ddRR"][1, 2, 1, 2] - C["S8ddRR"][1, 2, 1, 2] / (2 * Nc),
-        '3psbsb': C["S8ddRR"][1, 2, 1, 2] / 2}
+        '1' + 2*dd: C["VddLL"][ij + ij],
+        '2' + 2*dd: C["S1ddRR"][ji + ji].conjugate() - C["S8ddRR"][ji + ji].conjugate() / (2 * Nc),
+        '3' + 2*dd: C["S8ddRR"][ji + ji].conjugate() / 2,
+        '4' + 2*dd: -C["V8ddLR"][ij + ij],
+        '5' + 2*dd: -2 * C["V1ddLR"][ij + ij] + C["V8ddLR"][ij + ij] / Nc,
+        '1p' + 2*dd: C["VddRR"][ij + ij],
+        '2p' + 2*dd: C["S1ddRR"][ij + ij] - C["S8ddRR"][ij + ij] / (2 * Nc),
+        '3p' + 2*dd: C["S8ddRR"][ij + ij] / 2}
 
 
-def Flaviosbsb(SUSYsbsb):
+def _Bern_to_Flavio_I(C, dd):
+    """From Bern to Flavio basis for down-typ $\Delta F=2$ operators.
+
+    `dd` should be 'sb', 'db', or 'ds'"""
+    ddf = dd[::-1] # flavio used "bs" instead of "sb" etc.
     return {
-        'CVLL_bsbs': SUSYsbsb["1sbsb"],
-        'CSLL_bsbs': SUSYsbsb["2sbsb"] + 1 / 2. * SUSYsbsb["3sbsb"],
-        'CTLL_bsbs': -1 / 8. * SUSYsbsb["3sbsb"],
-        'CVLR_bsbs': -1 / 2. * SUSYsbsb["5sbsb"],
-        'CVRR_bsbs': SUSYsbsb["1psbsb"],
-        'CSRR_bsbs': SUSYsbsb["2psbsb"] + 1 / 2. * SUSYsbsb["3psbsb"],
-        'CTRR_bsbs': -1 / 8. * SUSYsbsb["3psbsb"],
-        'CSLR_bsbs': SUSYsbsb["4sbsb"]
+        'CVLL_' + 2*ddf: C["1" + 2*dd],
+        'CSLL_' + 2*ddf: C["2" + 2*dd] + 1 / 2. * C["3" + 2*dd],
+        'CTLL_' + 2*ddf: -1 / 8. * C["3" + 2*dd],
+        'CVLR_' + 2*ddf: -1 / 2. * C["5" + 2*dd],
+        'CVRR_' + 2*ddf: C["1p" + 2*dd],
+        'CSRR_' + 2*ddf: C["2p" + 2*dd] + 1 / 2. * C["3p" + 2*dd],
+        'CTRR_' + 2*ddf: -1 / 8. * C["3p" + 2*dd],
+        'CSLR_' + 2*ddf: C["4" + 2*dd]
     }
 
-# dbdb
-
-
-def SUSYdbdb(C):
-    return {
-        "1dbdb": C['VddLL'][0, 2, 0, 2],
-        "2dbdb": C['S1ddRR'][2, 0, 2, 0].conj() - 1 / (2 * Nc) * C['S8ddRR'][2, 0, 2, 0].conj(),
-        "3dbdb":  1 / 2. * C['S8ddRR'][2, 0, 2, 0].conj(),
-        "4dbdb": -C['V8ddLR'][0, 2, 0, 2],
-        "5dbdb": -2 * C['V1ddLR'][0, 2, 0, 2] + 1 / Nc * C['V8ddLR'][0, 2, 0, 2],
-        "1pdbdb": C['VddRR'][0, 2, 0, 2],
-        "2pdbdb": C['S1ddRR'][0, 2, 0, 2] - 1 / (2 * Nc) * C['S8ddRR'][0, 2, 0, 2],
-        "3pdbdb":  1 / 2 * C['S8ddRR'][0, 2, 0, 2]
-    }
-
-
-def Flaviodbdb(SUSYdbdb):
-    return {
-        'CVLL_bdbd': SUSYdbdb["1dbdb"],
-        'CSLL_bdbd': SUSYdbdb["2dbdb"] + 1 / 2. * SUSYdbdb["3dbdb"],
-        'CTLL_bdbd': -1 / 8. * SUSYdbdb["3dbdb"],
-        'CVLR_bdbd': -1 / 2. * SUSYdbdb["5dbdb"],
-        'CVRR_bdbd': SUSYdbdb["1pdbdb"],
-        'CSRR_bdbd': SUSYdbdb["2pdbdb"] + 1 / 2. * SUSYdbdb["3pdbdb"],
-        'CTRR_bdbd': -1 / 8. * SUSYdbdb["3pdbdb"],
-        'CSLR_bdbd': SUSYdbdb["4dbdb"]
-    }
 
 ## Class II ##
 
@@ -1634,15 +1615,17 @@ def EOSchrombd(Fchrombd):
 
 def _JMS_to_SUSY(C):
     d = {}
-    d.update(SUSYsbsb(C))
-    d.update(SUSYdbdb(C))
+    d.update(_JMS_to_Bern_I(C, 'sb'))
+    d.update(_JMS_to_Bern_I(C, 'db'))
+    d.update(_JMS_to_Bern_I(C, 'ds'))
     return d
 
 
 def _SUSY_to_Flavio(C):
     d = {}
-    d.update(Flaviosbsb(C))
-    d.update(Flaviodbdb(C))
+    d.update(_Bern_to_Flavio_I(C, 'sb'))
+    d.update(_Bern_to_Flavio_I(C, 'db'))
+    d.update(_Bern_to_Flavio_I(C, 'ds'))
     return d
 
 # Class II
