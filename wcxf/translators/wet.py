@@ -1,6 +1,7 @@
 from math import pi, sqrt
 import numpy as np
 from wcxf.parameters import p
+import wcxf
 
 
 def _scalar2array(d):
@@ -82,7 +83,7 @@ def _JMS_to_Bern_I(C, qq):
             '2p' + 2*qq: C["S1uuRR"][0,1,0,1] - C["S8uuRR"][0,1,0,1] / (2 * Nc),
             '3p' + 2*qq: C["S8uuRR"][0,1,0,1] / 2}
     else:
-        return "not in Bern_I"            
+        return "not in Bern_I"
 
 
 def _Bern_to_Flavio_I(C, qq):
@@ -1791,7 +1792,10 @@ def _Fierz_to_Flavio(C):
 def _JMS_to_array(C):
     """For a dictionary with JMS Wilson coefficients, return an dictionary
     of arrays."""
-    Ca = _scalar2array(C)
+    wc_keys = wcxf.Basis['WET', 'JMS'].all_wcs
+    # fill in zeros for missing coefficients
+    C_complete = {k: C.get(k, 0) for k in wc_keys}
+    Ca = _scalar2array(C_complete)
     for k in Ca:
         if k in ["VedLL", "VedLR", "VdeLR", "VedRR", "VnudLL", "VnudLR"]:
             Ca[k] = _symm_herm(Ca[k])

@@ -49,6 +49,14 @@ class TestJMS2Flavio(unittest.TestCase):
                          for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
 
+    def test_incomplete_input(self):
+        # generate and input WC instance with just 1 non-zero coeff.
+        jms_wc = wcxf.WC('WET', 'JMS', 80, {'VddRR_2323': {'Im': -1}})
+        flavio_wc = jms_wc.translate('flavio')
+        flavio_wc.validate()
+        # the output WC instance should contain only one as well
+        self.assertEqual(list(flavio_wc.dict.keys()), ['CVRR_bsbs'])
+
 
 class TestJMS2Bern(unittest.TestCase):
 
