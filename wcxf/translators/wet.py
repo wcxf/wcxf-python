@@ -54,40 +54,63 @@ ms = 0.095
 
 ## Class I (DeltaF = 2)##
 
-def _JMS_to_Bern_I(C, dd):
+def _JMS_to_Bern_I(C, qq):
     """From JMS to Bern basis (= traditional SUSY basis in this case)
-    for down-typye $\Delta F=2$ operators.
+    for $\Delta F=2$ operators.
+    `qq` should be 'sb', 'db', 'ds' or 'uc'"""
+    if qq in ['sb', 'db', 'ds']:
+        dflav = {'d': 0, 's': 1, 'b': 2}
+        ij = tuple(dflav[q] for q in qq)
+        ji = (ij[1], ij[0])
+        return {
+            '1' + 2*qq: C["VddLL"][ij + ij],
+            '2' + 2*qq: C["S1ddRR"][ji + ji].conjugate() - C["S8ddRR"][ji + ji].conjugate() / (2 * Nc),
+            '3' + 2*qq: C["S8ddRR"][ji + ji].conjugate() / 2,
+            '4' + 2*qq: -C["V8ddLR"][ij + ij],
+            '5' + 2*qq: -2 * C["V1ddLR"][ij + ij] + C["V8ddLR"][ij + ij] / Nc,
+            '1p' + 2*qq: C["VddRR"][ij + ij],
+            '2p' + 2*qq: C["S1ddRR"][ij + ij] - C["S8ddRR"][ij + ij] / (2 * Nc),
+            '3p' + 2*qq: C["S8ddRR"][ij + ij] / 2}
+    elif qq == 'uc':
+        return {
+            '1' + 2*qq: C["VuuLL"][0,1,0,1],
+            '2' + 2*qq: C["S1uuRR"][1,0,1,0].conjugate() - C["S8uuRR"][1,0,1,0].conjugate() / (2 * Nc),
+            '3' + 2*qq: C["S8uuRR"][1,0,1,0].conjugate() / 2,
+            '4' + 2*qq: -C["V8uuLR"][0,1,0,1],
+            '5' + 2*qq: -2 * C["V1uuLR"][0,1,0,1] + C["V8uuLR"][0,1,0,1] / Nc,
+            '1p' + 2*qq: C["VuuRR"][0,1,0,1],
+            '2p' + 2*qq: C["S1uuRR"][0,1,0,1] - C["S8uuRR"][0,1,0,1] / (2 * Nc),
+            '3p' + 2*qq: C["S8uuRR"][0,1,0,1] / 2}
+    else:
+        return "not in Bern_I"            
 
-    `dd` should be 'sb', 'db', or 'ds'"""
-    dflav = {'d': 0, 's': 1, 'b': 2}
-    ij = tuple(dflav[q] for q in dd)
-    ji = (ij[1], ij[0])
-    return {
-        '1' + 2*dd: C["VddLL"][ij + ij],
-        '2' + 2*dd: C["S1ddRR"][ji + ji].conjugate() - C["S8ddRR"][ji + ji].conjugate() / (2 * Nc),
-        '3' + 2*dd: C["S8ddRR"][ji + ji].conjugate() / 2,
-        '4' + 2*dd: -C["V8ddLR"][ij + ij],
-        '5' + 2*dd: -2 * C["V1ddLR"][ij + ij] + C["V8ddLR"][ij + ij] / Nc,
-        '1p' + 2*dd: C["VddRR"][ij + ij],
-        '2p' + 2*dd: C["S1ddRR"][ij + ij] - C["S8ddRR"][ij + ij] / (2 * Nc),
-        '3p' + 2*dd: C["S8ddRR"][ij + ij] / 2}
 
-
-def _Bern_to_Flavio_I(C, dd):
+def _Bern_to_Flavio_I(C, qq):
     """From Bern to Flavio basis for down-typ $\Delta F=2$ operators.
-
-    `dd` should be 'sb', 'db', or 'ds'"""
-    ddf = dd[::-1] # flavio used "bs" instead of "sb" etc.
-    return {
-        'CVLL_' + 2*ddf: C["1" + 2*dd],
-        'CSLL_' + 2*ddf: C["2" + 2*dd] + 1 / 2. * C["3" + 2*dd],
-        'CTLL_' + 2*ddf: -1 / 8. * C["3" + 2*dd],
-        'CVLR_' + 2*ddf: -1 / 2. * C["5" + 2*dd],
-        'CVRR_' + 2*ddf: C["1p" + 2*dd],
-        'CSRR_' + 2*ddf: C["2p" + 2*dd] + 1 / 2. * C["3p" + 2*dd],
-        'CTRR_' + 2*ddf: -1 / 8. * C["3p" + 2*dd],
-        'CSLR_' + 2*ddf: C["4" + 2*dd]
-    }
+    `qq` should be 'sb', 'db', 'ds' or 'uc'"""
+    qqf = qq[::-1] # flavio used "bs" instead of "sb" etc.
+    if qq in ['sb', 'db', 'ds']:
+        return {
+            'CVLL_' + 2*qqf: C["1" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
+            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
+            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
+            'CVRR_' + 2*qqf: C["1p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
+            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
+            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+    elif qq == 'uc':
+        return {
+            'CVLL_' + 2*qqf: C["1" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
+            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
+            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
+            'CVRR_' + 2*qqf: C["1p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
+            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
+            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+    else:
+        return "not in Flavio_I"
 
 
 ## Class II ##
