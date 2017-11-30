@@ -51,16 +51,20 @@ gs = sqrt(4 * pi * alpha_s)
 mb = 4.2
 ms = 0.095
 
+# flavour indices
+dflav = {'d': 0, 's': 1, 'b': 2}
+uflav = {'u': 0, 'c': 1}
+lflav = {'e': 0, 'mu': 1, 'tau': 2}
+
 # WET with b,c,s,d,u
 
 ## Class I (DeltaF = 2)##
 
 def _JMS_to_Bern_I(C, qq):
-    """From JMS to Bern basis (= traditional SUSY basis in this case)
+    """From JMS to BernI basis (= traditional SUSY basis in this case)
     for $\Delta F=2$ operators.
     `qq` should be 'sb', 'db', 'ds' or 'uc'"""
     if qq in ['sb', 'db', 'ds']:
-        dflav = {'d': 0, 's': 1, 'b': 2}
         ij = tuple(dflav[q] for q in qq)
         ji = (ij[1], ij[0])
         return {
@@ -86,8 +90,8 @@ def _JMS_to_Bern_I(C, qq):
         return "not in Bern_I"
 
 
-def _Bern_to_Flavio_I(C, qq):
-    """From Bern to Flavio basis for down-typ $\Delta F=2$ operators.
+def _BernI_to_Flavio_I(C, qq):
+    """From BernI to FlavioI basis for down-typ $\Delta F=2$ operators.
     `qq` should be 'sb', 'db', 'ds' or 'uc'"""
     qqf = qq[::-1] # flavio used "bs" instead of "sb" etc.
     if qq in ['sb', 'db', 'ds']:
@@ -116,67 +120,57 @@ def _Bern_to_Flavio_I(C, qq):
 
 ## Class II ##
 
-# ublnu
-
-
-def Bernublnu(C):
+def _JMS_to_Bern_II(C, udlnu):
+    """From JMS to Bern basis for charged current process semileptonic operators.
+    `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
+    u = uflav[udlnu[0]]
+    d = dflav[udlnu[1]]
+    l = lflav[udlnu[4:udlnu.find('n')]]
+    lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
+    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     return {
-        "1ubllp": C["VnueduLL"][:, :, 2, 0].conjugate(),
-        "5ubllp": C["SnueduRL"][:, :, 2, 0].conjugate(),
-        "1publlp": C["VnueduLR"][:, :, 2, 0].conjugate(),
-        "5publlp": C["SnueduRR"][:, :, 2, 0].conjugate(),
-        "7publlp": C["TnueduRR"][:, :, 2, 0].conjugate(),
-    }
+        '1' + ind: C["VnueduLL"][lp, l, d, u].conjugate(),
+        '5' + ind: C["SnueduRL"][lp, l, d, u].conjugate(),
+        '1p' + ind: C["VnueduLR"][lp, l, d, u].conjugate(),
+        '5p' + ind: C["SnueduRR"][lp, l, d, u].conjugate(),
+        '7p' + ind: C["TnueduRR"][lp, l, d, u].conjugate()}
 
-
-def ACFGublnu(Bernublnu):
+def _BernII_to_ACFG(C, udlnu):
+    """From BernII to ACFG basis (defined in arXiv:1512.02830)
+    for charged current process semileptonic operators.
+    `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
+    u = uflav[udlnu[0]]
+    d = dflav[udlnu[1]]
+    l = lflav[udlnu[4:udlnu.find('n')]]
+    lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
+    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
+    ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     return {
-        'CV_bulnu': Bernublnu['1ubllp'],
-        'CVp_bulnu': Bernublnu['1publlp'],
-        'CSp_bulnu': Bernublnu['5ubllp'],
-        'CS_bulnu': Bernublnu['5publlp'],
-        'CT_bulnu': Bernublnu['7publlp']
-    }
+        'CV_' + ind2: C['1' + ind],
+        'CVp_'+ ind2: C['1p' + ind],
+        'CSp_'+ ind2: C['5' + ind],
+        'CS_'+ ind2: C['5p' + ind],
+        'CT_'+ ind2: C['7p' + ind]
+        }
 
 
-def Flavioublnu(Bernublnu):
+def _BernII_to_FlavioII(C, udlnu):
+    """From BernII to FlavioII basis
+    for charged current process semileptonic operators.
+    `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
+    u = uflav[udlnu[0]]
+    d = dflav[udlnu[1]]
+    l = lflav[udlnu[4:udlnu.find('n')]]
+    lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
+    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
+    ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     return {
-        'CV_bulnu': Bernublnu['1ubllp'],
-        'CVp_bulnu': Bernublnu['1publlp'],
-        'CS_bulnu': Bernublnu['5ubllp'] / mb,
-        'CSp_bulnu': Bernublnu['5publlp'] / mb,
-        'CT_bulnu': Bernublnu['7publlp']
-    }
-
-# cblnu
-
-
-def Berncblnu(C):
-    return {
-        "1cbllp": C["VnueduLL"][:, :, 2, 1].conjugate(),
-        "5cbllp": C["SnueduRL"][:, :, 2, 1].conjugate(),
-        "1pcbllp": C["VnueduLR"][:, :, 2, 1].conjugate(),
-        "5pcbllp": C["SnueduRR"][:, :, 2, 1].conjugate(),
-        "7pcbllp": C["TnueduRR"][:, :, 2, 1].conjugate(),
-    }
-
-
-def ACFGcblnu(Berncblnu):
-    return {
-        'CV_bclnu': Berncblnu['1cbllp'],
-        'CVp_bclnu': Berncblnu['1pcbllp'],
-        'CSp_bclnu': Berncblnu['5cbllp'],
-        'CS_bclnu': Berncblnu['5pcbllp'],
-        'CT_bclnu': Berncblnu['7pcbllp']}
-
-
-def Flaviocblnu(Berncblnu):
-    return {
-        'CV_bclnu': Berncblnu['1cbllp'],
-        'CVp_bclnu': Berncblnu['1pcbllp'],
-        'CS_bclnu': Berncblnu['5cbllp'] / mb,
-        'CSp_bclnu': Berncblnu['5pcbllp'] / mb,
-        'CT_bclnu': Berncblnu['7pcbllp']}
+        'CV_' + ind2: C['1' + ind],
+        'CVp_'+ ind2: C['1p' + ind],
+        'CS_'+ ind2: C['5' + ind] / mb,
+        'CSp_'+ ind2: C['5p' + ind] / mb,
+        'CT_'+ ind2: C['7p' + ind]
+        }
 
 
 ## Class III ##
