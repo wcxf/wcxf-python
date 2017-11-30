@@ -23,6 +23,8 @@ wc_SMEFT_random = wcxf.WC('SMEFT', 'Warsaw', scale=160,
 class TestSMEFTMass(unittest.TestCase):
     def test_smeft_mass(self):
         wc_SMEFTmass_random = wc_SMEFT_random.translate('Warsaw mass')
+        p = {'Vub': 3.6e-3}  # pass a parameter, but not all
+        wc_SMEFTmass_random = wc_SMEFT_random.translate('Warsaw mass', p)
         wc_SMEFTmass_random.validate()
         # almost all WCs should actually stay the same
         for k, v in wc_SMEFT_random.dict.items():

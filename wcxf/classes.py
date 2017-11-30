@@ -349,23 +349,23 @@ class WC(WCxf):
             self._dict = {k: self._to_number(v) for k, v in self.values.items()}
         return self._dict
 
-    def translate(self, to_basis):
+    def translate(self, to_basis, parameters=None):
         """Translate the Wilson coefficients to a different basis.
         Returns a WC instance."""
         try:
             translator = Translator[self.eft, self.basis, to_basis]
         except (KeyError, AttributeError):
             raise ValueError("No translator from basis {} to {} found.".format(self.basis, to_basis))
-        return translator.translate(self)
+        return translator.translate(self, parameters=parameters)
 
-    def match(self, to_eft, to_basis):
+    def match(self, to_eft, to_basis, parameters=None):
         """Match the Wilson coefficients to a different EFT.
         Returns a WC instance."""
         try:
             matcher = Matcher[self.eft, self.basis, to_eft, to_basis]
         except (KeyError, AttributeError):
             raise ValueError("No matcher from EFT {} in basis {} to EFT {} in basis {} found.".format(self.eft, self.basis, to_eft, to_basis))
-        return matcher.match(self)
+        return matcher.match(self, parameters=parameters)
 
 
 class Translator(NamedInstanceClass):
@@ -378,9 +378,9 @@ class Translator(NamedInstanceClass):
         self.to_basis = to_basis
         self.function = function
 
-    def translate(self, WC_in):
+    def translate(self, WC_in, parameters=None):
         """Translate a WC object from `from_basis` to `to_basis`."""
-        dict_out = self.function(WC_in.dict)
+        dict_out = self.function(WC_in.dict, parameters)
         # filter out zero values
         dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)
@@ -399,10 +399,10 @@ class Matcher(NamedInstanceClass):
         self.to_basis = to_basis
         self.function = function
 
-    def match(self, WC_in):
+    def match(self, WC_in, parameters=None):
         """Translate a WC object in EFT `from_eft` and basis `from_basis`
         to EFT `to_eft` and basis `to_basis`."""
-        dict_out = self.function(WC_in.dict)
+        dict_out = self.function(WC_in.dict, parameters)
         # filter out zero values
         dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)

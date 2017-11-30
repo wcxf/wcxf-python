@@ -1,4 +1,4 @@
-from wcxf.parameters import p
+from wcxf.parameters import p as default_parameters
 import ckmutil.ckm, ckmutil.diag
 import smeftrunner
 import numpy as np
@@ -20,16 +20,28 @@ def smeft_toarray(wc_name, wc_dict):
     C = smeftrunner.definitions.symmetrize({wc_name: C})[wc_name]
     return C
 
+
 def smeft_fromarray(wc_name, C):
     wc_dict = OrderedDict()
     ind = np.indices(C.shape).reshape(C.ndim, C.size).T
     for i in ind:
-        label = ''.join([str(j+1) for j in i])
+        label = ''.join([str(j + 1) for j in i])
         wc_dict[wc_name + '_' + label] = C[tuple(i)]
     return wc_dict
 
 
-def warsaw_to_warsawmass(C):
+def warsaw_to_warsawmass(C, parameters=None):
+    """Translate from the Warsaw basis to the 'Warsaw mass' basis.
+
+    Parameters used:
+    - `Vus`, `Vub`, `Vcb`, `gamma`: elements of the unitary CKM matrix (defined
+      as the mismatch between left-handed quark mass matrix diagonalization
+      matrices).
+    """
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
     # start out with a 1:1 copy
     C_out = C.copy()
     # rotate left-handed up-type quark fields in uL-uR operator WCs

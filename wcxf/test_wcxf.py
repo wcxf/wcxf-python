@@ -47,7 +47,7 @@ class TestBasis(unittest.TestCase):
     def test_translator(self):
         # A trivial translator translating from MyBasis 1 to MyBasis 2
         @wcxf.translator('MyEFT', 'MyBasis 1', 'MyBasis 2')
-        def f(x):
+        def f(x, parameters):
             return x
         self.assertIn(('MyEFT', 'MyBasis 1', 'MyBasis 2'), wcxf.Translator.instances)
         f = pkgutil.get_data('wcxf', 'data/test.wcs.yml')
@@ -69,7 +69,7 @@ class TestBasis(unittest.TestCase):
     def test_matcher(self):
         # A trivial translator translating from MyBasis 1 to MyBasis 2
         @wcxf.matcher('MyEFT', 'MyBasis 1', 'MyOtherEFT', 'MyOtherBasis 1')
-        def f(x):
+        def f(x, parameters):
             return x
         # self.assertIn(('MyEFT', 'MyBasis 1', 'MyBasis 2'), wcxf.Translator.instances)
         f = pkgutil.get_data('wcxf', 'data/test.wcs.yml')
