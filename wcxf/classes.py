@@ -362,6 +362,28 @@ class WC(WCxf):
             self._dict = {k: self._to_number(v) for k, v in self.values.items()}
         return self._dict
 
+    def __repr__(self):
+        return ("wcxf.WC(eft='{}', basis='{}', scale='{}', values={{...}})"
+                .format(self.eft, self.basis, self.scale))
+
+    def __str__(self):
+        return self._repr_markdown_()
+
+    def _repr_markdown_(self):
+        md = "## WCxf Wilson coefficients\n\n"
+        md += "**EFT:** `{}`\n\n".format(self.eft)
+        md += "**Basis:** `{}`\n\n".format(self.basis)
+        md += "**Scale:** {} GeV\n\n".format(self.scale)
+        md += "### Values\n\n"
+        md += "| WC name | Value |\n"
+        # NB: this is meant for pandoc; it computes column widths
+        # in latex by counting the number of "-" separators as
+        # fractions of line width (default: 72)
+        md += "|" + 20 * "-" + "|" + 52 * "-" + "|\n"
+        for name, v in self.dict.items():
+            md += "| `{}` | {} |\n".format(name, v)
+        return md
+
     def translate(self, to_basis, parameters=None):
         """Translate the Wilson coefficients to a different basis.
         Returns a WC instance."""
