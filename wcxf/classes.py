@@ -209,6 +209,7 @@ class EFT(WCxf, NamedInstanceClass):
         """Return a list of known translators between bases of this EFT."""
         return tuple(t for t in Translator.instances if t[0] == self.eft)
 
+
 class Basis(WCxf, NamedInstanceClass):
     """Class representing basis files."""
     def __init__(self, eft, basis, sectors, **kwargs):
@@ -234,7 +235,7 @@ class Basis(WCxf, NamedInstanceClass):
         kt['from'] = tuple(t for t in Translator.instances
                            if t[0] == self.eft and t[1] == self.basis)
         kt['to'] = tuple(t for t in Translator.instances
-                           if t[0] == self.eft and t[2] == self.basis)
+                         if t[0] == self.eft and t[2] == self.basis)
         return kt
 
     @property
@@ -252,7 +253,7 @@ class Basis(WCxf, NamedInstanceClass):
         if unknown_sectors:
             raise ValueError("Unknown sectors: {}".format(unknown_sectors))
         all_keys = [k for s in self.sectors.values() for k, v in s.items()]
-        if len(all_keys) != len(set(all_keys)): # we have duplicate keys!
+        if len(all_keys) != len(set(all_keys)):  # we have duplicate keys!
             cnt = Counter(all_keys)
             dupes = [k for k, v in cnt.items() if v > 1]
             raise ValueError("Duplicate coefficients in different sectors:"
@@ -265,16 +266,22 @@ class Basis(WCxf, NamedInstanceClass):
                                             if d is not None]))
         res = _testtex(alltex)
         if not res['success']:
-            raise ValueError("Validation of basis {}/{}: ".format(self.eft, self.basis)
+            raise ValueError("Validation of basis {}/{}: "
+                             .format(self.eft, self.basis)
                              + "LaTeX compilation errors encountered:\n"
                              + "{}".format(res['log']))
 
+    def __repr__(self):
+        return "wcxf.Basis('{}', '{}', {{...}})".format(self.eft, self.basis)
 
-    def __str__(self):
+    def _repr_markdown_(self):
         md = "# Basis `{}` (EFT `{}`)\n\n".format(self.basis, self.eft)
         if hasattr(self, 'metadata') and 'description' in self.metadata:
             md += self.metadata['description'] + "\n\n"
-        md += "## Sectors\n\n"
+        return md
+
+    def _markdown_tables(self):
+        md = "## Sectors\n\n"
         for s, wcs in self.sectors.items():
             md += "### `{}`\n\n".format(s)
             if wcs:
@@ -282,13 +289,19 @@ class Basis(WCxf, NamedInstanceClass):
                 # NB: this is meant for pandoc; it computes column widths
                 # in latex by counting the number of "-" separators as
                 # fractions of line width (default: 72)
-                md += "|" + 18*"-" + "|" + 48*"-" + "|" + 6*"-" + "|\n"
+                md += "|" + 18 * "-" + "|" + 48 * "-" + "|" + 6 * "-" + "|\n"
                 for name, d in wcs.items():
                     if 'real' not in d or not d['real']:
                         t = 'C'
                     else:
                         t = 'R'
-                    md += "| `{}` | ${}$ | {} |\n".format(name, d.get('tex', ''), t)
+                    md += "| `{}` | ${}$ | {} |\n".format(name,
+                                                          d.get('tex', ''), t)
+        return md
+
+    def __str__(self):
+        md = self._repr_markdown_()
+        md += self._markdown_tables()
         return md
 
 
