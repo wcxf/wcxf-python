@@ -1,6 +1,6 @@
 from math import pi, sqrt
 import numpy as np
-from parameters import p
+from wcxf.parameters import p
 import wcxf
 
 
