@@ -1,6 +1,6 @@
 from math import pi, sqrt
 import numpy as np
-from wcxf.parameters import p
+from wcxf.parameters import p as default_parameters
 import wcxf
 
 
@@ -10,12 +10,6 @@ import wcxf
 Nc = 3.
 Qu = 2 / 3.
 Qd = -1 / 3.
-alpha_e = p['alpha_e']
-alpha_s = p['alpha_s']
-e = sqrt(4 * pi * alpha_e)
-gs = sqrt(4 * pi * alpha_s)
-mb = 4.2
-ms = 0.095
 
 # flavour indices
 dflav = {'d': 0, 's': 1, 'b': 2}
@@ -122,7 +116,7 @@ def _BernII_to_ACFG(C, udlnu):
         }
 
 
-def _BernII_to_Flavio_II(C, udlnu):
+def _BernII_to_Flavio_II(C, udlnu, parameters):
     """From BernII to FlavioII basis
     for charged current process semileptonic operators.
     `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
@@ -132,6 +126,7 @@ def _BernII_to_Flavio_II(C, udlnu):
     lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
     ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[udlnu.find('_',5)+1:len(udlnu)]
+    mb = parameters['m_b']
     return {
         'CV_' + ind2: C['1' + ind],
         'CVp_'+ ind2: C['1p' + ind],
@@ -518,12 +513,14 @@ def Fierz_to_Bern_lep(C,ddll):
 
 
 
-def Fierz_to_Flavio_lep(C,ddll):
+def Fierz_to_Flavio_lep(C, ddll, parameters):
     """From semileptonic Fierz basis to Flavio semileptonic basis for Class V.
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     ind = ddll.replace('l_','').replace('nu_','')
     dd = ddll[1::-1]+ind[2:]
     indnu = ddll[1::-1]+ddll.replace('l_','nu').replace('nu_','nu')[2:]
+    e = sqrt(4* pi * parameters['alpha_e'])
+    mb = parameters['m_b']
     return {
         "C9_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '9'],
         "C9p_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '9p'],
@@ -551,9 +548,12 @@ def JMS_to_Fierz_chrom(C, dd):
         "F8pg" + dd: C['dG'][b, s].conjugate()
     }
 
-def Fierz_to_Bern_chrom(C, dd):
+def Fierz_to_Bern_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Bern basis for Class V.
     `dd` should be of the form 'sb', 'ds' etc."""
+    e = sqrt(4* pi * parameters['alpha_e'])
+    gs = sqrt(4* pi * parameters['alpha_s'])
+    mb = parameters['m_b']
     return {
         "7gamma"+dd: (gs**2) / e / mb * C['F7gamma' + dd ],
         "8g"+dd: gs / mb * C['F8g' + dd ],
@@ -563,10 +563,13 @@ def Fierz_to_Bern_chrom(C, dd):
 
 
 
-def Fierz_to_Flavio_chrom(C, dd):
+def Fierz_to_Flavio_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Flavio basis for Class V.
     `dd` should be of the form 'sb', 'ds' etc."""
     ddfl=dd[::-1]
+    e = sqrt(4* pi * parameters['alpha_e'])
+    gs = sqrt(4* pi * parameters['alpha_s'])
+    mb = parameters['m_b']
     return {
         "C7_" + ddfl: (16 * pi**2) / e / mb * C['F7gamma' + dd],
         "C8_" + ddfl: (16 * pi**2) / gs / mb * C['F8g' + dd],
@@ -634,7 +637,11 @@ def _JMS_to_array(C):
 
 # final dicitonaries
 
-def JMS_to_flavio(Cflat):
+def JMS_to_flavio(Cflat, parameters=None):
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
     C = _JMS_to_array(Cflat)
     d={}
     # Class I
@@ -643,9 +650,15 @@ def JMS_to_flavio(Cflat):
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'cb'+'l_'+l+'nu_'+lp),'cb'+'l_'+l+'nu_'+lp))
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'ub'+'l_'+l+'nu_'+lp),'ub'+'l_'+l+'nu_'+lp))
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'us'+'l_'+l+'nu_'+lp),'us'+'l_'+l+'nu_'+lp))
+            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'cb'+'l_'+l+'nu_'+lp),
+                                          'cb'+'l_'+l+'nu_'+lp,
+                                          p))
+            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'ub'+'l_'+l+'nu_'+lp),
+                                          'ub'+'l_'+l+'nu_'+lp,
+                                          p))
+            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'us'+'l_'+l+'nu_'+lp),
+                                          'us'+'l_'+l+'nu_'+lp,
+                                          p))
     # Class V
     Fsbuu = _JMS_to_Fierz_III_IV_V(C, 'sbuu')
     Fsbdd = _JMS_to_Fierz_III_IV_V(C, 'sbdd')
@@ -663,16 +676,24 @@ def JMS_to_flavio(Cflat):
     # Class V semileptonic
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C, 'sb'+'l_'+l+'nu_'+lp),'sb'+'l_'+l+'nu_'+lp))
-            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp),'db'+'l_'+l+'nu_'+lp))
+            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C, 'sb'+'l_'+l+'nu_'+lp),
+                                         'sb'+'l_'+l+'nu_'+lp,
+                                         p))
+            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp),
+                                         'db'+'l_'+l+'nu_'+lp,
+                                         p))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb'))
-    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db'))
+    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
+    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
     return d
 
 
-def JMS_to_Bern(Cflat):
+def JMS_to_Bern(Cflat, parameters=None):
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
     C = _JMS_to_array(Cflat)
     d={}
     # Class I
@@ -699,6 +720,6 @@ def JMS_to_Bern(Cflat):
             d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp),'db'+'l_'+l+'nu_'+lp))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb'))
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db'))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
     return d
