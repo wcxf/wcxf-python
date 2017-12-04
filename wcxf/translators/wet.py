@@ -1,6 +1,7 @@
 from math import pi, sqrt
 import numpy as np
 from wcxf.parameters import p as default_parameters
+import ckmutil.ckm, ckmutil.diag
 import wcxf
 
 
@@ -10,6 +11,7 @@ import wcxf
 Nc = 3.
 Qu = 2 / 3.
 Qd = -1 / 3.
+
 
 # flavour indices
 dflav = {'d': 0, 's': 1, 'b': 2}
@@ -127,13 +129,15 @@ def _BernII_to_Flavio_II(C, udlnu, parameters):
     ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     mb = parameters['m_b']
-    return {
+    dic = {
         'CV_' + ind2: C['1' + ind],
         'CVp_'+ ind2: C['1p' + ind],
         'CS_'+ ind2: C['5' + ind] / mb,
         'CSp_'+ ind2: C['5p' + ind] / mb,
         'CT_'+ ind2: C['7p' + ind]
         }
+    dic['x'] = [-sqrt(2)/p['GF']/p['Vcb']/4*x for x in dic['x']]
+    return dic
 
 
 ## Class III ##
@@ -266,7 +270,7 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
 
     if qqqq in ['sbss','dbdd','dbbb','sbbb','dbds','sbsd']:
-        return {
+        dic = {
         '1'+qqqq : -Fqqqq['F'+qqqq+'1']/3 + (4*Fqqqq['F'+qqqq+'3'])/3
                          - Fqqqq['F'+qqqq+'2']/(3*Nc)
                          + (4*Fqqqq['F'+qqqq+'4'])/(3*Nc),
@@ -292,8 +296,10 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
                             + Fqqqq['F'+qqqq+'9'],
         '9p'+qqqq : Fqqqq['F'+qqqq+'5']/48 - Fqqqq['F'+qqqq+'7']/48
                             }
+        dic['x'] = [sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4*x for x in dic['x']]
+        return dic
     else:
-        return {
+        dic = {
         '1'+qqqq : -Fqqqq['F'+qqqq+'1']/3 + (4*Fqqqq['F'+qqqq+'3'])/3
                          - Fqqqq['F'+qqqq+'2']/(3*Nc)
                          + (4*Fqqqq['F'+qqqq+'4'])/(3*Nc),
@@ -347,6 +353,8 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
                             + Fqqqq['F'+qqqq+'6p']/(48*Nc)
                             - Fqqqq['F'+qqqq+'8p']/(48*Nc),
         '10p'+qqqq : Fqqqq['F'+qqqq+'6p']/24 - Fqqqq['F'+qqqq+'8p']/24}
+        dic['x'] = [sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4*x for x in dic['x']]
+        return dic
 
 def _Fierz_to_Flavio_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,dd):
     """From Fierz to the Flavio basis for b ->s transitions.
@@ -521,7 +529,7 @@ def Fierz_to_Flavio_lep(C, ddll, parameters):
     indnu = ddll[1::-1]+ddll.replace('l_','nu').replace('nu_','nu')[2:]
     e = sqrt(4* pi * parameters['alpha_e'])
     mb = parameters['m_b']
-    return {
+    dic = {
         "C9_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '9'],
         "C9p_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '9p'],
         "C10_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '10'],
@@ -533,6 +541,8 @@ def Fierz_to_Flavio_lep(C, ddll, parameters):
         "CL_" + indnu: (8 * pi**2) / e**2 * C['F' + ind + 'nu'],
         "CR_" + indnu: (8 * pi**2) / e**2 * C['F' + ind + 'nup']
         }
+    dic['x'] = [sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4*x for x in dic['x']]
+    return dic
 
 
 # chromomagnetic operators
@@ -541,12 +551,14 @@ def JMS_to_Fierz_chrom(C, dd):
     `dd` should be of the form 'sb', 'ds' etc."""
     s = dflav[dd[0]]
     b = dflav[dd[1]]
-    return {
+    dic ={
         'F7gamma' + dd: C['dgamma'][s, b],
         "F8g" + dd: C['dG'][s, b],
         "F7pgamma" + dd: C['dgamma'][b, s].conjugate(),
         "F8pg" + dd: C['dG'][b, s].conjugate()
     }
+    dic['x'] = [sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4*x for x in dic['x']]
+    return dic
 
 def Fierz_to_Bern_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Bern basis for Class V.
@@ -639,6 +651,9 @@ def _JMS_to_array(C):
 
 def JMS_to_flavio(Cflat, parameters=None):
     p = default_parameters.copy()
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
@@ -691,6 +706,9 @@ def JMS_to_flavio(Cflat, parameters=None):
 
 def JMS_to_Bern(Cflat, parameters=None):
     p = default_parameters.copy()
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
