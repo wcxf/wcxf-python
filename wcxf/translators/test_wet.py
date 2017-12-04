@@ -78,3 +78,24 @@ class TestJMS2Bern(unittest.TestCase):
                          for k in s
                          if 'b' in k]) # for the time being, only look at b operators
         self.assertSetEqual(bkeys_all - bkeys, set(), msg="Missing coefficients")
+
+
+class TestJMS2EOS(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        jms_wc = get_random_wc('WET', 'JMS')
+        cls.eos_wc = jms_wc.translate('EOS')
+
+    def test_validate(self):
+        self.eos_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.eos_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+
+    def test_missing(self):
+        fkeys = set(self.eos_wc.values.keys())
+        fkeys_all = set([k for s in wcxf.Basis['WET', 'EOS'].sectors.values()
+                         for k in s])
+        self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
