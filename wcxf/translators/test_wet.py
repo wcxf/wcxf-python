@@ -99,3 +99,23 @@ class TestJMS2EOS(unittest.TestCase):
         fkeys_all = set([k for s in wcxf.Basis['WET', 'EOS'].sectors.values()
                          for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
+
+class TestJMS2FormFLavor(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        jms_wc = get_random_wc('WET', 'JMS')
+        cls.formflavor_wc = jms_wc.translate('formflavor')
+
+    def test_validate(self):
+        self.formflavor_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.formflavor_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+
+    def test_missing(self):
+        fkeys = set(self.formflavor_wc.values.keys())
+        fkeys_all = set([k for s in wcxf.Basis['WET', 'formflavor'].sectors.values()
+                         for k in s])
+        self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
