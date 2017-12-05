@@ -21,3 +21,7 @@ def JMS_to_EOS(C, parameters):
 @wcxf.translator('WET', 'JMS', 'AFGV')
 def JMS_to_Bern(C, parameters):
     return wet.JMS_to_Bern(C, parameters)
+
+@wcxf.translator('WET', 'JMS', 'formflavor')
+def JMS_to_FormFlavor(C, parameters):
+    return wet.JMS_to_FormFlavor(C, parameters)
