@@ -82,6 +82,34 @@ def _BernI_to_Flavio_I(C, qq):
         return "not in Flavio_I"
 
 
+def _BernI_to_FormFlavor_I(C, qq):
+    """From BernI to FlavioI basis for down-typ $\Delta F=2$ operators.
+    `qq` should be 'sb', 'db', 'ds' or 'uc'"""
+    qqf = qq[::-1] # flavio used "bs" instead of "sb" etc.
+    if qq in ['sb', 'db', 'ds']:
+        return {
+            'CVLL_' + 2*qqf: C["1" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
+            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
+            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
+            'CVRR_' + 2*qqf: C["1p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
+            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
+            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+    elif qq == 'uc':
+        return {
+            'CVLL_' + 2*qqf: C["1" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
+            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
+            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
+            'CVRR_' + 2*qqf: C["1p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
+            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
+            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+    else:
+        return "not in FormFlavor_I"
+
+
 ## Class II ##
 
 def _JMS_to_Bern_II(C, udlnu):
@@ -535,6 +563,49 @@ def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
     return {k: prefactor*v for k,v in dic.items()}
 
 
+def _Fierz_to_FormFlavor_V(C, OMN_ffff):
+    """From Fierz to 4-quark FormFlavour basis for V.
+    `C` should be a dictionary of the corresponding Fierz basis
+    and qqqq should be of the form 'VLL_bdbd', 'VRR_sdsd' etc."""
+    O = OMN_ffff[0]
+    M = OMN_ffff[1]
+    N= OMN_ffff[2]
+    ffff = OMN_ffff[4::]
+    if O == 'S':
+            if M == 'R':
+                if N == 'R':
+                    return {'C'+OMN_ffff : C['F'+ffff+'5']}
+                else:
+                    return {'C'+OMN_ffff : C['F'+ffff+'7']}
+            else:
+                if N == 'L':
+                    return {'C'+OMN_ffff : C['F'+ffff+'5p']}
+                else:
+                    return {'C'+OMN_ffff : C['F'+ffff+'7p']}
+    elif O == 'V':
+            if M == 'L':
+                if N == 'L':
+                    return {'C'+OMN_ffff : C['F'+ffff+'1']}
+                else:
+                    return {'C'+OMN_ffff : C['F'+ffff+'3']}
+            else:
+                if N == 'R':
+                    return {'C'+OMN_ffff : C['F'+ffff+'1p']}
+                else:
+                    return {'C'+OMN_ffff : C['F'+ffff+'3p']}
+    elif O == 'T':
+            if M == 'R':
+                if N == 'R':
+                    return {'C'+OMN_ffff : C['F'+ffff+'9']}
+                else:
+                    return {'C'+OMN_ffff : 0}
+            else:
+                if N == 'R':
+                    return {'C'+OMN_ffff : 0}
+                else:
+                    return {'C'+OMN_ffff : C['F'+ffff+'9p']}
+
+
 # semileptonic operators
 
 def JMS_to_Fierz_lep(C, ddll):
@@ -646,23 +717,40 @@ def Fierz_to_EOS_lep(C, ddll, parameters):
 
 
 # chromomagnetic operators
-def JMS_to_Fierz_chrom(C, dd, parameters):
+def JMS_to_Fierz_chrom(C, qq, parameters):
     """From JMS to chromomagnetic Fierz basis for Class V.
-    `dd` should be of the form 'sb', 'ds' etc."""
+    `qq` should be of the form 'sb', 'ds', mt (mu tau), em (e mu) etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
-    s = dflav[dd[0]]
-    b = dflav[dd[1]]
-    dic ={
-        'F7gamma' + dd: C['dgamma'][s, b],
-        "F8g" + dd: C['dG'][s, b],
-        "F7pgamma" + dd: C['dgamma'][b, s].conjugate(),
-        "F8pg" + dd: C['dG'][b, s].conjugate()
-    }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-    return {k: prefactor*v for k,v in dic.items()}
+    if qq[0] in dflav.keys():
+        s = dflav[qq[0]]
+        b = dflav[qq[1]]
+        dic ={
+            'F7gamma' + qq: C['dgamma'][s, b],
+            "F8g" + qq: C['dG'][s, b],
+            "F7pgamma" + qq: C['dgamma'][b, s].conjugate(),
+            "F8pg" + qq: C['dG'][b, s].conjugate()
+        }
+        prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
+        return {k: prefactor*v for k,v in dic.items()}
+    if qq[0] in ['e', 'm', 't']:
+        l1 = dflav[qq[0]]
+        l2 = dflav[qq[1]]
+        return {
+            'F7gammal' + qq: C['egamma'][s, b],
+            "F7pgammal" + qq: C['egamma'][b, s].conjugate()
+        }
+        if qq[0] in uflav.keys:
+            u = uflav[qq[0]]
+            c = uflav[qq[1]]
+            dic ={
+                'F7gamma' + qq: C['ugamma'][u, c],
+                "F8g" + qq: C['uG'][u, c],
+                "F7pgamma" + qq: C['ugamma'][c, u].conjugate(),
+                "F8pg" + qq: C['uG'][c, u].conjugate()
+            }
 
 def Fierz_to_Bern_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Bern basis for Class V.
@@ -723,6 +811,28 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
                         + (gs*mb*C["F8pg" + dd])/(mb**2 - ms**2)}
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
     return {k: prefactor*v for k,v in dic.items()}
+
+
+def JMS_to_FormFlavor_chrom(C, qq):
+    """From JMS to chromomagnetic Fierz basis for Class V.
+    `qq` should be of the form 'sb', 'ds', mt (mu tau), em (e mu) etc."""
+    if qq[0] in dflav.keys:
+        s = dflav[qq[0]]
+        b = dflav[qq[1]]
+        dic ={
+            'CAR_' + qq: C['dgamma'][s, b],
+            'CGR_' + qq: C['dG'][s, b],
+            'CAL_'  + qq: C['dgamma'][b, s].conjugate(),
+            'CGL_' + qq: C['dG'][b, s].conjugate()
+        }
+        return {k: prefactor*v for k,v in dic.items()}
+    if qq[0] in ['e', 'm', 't']:
+        l1 = dflav[qq[0]]
+        l2 = dflav[qq[1]]
+        return {
+            'CAR_' + qq: C['egamm'][l1, l2],
+            'CAL_' + qq: C['egamm'][l2, l1].conjugate()
+        }
 
 
 
@@ -870,6 +980,29 @@ def JMS_to_flavio(Cflat, parameters=None):
     d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
     d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
     return d
+
+
+def JMS_to_FormFlavour(Cflat, parameters=None):
+    p = default_parameters.copy()
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
+    C = _JMS_to_array(Cflat)
+    d={}
+    # Class I
+    for qq in ['sb', 'db', 'ds', 'uc']:
+        d.update(_BernI_to_FormFlavor_I(_JMS_to_Bern_I(C, qq), qq))
+    # Class V semileptonic
+
+    # Class V chromomagnetic
+    d.update(Fierz_to_FormFlavo_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
+    d.update(Fierz_to_FormFlavo_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
+    return d
+
+
 
 
 
