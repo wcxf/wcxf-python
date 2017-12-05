@@ -122,7 +122,7 @@ def _BernII_to_Flavio_II(C, udlnu, parameters):
     """From BernII to FlavioII basis
     for charged current process semileptonic operators.
     `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
-    p = default_parameters.copy()
+    p = parameters
     u = uflav[udlnu[0]]
     d = dflav[udlnu[1]]
     l = lflav[udlnu[4:udlnu.find('n')]]
@@ -145,7 +145,7 @@ def _BernII_to_EOS_II(C, udlnu, parameters):
     """From BernII to EOS  basis
     for charged current process semileptonic operators.
     `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
-    p = default_parameters.copy()
+    p = parameters
     u = uflav[udlnu[0]]
     d = dflav[udlnu[1]]
     l = lflav[udlnu[4:udlnu.find('n')]]
@@ -379,7 +379,7 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
 def _Fierz_to_Flavio_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,dd, parameters):
     """From Fierz to the Flavio basis for b ->s transitions.
     The arguments are dictionaries of the corresponding Fierz bases and dd to 'sb' 'db' """
-    p = default_parameters.copy()
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -496,8 +496,8 @@ def _Fierz_to_Flavio_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,dd, parameters):
 
 
 
-def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb):
-    p = default_parameters.copy()
+def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -591,7 +591,7 @@ def Fierz_to_Bern_lep(C,ddll):
 def Fierz_to_Flavio_lep(C, ddll, parameters):
     """From semileptonic Fierz basis to Flavio semileptonic basis for Class V.
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
-    p = default_parameters.copy()
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -619,7 +619,7 @@ def Fierz_to_Flavio_lep(C, ddll, parameters):
 def Fierz_to_EOS_lep(C, ddll, parameters):
     """From semileptonic Fierz basis to EOS semileptonic basis for Class V.
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
-    p = default_parameters.copy()
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -646,10 +646,10 @@ def Fierz_to_EOS_lep(C, ddll, parameters):
 
 
 # chromomagnetic operators
-def JMS_to_Fierz_chrom(C, dd):
+def JMS_to_Fierz_chrom(C, dd, parameters):
     """From JMS to chromomagnetic Fierz basis for Class V.
     `dd` should be of the form 'sb', 'ds' etc."""
-    p = default_parameters.copy()
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -683,7 +683,7 @@ def Fierz_to_Bern_chrom(C, dd, parameters):
 def Fierz_to_Flavio_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Flavio basis for Class V.
     `dd` should be of the form 'sb', 'ds' etc."""
-    p = default_parameters.copy()
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -704,7 +704,7 @@ def Fierz_to_Flavio_chrom(C, dd, parameters):
 def Fierz_to_EOS_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Flavio basis for Class V.
     `dd` should be of the form 'sb', 'ds' etc."""
-    p = default_parameters.copy()
+    p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
@@ -808,13 +808,13 @@ def JMS_to_EOS(Cflat, parameters=None):
     Fsbss = _JMS_to_Fierz_III_IV_V(C, 'sbss')
     Fsbbb = _JMS_to_Fierz_III_IV_V(C, 'sbbb')
 
-    d.update(_Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb))
+    d.update(_Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,p))
     # Class V semileptonic
     d.update(Fierz_to_EOS_lep(JMS_to_Fierz_lep(C, 'sbl_enu_e'),'sbl_enu_e', p))
     d.update(Fierz_to_EOS_lep(JMS_to_Fierz_lep(C, 'sbl_munu_mu'),'sbl_munu_mu', p))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_EOS_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
+    d.update(Fierz_to_EOS_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
     return d
 
 def JMS_to_flavio(Cflat, parameters=None):
@@ -867,8 +867,8 @@ def JMS_to_flavio(Cflat, parameters=None):
                                          p))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
-    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
+    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
+    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
     return d
 
 
@@ -907,6 +907,6 @@ def JMS_to_Bern(Cflat, parameters=None):
             d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp),'db'+'l_'+l+'nu_'+lp))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
     return d
