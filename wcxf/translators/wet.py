@@ -17,6 +17,7 @@ Qd = -1 / 3.
 dflav = {'d': 0, 's': 1, 'b': 2}
 uflav = {'u': 0, 'c': 1}
 lflav = {'e': 0, 'mu': 1, 'tau': 2}
+llflav = {'e': 0, 'm': 1, 't': 2}
 
 # WET with b,c,s,d,u
 
@@ -714,6 +715,24 @@ def Fierz_to_EOS_lep(C, ddll, parameters):
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
     return {k: prefactor*v for k,v in dic.items()}
 
+def JMS_to_FormFlavor_lep(C, dd):
+    """From JMS to semileptonic Fierz basis for Classes V.
+    `ddll` should be of the form 'sbl_eni_tau', 'dbl_munu_e' etc."""
+    b = dflav[dd[0]]
+    s = dflav[dd[1]]
+    return {
+        'CVLL_' + dd + 'mm' : C["VedLL"][1, 1, s, b],
+        'CVRR_' + dd + 'mm' :  C["VedRR"][1, 1, s, b],
+        'CVLR_' + dd + 'mm' : C["VdeLR"][s, b, 1, 1],
+        'CVRL_' + dd + 'mm' : C["VedLR"][1, 1, s, b],
+        'CSLL_' + dd + 'mm' : C["SedRR"][1, 1, b, s].conjugate(),
+        'CSRR_' + dd + 'mm' : C["SedRR"][1, 1, s, b],
+        'CSLR_' + dd + 'mm' : C["SedRL"][1, 1, s, b],
+        'CSRL_' + dd + 'mm' : C["SedRL"][1, 1, b, s].conjugate(),
+        'CTLL_' + dd + 'mm' : C["TedRR"][1, 1, s, b],
+        'CTRR_' + dd + 'mm' : C["TedRR"][1, 1, b, s].conjugate(),
+        'CVLL_sdnn' : C["VnudLL"][1, 1, s-1, s],
+        'CVRL_sdnn' : C["VnudLR"][1, 1, s-1, s]}
 
 
 # chromomagnetic operators
@@ -742,7 +761,7 @@ def JMS_to_Fierz_chrom(C, qq, parameters):
             'F7gammal' + qq: C['egamma'][s, b],
             "F7pgammal" + qq: C['egamma'][b, s].conjugate()
         }
-        if qq[0] in uflav.keys:
+        if qq[0] in uflav.keys():
             u = uflav[qq[0]]
             c = uflav[qq[1]]
             dic ={
@@ -816,24 +835,31 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
 def JMS_to_FormFlavor_chrom(C, qq):
     """From JMS to chromomagnetic Fierz basis for Class V.
     `qq` should be of the form 'sb', 'ds', mt (mu tau), em (e mu) etc."""
-    if qq[0] in dflav.keys:
+    if qq[0] in dflav.keys():
         s = dflav[qq[0]]
         b = dflav[qq[1]]
-        dic ={
+        return {
             'CAR_' + qq: C['dgamma'][s, b],
             'CGR_' + qq: C['dG'][s, b],
             'CAL_'  + qq: C['dgamma'][b, s].conjugate(),
             'CGL_' + qq: C['dG'][b, s].conjugate()
         }
-        return {k: prefactor*v for k,v in dic.items()}
     if qq[0] in ['e', 'm', 't']:
-        l1 = dflav[qq[0]]
-        l2 = dflav[qq[1]]
+        l1 = llflav[qq[0]]
+        l2 = llflav[qq[1]]
         return {
-            'CAR_' + qq: C['egamm'][l1, l2],
-            'CAL_' + qq: C['egamm'][l2, l1].conjugate()
+            'CAR_' + qq: C['egamma'][l1, l2],
+            'CAL_' + qq: C['egamma'][l2, l1].conjugate()
         }
-
+    if qq[0] in uflav.keys():
+        u = uflav[qq[0]]
+        c = uflav[qq[1]]
+        return {
+            'CAR_' + qq: C['ugamma'][u, c],
+            'CGR_' + qq: C['uG'][u, c],
+            'CAL_'  + qq: C['ugamma'][c, u].conjugate(),
+            'CGL_' + qq: C['uG'][c, u].conjugate()
+        }
 
 
 
@@ -982,7 +1008,7 @@ def JMS_to_flavio(Cflat, parameters=None):
     return d
 
 
-def JMS_to_FormFlavour(Cflat, parameters=None):
+def JMS_to_FormFlavor(Cflat, parameters=None):
     p = default_parameters.copy()
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
@@ -996,10 +1022,16 @@ def JMS_to_FormFlavour(Cflat, parameters=None):
     for qq in ['sb', 'db', 'ds', 'uc']:
         d.update(_BernI_to_FormFlavor_I(_JMS_to_Bern_I(C, qq), qq))
     # Class V semileptonic
-
+    d.update(JMS_to_FormFlavor_lep(C, 'bs'))
+    d.update(JMS_to_FormFlavor_lep(C, 'bd'))
     # Class V chromomagnetic
-    d.update(Fierz_to_FormFlavo_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
-    d.update(Fierz_to_FormFlavo_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
+    d.update(JMS_to_FormFlavor_chrom(C, 'sb'))
+    d.update(JMS_to_FormFlavor_chrom(C, 'db'))
+    d.update(JMS_to_FormFlavor_chrom(C, 'uu'))
+    d.update(JMS_to_FormFlavor_chrom(C, 'dd'))
+    d.update(JMS_to_FormFlavor_chrom(C, 'mt'))
+    d.update(JMS_to_FormFlavor_chrom(C, 'em'))
+    d.update(JMS_to_FormFlavor_chrom(C, 'et'))
     return d
 
 
