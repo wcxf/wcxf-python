@@ -315,7 +315,7 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
         "not in Fqqqq"
 
 
-## for bern Basis
+    ## for bern Basis
 
 # for all flavour same rotation matrix! as well as for prime and non-prime
 def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
@@ -324,30 +324,19 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
 
     if qqqq in ['sbss','dbdd','dbbb','sbbb','dbds','sbsd']:
         return {
-        '1'+qqqq : -Fqqqq['F'+qqqq+'1']/3 + (4*Fqqqq['F'+qqqq+'3'])/3
-                         - Fqqqq['F'+qqqq+'2']/(3*Nc)
-                         + (4*Fqqqq['F'+qqqq+'4'])/(3*Nc),
-        '3'+qqqq : Fqqqq['F'+qqqq+'1']/12 - Fqqqq['F'+qqqq+'3']/12
-                         + Fqqqq['F'+qqqq+'2']/(12*Nc)
-                         - Fqqqq['F'+qqqq+'4']/(12*Nc),
-        '5'+ qqqq : -Fqqqq['F'+qqqq+'5p']/3
-                            + (4*Fqqqq['F'+qqqq+'7p'])/3,
-        '7'+qqqq : Fqqqq['F'+qqqq+'5p']/3 - Fqqqq['F'+qqqq+'7p']/3
-                         + Fqqqq['F'+qqqq+'9p'],
-        '9'+qqqq : Fqqqq['F'+qqqq+'5p']/48 - Fqqqq['F'+qqqq+'7p']/48,
-        '1p'+qqqq : -Fqqqq['F'+qqqq+'1p']/3
-                            + (4*Fqqqq['F'+qqqq+'3p'])/3
-                            - Fqqqq['F'+qqqq+'2p']/(3*Nc)
-                            + (4*Fqqqq['F'+qqqq+'4p'])/(3*Nc),
-        '3p'+qqqq : Fqqqq['F'+qqqq+'1p']/12 - Fqqqq['F'+qqqq+'3p']/12
-                            + Fqqqq['F'+qqqq+'2p']/(12*Nc)
-                            - Fqqqq['F'+qqqq+'4p']/(12*Nc),
-        '5p'+qqqq : -Fqqqq['F'+qqqq+'5']/3
-                            + (4*Fqqqq['F'+qqqq+'7'])/3,
-        '7p'+qqqq : Fqqqq['F'+qqqq+'5']/3
-                            - Fqqqq['F'+qqqq+'7']/3
-                            + Fqqqq['F'+qqqq+'9'],
-        '9p'+qqqq : Fqqqq['F'+qqqq+'5']/48 - Fqqqq['F'+qqqq+'7']/48
+        '1'+qqqq : -Fqqqq['F'+qqqq+'1'] / 3 + 4 * Fqqqq['F'+qqqq+'3'] / 3,
+        '3'+qqqq : Fqqqq['F'+qqqq+'1'] / 12 - Fqqqq['F'+qqqq+'3'] / 12,
+        '5'+ qqqq : -Fqqqq['F'+qqqq+'5p'] / 3 + 4 * Fqqqq['F'+qqqq+'7p'] / 3,
+        '7'+qqqq : Fqqqq['F'+qqqq+'5p'] / 3 - Fqqqq['F'+qqqq+'7p'] / 3
+                   + Fqqqq['F'+qqqq+'9p'],
+        '9'+qqqq : Fqqqq['F'+qqqq+'5p'] / 48 - Fqqqq['F'+qqqq+'7p'] / 48,
+
+        '1p'+qqqq : -Fqqqq['F'+qqqq+'1p'] / 3 + 4 * Fqqqq['F'+qqqq+'3p'] / 3,
+        '3p'+qqqq : Fqqqq['F'+qqqq+'1p'] / 12 - Fqqqq['F'+qqqq+'3p'] / 12,
+        '5p'+qqqq : -Fqqqq['F'+qqqq+'5'] / 3 + 4 * Fqqqq['F'+qqqq+'7'] / 3,
+        '7p'+qqqq : Fqqqq['F'+qqqq+'5'] / 3 - Fqqqq['F'+qqqq+'7'] / 3
+                    + Fqqqq['F'+qqqq+'9'],
+        '9p'+qqqq : Fqqqq['F'+qqqq+'5'] / 48 - Fqqqq['F'+qqqq+'7'] / 48
                             }
     else:
         return {
