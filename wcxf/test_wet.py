@@ -3,8 +3,8 @@ import wcxf
 
 
 class TestWET(unittest.TestCase):
-    def test_afgv(self):
-        basis = wcxf.Basis['WET', 'AFGV']
+    def test_bern(self):
+        basis = wcxf.Basis['WET', 'Bern']
         # comparing no. of WCs to table 1 of arXiv:1704.06639
         self.assertEqual(len(basis.sectors['sbsb']), 8)
         self.assertEqual(len(basis.sectors['dbdb']), 8)
