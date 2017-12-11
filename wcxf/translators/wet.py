@@ -32,28 +32,32 @@ def _JMS_to_Bern_I(C, qq):
         ij = tuple(dflav[q] for q in qq)
         ji = (ij[1], ij[0])
         return {
-            '1' + 2*qq: C["VddLL"][ij + ij],
-            '2' + 2*qq: C["S1ddRR"][ji + ji].conj()
-                        - C["S8ddRR"][ji + ji].conj() / (2 * Nc),
-            '3' + 2*qq: C["S8ddRR"][ji + ji].conj() / 2,
-            '4' + 2*qq: -C["V8ddLR"][ij + ij],
-            '5' + 2*qq: -2 * C["V1ddLR"][ij + ij] + C["V8ddLR"][ij + ij] / Nc,
-            '1p' + 2*qq: C["VddRR"][ij + ij],
-            '2p' + 2*qq: C["S1ddRR"][ij + ij] - C["S8ddRR"][ij + ij] / (2 * Nc),
-            '3p' + 2*qq: C["S8ddRR"][ij + ij] / 2
-            }
+            '1' + 2 * qq : C["VddLL"][ij + ij],
+            '2' + 2 * qq : C["S1ddRR"][ji + ji].conj()
+                           - C["S8ddRR"][ji + ji].conj() / (2 * Nc),
+            '3' + 2 * qq : C["S8ddRR"][ji + ji].conj() / 2,
+            '4' + 2 * qq : -C["V8ddLR"][ij + ij],
+            '5' + 2 * qq : -2 * C["V1ddLR"][ij + ij]
+                           + C["V8ddLR"][ij + ij] / Nc,
+            '1p' + 2 * qq : C["VddRR"][ij + ij],
+            '2p' + 2 * qq : C["S1ddRR"][ij + ij]
+                           - C["S8ddRR"][ij + ij] / (2 * Nc),
+            '3p' + 2 * qq : C["S8ddRR"][ij + ij] / 2
+                }
     elif qq == 'uc':
         return {
-            '1' + 2*qq: C["VuuLL"][0,1,0,1],
-            '2' + 2*qq: C["S1uuRR"][1,0,1,0].conj()
-                        - C["S8uuRR"][1,0,1,0].conj() / (2 * Nc),
-            '3' + 2*qq: C["S8uuRR"][1,0,1,0].conj() / 2,
-            '4' + 2*qq: -C["V8uuLR"][0,1,0,1],
-            '5' + 2*qq: -2 * C["V1uuLR"][0,1,0,1] + C["V8uuLR"][0,1,0,1] / Nc,
-            '1p' + 2*qq: C["VuuRR"][0,1,0,1],
-            '2p' + 2*qq: C["S1uuRR"][0,1,0,1] - C["S8uuRR"][0,1,0,1]/(2 * Nc),
-            '3p' + 2*qq: C["S8uuRR"][0,1,0,1]/2
-            }
+            '1' + 2 * qq : C["VuuLL"][0,1,0,1],
+            '2' + 2 * qq : C["S1uuRR"][1,0,1,0].conj()
+                           - C["S8uuRR"][1,0,1,0].conj() / (2 * Nc),
+            '3' + 2 * qq : C["S8uuRR"][1,0,1,0].conj() / 2,
+            '4' + 2 * qq : -C["V8uuLR"][0,1,0,1],
+            '5' + 2 * qq : -2 * C["V1uuLR"][0,1,0,1]
+                           + C["V8uuLR"][0,1,0,1] / Nc,
+            '1p' + 2 * qq : C["VuuRR"][0,1,0,1],
+            '2p' + 2 * qq : C["S1uuRR"][0,1,0,1]
+                            - C["S8uuRR"][0,1,0,1]/(2 * Nc),
+            '3p' + 2 * qq : C["S8uuRR"][0,1,0,1]/2
+                }
     else:
         return "not in Bern_I"
 
