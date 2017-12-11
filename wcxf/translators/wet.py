@@ -4,8 +4,6 @@ from wcxf.parameters import p as default_parameters
 import ckmutil.ckm, ckmutil.diag
 import wcxf
 
-
-
 # CONSTANTS
 
 Nc = 3.
@@ -775,6 +773,7 @@ def _symm_current(C):
     C[nans] = np.einsum('klij', C)[nans]
     return C
 
+
 def _JMS_to_array(C):
     """For a dictionary with JMS Wilson coefficients, return an dictionary
     of arrays."""
@@ -801,12 +800,12 @@ def _JMS_to_array(C):
 
 def JMS_to_EOS(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -836,12 +835,12 @@ def JMS_to_EOS(Cflat, parameters=None):
 
 def JMS_to_flavio(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -895,12 +894,12 @@ def JMS_to_flavio(Cflat, parameters=None):
 
 def JMS_to_FormFlavor(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -928,12 +927,12 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
 
 def JMS_to_Bern(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     d={}
 
