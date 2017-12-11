@@ -18,7 +18,7 @@ def JMS_to_EOS(C, parameters):
     return wet.JMS_to_EOS(C, parameters)
 
 
-@wcxf.translator('WET', 'JMS', 'AFGV')
+@wcxf.translator('WET', 'JMS', 'Bern')
 def JMS_to_Bern(C, parameters):
     return wet.JMS_to_Bern(C, parameters)
 
