@@ -14,6 +14,7 @@ Qd = -1 / 3.
 
 
 # flavour indices
+
 dflav = {'d': 0, 's': 1, 'b': 2}
 uflav = {'u': 0, 'c': 1}
 lflav = {'e': 0, 'mu': 1, 'tau': 2}
@@ -32,25 +33,27 @@ def _JMS_to_Bern_I(C, qq):
         ji = (ij[1], ij[0])
         return {
             '1' + 2*qq: C["VddLL"][ij + ij],
-            '2' + 2*qq: C["S1ddRR"][ji + ji].conjugate()
-                        - C["S8ddRR"][ji + ji].conjugate() / (2 * Nc),
-            '3' + 2*qq: C["S8ddRR"][ji + ji].conjugate() / 2,
+            '2' + 2*qq: C["S1ddRR"][ji + ji].conj()
+                        - C["S8ddRR"][ji + ji].conj() / (2 * Nc),
+            '3' + 2*qq: C["S8ddRR"][ji + ji].conj() / 2,
             '4' + 2*qq: -C["V8ddLR"][ij + ij],
             '5' + 2*qq: -2 * C["V1ddLR"][ij + ij] + C["V8ddLR"][ij + ij] / Nc,
             '1p' + 2*qq: C["VddRR"][ij + ij],
             '2p' + 2*qq: C["S1ddRR"][ij + ij] - C["S8ddRR"][ij + ij] / (2 * Nc),
-            '3p' + 2*qq: C["S8ddRR"][ij + ij] / 2}
+            '3p' + 2*qq: C["S8ddRR"][ij + ij] / 2
+            }
     elif qq == 'uc':
         return {
             '1' + 2*qq: C["VuuLL"][0,1,0,1],
-            '2' + 2*qq: C["S1uuRR"][1,0,1,0].conjugate()
-                        - C["S8uuRR"][1,0,1,0].conjugate() / (2 * Nc),
-            '3' + 2*qq: C["S8uuRR"][1,0,1,0].conjugate() / 2,
+            '2' + 2*qq: C["S1uuRR"][1,0,1,0].conj()
+                        - C["S8uuRR"][1,0,1,0].conj() / (2 * Nc),
+            '3' + 2*qq: C["S8uuRR"][1,0,1,0].conj() / 2,
             '4' + 2*qq: -C["V8uuLR"][0,1,0,1],
             '5' + 2*qq: -2 * C["V1uuLR"][0,1,0,1] + C["V8uuLR"][0,1,0,1] / Nc,
             '1p' + 2*qq: C["VuuRR"][0,1,0,1],
             '2p' + 2*qq: C["S1uuRR"][0,1,0,1] - C["S8uuRR"][0,1,0,1]/(2 * Nc),
-            '3p' + 2*qq: C["S8uuRR"][0,1,0,1]/2}
+            '3p' + 2*qq: C["S8uuRR"][0,1,0,1]/2
+            }
     else:
         return "not in Bern_I"
 
@@ -68,7 +71,8 @@ def _BernI_to_Flavio_I(C, qq):
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
             'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
             'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
-            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+            'CSLR_' + 2*qqf: C["4" + 2*qq]
+            }
     elif qq == 'uc':
         return {
             'CVLL_' + 2*qqf: C["1" + 2*qq],
@@ -78,7 +82,8 @@ def _BernI_to_Flavio_I(C, qq):
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
             'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
             'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
-            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+            'CSLR_' + 2*qqf: C["4" + 2*qq]
+            }
     else:
         return "not in Flavio_I"
 
@@ -86,7 +91,7 @@ def _BernI_to_Flavio_I(C, qq):
 def _BernI_to_FormFlavor_I(C, qq):
     """From BernI to FlavioI basis for down-typ $\Delta F=2$ operators.
     `qq` should be 'sb', 'db', 'ds' or 'uc'"""
-    qqf = qq[::-1] # flavio used "bs" instead of "sb" etc.
+    qqf = qq[::-1] # FormFlavour used "bs" instead of "sb" etc.
     if qq in ['sb', 'db', 'ds']:
         return {
             'CVLL_' + 2*qqf: C["1" + 2*qq],
@@ -96,7 +101,8 @@ def _BernI_to_FormFlavor_I(C, qq):
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
             'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
             'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
-            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+            'CSLR_' + 2*qqf: C["4" + 2*qq]
+            }
     elif qq == 'uc':
         return {
             'CVLL_' + 2*qqf: C["1" + 2*qq],
@@ -106,7 +112,8 @@ def _BernI_to_FormFlavor_I(C, qq):
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
             'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
             'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
-            'CSLR_' + 2*qqf: C["4" + 2*qq]}
+            'CSLR_' + 2*qqf: C["4" + 2*qq]
+            }
     else:
         return "not in FormFlavor_I"
 
@@ -122,11 +129,12 @@ def _JMS_to_Bern_II(C, udlnu):
     lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
     ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
     return {
-        '1' + ind: C["VnueduLL"][lp, l, d, u].conjugate(),
-        '5' + ind: C["SnueduRL"][lp, l, d, u].conjugate(),
-        '1p' + ind: C["VnueduLR"][lp, l, d, u].conjugate(),
-        '5p' + ind: C["SnueduRR"][lp, l, d, u].conjugate(),
-        '7p' + ind: C["TnueduRR"][lp, l, d, u].conjugate()}
+        '1' + ind: C["VnueduLL"][lp, l, d, u].conj(),
+        '5' + ind: C["SnueduRL"][lp, l, d, u].conj(),
+        '1p' + ind: C["VnueduLR"][lp, l, d, u].conj(),
+        '5p' + ind: C["SnueduRR"][lp, l, d, u].conj(),
+        '7p' + ind: C["TnueduRR"][lp, l, d, u].conj()
+        }
 
 def _BernII_to_ACFG(C, udlnu):
     """From BernII to ACFG basis (defined in arXiv:1512.02830)
@@ -166,8 +174,8 @@ def _BernII_to_Flavio_II(C, udlnu, parameters):
         'CSp_'+ ind2: C['5p' + ind] / mb,
         'CT_'+ ind2: C['7p' + ind]
         }
-    prefactor=-sqrt(2)/p['GF']/p['Vcb']/4
-    return {k: prefactor*v for k,v in dic.items()}
+    prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
+    return {k: prefactor * v for k,v in dic.items()}
 
 
 def _BernII_to_EOS_II(C, udlnu, parameters):
@@ -185,12 +193,12 @@ def _BernII_to_EOS_II(C, udlnu, parameters):
     dic = {
         'b->' + ind2+ '::cVL': C['1' + ind],
         'b->' + ind2+ '::cVR': C['1p' + ind],
-        'b->' + ind2+ '::cSR': C['5' + ind] ,
-        'b->' + ind2+ '::cSL': C['5p' + ind] ,
+        'b->' + ind2+ '::cSR': C['5' + ind],
+        'b->' + ind2+ '::cSL': C['5p' + ind],
         'b->' + ind2+ '::cT': C['7p' + ind]
         }
-    prefactor=-sqrt(2)/p['GF']/p['Vcb']/4
-    return {k: prefactor*v for k,v in dic.items()}
+    prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
+    return {k: prefactor * v for k,v in dic.items()}
 
 
 ## Class III ##
@@ -208,35 +216,43 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
         f3 = uflav[qqqq[2]]
         f4 = uflav[qqqq[3]]
         return {
-            'F'+qqqq+'1' : C["V1udLL"][f3, f4, f1, f2] - C["V8udLL"][f3, f4, f1, f2]/(2*Nc),
-            'F'+qqqq+'2' : C["V8udLL"][f3, f4, f1, f2]/2,
-            'F'+qqqq+'3' : C["V1duLR"][f1, f2, f3, f4] - C["V8duLR"][f1, f2, f3, f4]/(2*Nc),
-            'F'+qqqq+'4' : C["V8duLR"][f1, f2, f3, f4]/2,
-            'F'+qqqq+'5' : C["S1udRR"][f3, f4, f1, f2] - C["S8udduRR"][f3, f2, f1, f4]/4
-                            - C["S8udRR"][f3, f4, f1, f2]/(2*Nc),
-            'F'+qqqq+'6' : -C["S1udduRR"][f3, f2, f1, f4]/2 + C["S8udduRR"][f3, f2, f1, f4]/(4*Nc)
-                            + C["S8udRR"][f3, f4, f1, f2]/2,
-            'F'+qqqq+'7' : -C["V8udduLR"][f4, f1, f2, f3].conjugate(),
-            'F'+qqqq+'8' : -2*C["V1udduLR"][f4, f1, f2, f3].conjugate()
-                            + C["V8udduLR"][f4, f1, f2, f3].conjugate()/Nc,
-            'F'+qqqq+'9' : -C["S8udduRR"][f3, f2, f1, f4]/16,
-            'F'+qqqq+'10' : -C["S1udduRR"][f3, f2, f1, f4]/8
-                            + C["S8udduRR"][f3, f2, f1, f4]/(16*Nc),
-            'F'+qqqq+'1p' : C["V1udRR"][f3, f4, f1, f2] - C["V8udRR"][f3, f4, f1, f2]/(2*Nc),
-            'F'+qqqq+'2p' : C["V8udRR"][f3, f4, f1, f2]/2,
-            'F'+qqqq+'3p' : C["V1udLR"][f3, f4, f1, f2] - C["V8udLR"][f3, f4, f1, f2]/(2*Nc),
-            'F'+qqqq+'4p' : C["V8udLR"][f3, f4, f1, f2]/2,
-            'F'+qqqq+'5p' : C["S1udRR"][f4, f4, f2, f1].conjugate() -
-                            C["S8udduRR"][f4, f1, f2, f3].conjugate()/4
-                            - C["S8udRR"][f4, f4, f2, f1].conjugate()/(2*Nc),
-            'F'+qqqq+'6p' : -C["S1udduRR"][f4, f1, f2, f3].conjugate()/2 +
-                            C["S8udduRR"][f4, f1, f2, f3].conjugate()/(4*Nc)
-                            + C["S8udRR"][f4, f4, f2, f1].conjugate()/2,
-            'F'+qqqq+'7p' : -C["V8udduLR"][f3, f2, f1, f4],
-            'F'+qqqq+'8p' : -2*C["V1udduLR"][f3, f2, f1, f4] + C["V8udduLR"][f3, f2, f1, f4]/Nc,
-            'F'+qqqq+'9p' : -C["S8udduRR"][f4, f1, f2, f3].conjugate()/16,
-            'F'+qqqq+'10p' : -C["S1udduRR"][f4, f1, f2, f3].conjugate()/8
-                            + C["S8udduRR"][f4, f1, f2, f3].conjugate()/(16*Nc)}
+            'F' + qqqq + '1' : C["V1udLL"][f3, f4, f1, f2]
+                            - C["V8udLL"][f3, f4, f1, f2] / (2 * Nc),
+            'F' + qqqq + '2' : C["V8udLL"][f3, f4, f1, f2]/2,
+            'F' + qqqq + '3' : C["V1duLR"][f1, f2, f3, f4]
+                            - C["V8duLR"][f1, f2, f3, f4] / (2 * Nc),
+            'F' + qqqq + '4' : C["V8duLR"][f1, f2, f3, f4]/2,
+            'F' + qqqq + '5' : C["S1udRR"][f3, f4, f1, f2]
+                            - C["S8udduRR"][f3, f2, f1, f4] / 4
+                            - C["S8udRR"][f3, f4, f1, f2] / (2 * Nc),
+            'F' + qqqq + '6' : -C["S1udduRR"][f3, f2, f1, f4] / 2
+                            + C["S8udduRR"][f3, f2, f1, f4] /(4 * Nc)
+                            + C["S8udRR"][f3, f4, f1, f2] / 2,
+            'F' + qqqq + '7' : -C["V8udduLR"][f4, f1, f2, f3].conj(),
+            'F' + qqqq + '8' : -2 * C["V1udduLR"][f4, f1, f2, f3].conj()
+                            + C["V8udduLR"][f4, f1, f2, f3].conj() / Nc,
+            'F' + qqqq + '9' : -C["S8udduRR"][f3, f2, f1, f4] / 16,
+            'F' + qqqq + '10' : -C["S1udduRR"][f3, f2, f1, f4] / 8
+                            + C["S8udduRR"][f3, f2, f1, f4] / (16 * Nc),
+            'F' + qqqq + '1p' : C["V1udRR"][f3, f4, f1, f2]
+                            - C["V8udRR"][f3, f4, f1, f2] / (2 * Nc),
+            'F' + qqqq + '2p' : C["V8udRR"][f3, f4, f1, f2]/2,
+            'F' + qqqq + '3p' : C["V1udLR"][f3, f4, f1, f2]
+                            - C["V8udLR"][f3, f4, f1, f2] / (2 * Nc),
+            'F' + qqqq + '4p' : C["V8udLR"][f3, f4, f1, f2] / 2,
+            'F' + qqqq + '5p' : C["S1udRR"][f4, f4, f2, f1].conj() -
+                            C["S8udduRR"][f4, f1, f2, f3].conj() / 4
+                           - C["S8udRR"][f4, f4, f2, f1].conj() / (2 * Nc),
+            'F' + qqqq + '6p' : -C["S1udduRR"][f4, f1, f2, f3].conj() / 2 +
+                            C["S8udduRR"][f4, f1, f2, f3].conj()/(4 * Nc)
+                            + C["S8udRR"][f4, f4, f2, f1].conj() / 2,
+            'F' + qqqq + '7p' : -C["V8udduLR"][f3, f2, f1, f4],
+            'F' + qqqq + '8p' : - 2 * C["V1udduLR"][f3, f2, f1, f4]
+                            + C["V8udduLR"][f3, f2, f1, f4] / Nc,
+            'F' + qqqq + '9p' : -C["S8udduRR"][f4, f1, f2, f3].conj() / 16,
+            'F' + qqqq + '10p' : -C["S1udduRR"][f4, f1, f2, f3].conj() / 8
+                            +C["S8udduRR"][f4, f1, f2, f3].conj() / 16 / Nc
+                            }
     #case dddd
     classIV = ['sbsd','dbds','bsbd']
     classVdddd = ['sbss', 'dbdd', 'bsbb', 'dsdd', 'bdbb', 'bsbb','sbbb','dbbb']
@@ -249,32 +265,39 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
         return {
                 'F'+ qqqq +'1' : C["VddLL"][f3, f4, f1, f2],
                  'F'+ qqqq +'2' : C["VddLL"][f1, f4, f3, f2],
-                 'F'+ qqqq +'3' : C["V1ddLR"][f1, f2, f3, f4] - C["V8ddLR"][f1, f2, f3, f4]/(2*Nc),
-                 'F'+ qqqq +'4' : C["V8ddLR"][f1, f2, f3, f4]/2,
-                 'F'+ qqqq +'5' : C["S1ddRR"][f3, f4, f1, f2] - C["S8ddRR"][f3, f2, f1,f4]/4
-                                  - C["S8ddRR"][f3, f4, f1, f2]/(2*Nc),
-                 'F'+ qqqq +'6' : -C["S1ddRR"][f1, f4, f3, f2]/2 + C["S8ddRR"][f3, f2, f1, f4]/(4*Nc)
-                                  + C["S8ddRR"][f3, f4, f1, f2]/2,
+                 'F'+ qqqq +'3' : C["V1ddLR"][f1, f2, f3, f4]
+                                  - C["V8ddLR"][f1, f2, f3, f4]/(2 * Nc),
+                 'F'+ qqqq +'4' : C["V8ddLR"][f1, f2, f3, f4] / 2,
+                 'F'+ qqqq +'5' : C["S1ddRR"][f3, f4, f1, f2]
+                                - C["S8ddRR"][f3, f2, f1,f4] / 4
+                                  - C["S8ddRR"][f3, f4, f1, f2] / (2 * Nc),
+                 'F'+ qqqq +'6' : -C["S1ddRR"][f1, f4, f3, f2] / 2
+                                  + C["S8ddRR"][f3, f2, f1, f4] / (4 * Nc)
+                                  + C["S8ddRR"][f3, f4, f1, f2] / 2,
                  'F'+ qqqq +'7' : -C["V8ddLR"][f1, f4, f3, f2],
-                 'F'+ qqqq +'8' : -2*C["V1ddLR"][f1, f4, f3, f2] + C["V8ddLR"][f1, f4, f3, f2]/Nc,
-                 'F'+ qqqq +'9' : -C["S8ddRR"][f3, f2, f1, f4]/16,
-                 'F'+ qqqq +'10' : -C["S1ddRR"][f1, f4, f3, f2]/8
-                                    + C["S8ddRR"][f3, f2, f1, f4]/(16*Nc),
-                 'F'+ qqqq +'1p':  C["VddRR"][f3, f4, f1, f2],
-                 'F'+ qqqq +'2p': C["VddRR"][f1, f3, f4, f2],
-                 'F'+ qqqq +'3p' : C["V1ddLR"][f3, f4, f1, f2] - C["V8ddLR"][f3, f4, f1,f2]/(2*Nc),
-                 'F'+ qqqq +'4p' : C["V8ddLR"][f3, f4, f1, f2]/2,
-                 'F'+ qqqq +'5p' : C["S1ddRR"][f4, f3, f2, f1].conjugate() -
-                                    C["S8ddRR"][f4, f1, f2, f3].conjugate()/4
-                                    - C["S8ddRR"][f4, f3, f2, f1].conjugate()/(2*Nc),
-                 'F'+ qqqq +'6p' : -C["S1ddRR"][f4, f1, f2, f3].conjugate()/2 +
-                                    C["S8ddRR"][f4, f1, f2, f3].conjugate()/(4*Nc)
-                                    + C["S8ddRR"][f4, f3, f2, f1].conjugate()/2,
+                 'F'+ qqqq +'8' : -2 * C["V1ddLR"][f1, f4, f3, f2]
+                                    + C["V8ddLR"][f1, f4, f3, f2] / Nc,
+                 'F'+ qqqq +'9' : -C["S8ddRR"][f3, f2, f1, f4] / 16,
+                 'F'+ qqqq +'10' : -C["S1ddRR"][f1, f4, f3, f2] / 8
+                                    + C["S8ddRR"][f3, f2, f1, f4] / (16 * Nc),
+                 'F'+ qqqq +'1p' : C["VddRR"][f3, f4, f1, f2],
+                 'F'+ qqqq +'2p' : C["VddRR"][f1, f3, f4, f2],
+                 'F'+ qqqq +'3p' : C["V1ddLR"][f3, f4, f1, f2]
+                                   - C["V8ddLR"][f3, f4, f1,f2] / (2 * Nc),
+                 'F'+ qqqq +'4p' : C["V8ddLR"][f3, f4, f1, f2] / 2,
+                 'F'+ qqqq +'5p' : C["S1ddRR"][f4, f3, f2, f1].conj() -
+                                    C["S8ddRR"][f4, f1, f2, f3].conj() / 4
+                                   -C["S8ddRR"][f4, f3, f2, f1].conj() / 2 / Nc,
+                 'F'+ qqqq +'6p' : -C["S1ddRR"][f4, f1, f2, f3].conj() / 2 +
+                                    C["S8ddRR"][f4, f1, f2, f3].conj() / 4 / Nc
+                                    + C["S8ddRR"][f4, f3, f2, f1].conj() / 2,
                  'F'+ qqqq +'7p' : -C["V8ddLR"][f3, f2, f1, f4],
-                 'F'+ qqqq +'8p' : -2*C["V1ddLR"][f3, f2, f1, f4] + C["V8ddLR"][f3, f2, f1, f4]/Nc,
-                 'F'+ qqqq +'9p' : -C["S8ddRR"][f4, f1, f2, f3].conjugate()/16,
-                 'F'+ qqqq +'10p' : -C["S1ddRR"][f4, f1, f2, f3].conjugate()/8
-                                    + C["S8ddRR"][f4, f1, f2, f3].conjugate()/(16*Nc)}
+                 'F'+ qqqq +'8p' : -2 * C["V1ddLR"][f3, f2, f1, f4]
+                                    + C["V8ddLR"][f3, f2, f1, f4] / Nc,
+                 'F'+ qqqq +'9p' : -C["S8ddRR"][f4, f1, f2, f3].conj() / 16,
+                 'F'+ qqqq +'10p' : -C["S1ddRR"][f4, f1, f2, f3].conj() / 8 +
+                                    C["S8ddRR"][f4, f1, f2, f3].conj() / 16 / Nc
+                                    }
     #case uuuu
     classVuuuu = ['ucuu', 'cucc']
     if qqqq in classVuuuu:
@@ -283,116 +306,131 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
         f3 = uflav[qqqq[2]]
         f4 = uflav[qqqq[3]]
         return {
-                'F'+ qqqq +'1' : C["VuuLL"][f3, f4, f1, f2],
-                 'F'+ qqqq +'2' : C["VuuLL"][f1, f4, f3, f2],
-                 'F'+ qqqq +'3' : C["V1uuLR"][f1, f2, f3, f4] - C["V8uuLR"][f1, f2, f3, f4]/(2*Nc),
-                 'F'+ qqqq +'4' : C["V8uuLR"][f1, f2, f3, f4]/2,
-                 'F'+ qqqq +'5' : C["S1uuRR"][f3, f4, f1, f2] - C["S8uuRR"][f3, f2, f1,f4]/4
-                                  - C["S8uuRR"][f3, f4, f1, f2]/(2*Nc),
-                 'F'+ qqqq +'6' : -C["S1uuRR"][f1, f4, f3, f2]/2 + C["S8uuRR"][f3, f2, f1, f4]/(4*Nc)
-                                  + C["S8uuRR"][f3, f4, f1, f2]/2,
-                 'F'+ qqqq +'7' : -C["V8uuLR"][f1, f4, f3, f2],
-                 'F'+ qqqq +'8' : -2*C["V1uuLR"][f1, f4, f3, f2] + C["V8uuLR"][f1, f4, f3, f2]/Nc,
-                 'F'+ qqqq +'9' : -C["S8uuRR"][f3, f2, f1, f4]/16,
-                 'F'+ qqqq +'10' : -C["S1uuRR"][f1, f4, f3, f2]/8
-                                    + C["S8uuRR"][f3, f2, f1, f4]/(16*Nc),
-                 'F'+ qqqq +'1p': C["VuuRR"][f3, f4, f1, f2],
-                 'F'+ qqqq +'2p': C["VuuRR"][f1, f3, f4, f2],
-                 'F'+ qqqq +'3p' : C["V1uuLR"][f3, f4, f1, f2] - C["V8uuLR"][f3, f4, f1,f2]/(2*Nc),
-                 'F'+ qqqq +'4p' : C["V8uuLR"][f3, f4, f1, f2]/2,
-                 'F'+ qqqq +'5p' : C["S1uuRR"][f4, f3, f2, f1].conjugate() -
-                                    C["S8uuRR"][f4, f1, f2, f3].conjugate()/4
-                                    - C["S8uuRR"][f4, f3, f2, f1].conjugate()/(2*Nc),
-                 'F'+ qqqq +'6p' : -C["S1uuRR"][f4, f1, f2, f3].conjugate()/2 +
-                                    C["S8uuRR"][f4, f1, f2, f3].conjugate()/(4*Nc)
-                                    + C["S8uuRR"][f4, f3, f2, f1].conjugate()/2,
-                 'F'+ qqqq +'7p' : -C["V8uuLR"][f3, f2, f1, f4],
-                 'F'+ qqqq +'8p' : -2*C["V1uuLR"][f3, f2, f1, f4] + C["V8uuLR"][f3, f2, f1, f4]/Nc,
-                 'F'+ qqqq +'9p' : -C["S8uuRR"][f4, f1, f2, f3].conjugate()/16,
-                 'F'+ qqqq +'10p' : -C["S1uuRR"][f4, f1, f2, f3].conjugate()/8
-                                    + C["S8uuRR"][f4, f1, f2, f3].conjugate()/(16*Nc)}
+                'F' + qqqq + '1' : C["VuuLL"][f3, f4, f1, f2],
+                'F' + qqqq + '2' : C["VuuLL"][f1, f4, f3, f2],
+                'F' + qqqq + '3' : C["V1uuLR"][f1, f2, f3, f4]
+                                   - C["V8uuLR"][f1, f2, f3, f4] / (2 * Nc),
+                'F' + qqqq + '4' : C["V8uuLR"][f1, f2, f3, f4] / 2,
+                'F' + qqqq + '5' : C["S1uuRR"][f3, f4, f1, f2]
+                                    - C["S8uuRR"][f3, f2, f1,f4] / 4
+                                    - C["S8uuRR"][f3, f4, f1, f2] / (2 * Nc),
+                'F' + qqqq + '6' : -C["S1uuRR"][f1, f4, f3, f2] / 2
+                                    + C["S8uuRR"][f3, f2, f1, f4] / (4 * Nc)
+                                    + C["S8uuRR"][f3, f4, f1, f2] / 2,
+                'F' + qqqq + '7' : -C["V8uuLR"][f1, f4, f3, f2],
+                'F' + qqqq + '8' : -2 * C["V1uuLR"][f1, f4, f3, f2]
+                                    + C["V8uuLR"][f1, f4, f3, f2] / Nc,
+                'F' + qqqq + '9' : -C["S8uuRR"][f3, f2, f1, f4] / 16,
+                'F' + qqqq + '10' : -C["S1uuRR"][f1, f4, f3, f2] / 8
+                                    + C["S8uuRR"][f3, f2, f1, f4] / (16 * Nc),
+                'F'+ qqqq + '1p': C["VuuRR"][f3, f4, f1, f2],
+                'F' + qqqq + '2p': C["VuuRR"][f1, f3, f4, f2],
+                'F' + qqqq + '3p' : C["V1uuLR"][f3, f4, f1, f2]
+                                    - C["V8uuLR"][f3, f4, f1,f2] / (2 * Nc),
+                'F' + qqqq + '4p' : C["V8uuLR"][f3, f4, f1, f2] / 2,
+                'F' + qqqq + '5p' : C["S1uuRR"][f4, f3, f2, f1].conj() -
+                                    C["S8uuRR"][f4, f1, f2, f3].conj() / 4 -
+                                    C["S8uuRR"][f4, f3, f2, f1].conj() / 2 / Nc,
+                'F' + qqqq + '6p' : -C["S1uuRR"][f4, f1, f2, f3].conj() / 2 +
+                                    C["S8uuRR"][f4, f1, f2, f3].conj() / 4 / Nc
+                                    + C["S8uuRR"][f4, f3, f2, f1].conj() / 2,
+                'F' + qqqq + '7p' : -C["V8uuLR"][f3, f2, f1, f4],
+                'F' + qqqq + '8p' : -2 * C["V1uuLR"][f3, f2, f1, f4]
+                                    + C["V8uuLR"][f3, f2, f1, f4] / Nc,
+                'F' + qqqq + '9p' : -C["S8uuRR"][f4, f1, f2, f3].conj() / 16,
+                'F' + qqqq + '10p' : -C["S1uuRR"][f4, f1, f2, f3].conj() / 8 +
+                                    C["S8uuRR"][f4, f1, f2, f3].conj() / 16 / Nc
+                                    }
     else:
         "not in Fqqqq"
 
 
-    ## for bern Basis
-
-# for all flavour same rotation matrix! as well as for prime and non-prime
 def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
     """From Fierz to 4-quark Bern basis for Classes III, IV and V.
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
 
     if qqqq in ['sbss','dbdd','dbbb','sbbb','dbds','sbsd']:
         return {
-        '1'+qqqq : -Fqqqq['F'+qqqq+'1'] / 3 + 4 * Fqqqq['F'+qqqq+'3'] / 3,
-        '3'+qqqq : Fqqqq['F'+qqqq+'1'] / 12 - Fqqqq['F'+qqqq+'3'] / 12,
-        '5'+ qqqq : -Fqqqq['F'+qqqq+'5p'] / 3 + 4 * Fqqqq['F'+qqqq+'7p'] / 3,
-        '7'+qqqq : Fqqqq['F'+qqqq+'5p'] / 3 - Fqqqq['F'+qqqq+'7p'] / 3
-                   + Fqqqq['F'+qqqq+'9p'],
-        '9'+qqqq : Fqqqq['F'+qqqq+'5p'] / 48 - Fqqqq['F'+qqqq+'7p'] / 48,
+        '1' + qqqq : -Fqqqq['F' + qqqq + '1'] / 3
+                        + 4 * Fqqqq['F' + qqqq + '3'] / 3,
+        '3' + qqqq : Fqqqq['F' + qqqq + '1'] / 12 - Fqqqq['F' + qqqq + '3'] / 12,
+        '5' + qqqq : -Fqqqq['F' + qqqq + '5p'] / 3
+                    + 4 * Fqqqq['F' + qqqq + '7p'] / 3,
+        '7' + qqqq : Fqqqq['F' + qqqq + '5p'] / 3 - Fqqqq['F' + qqqq + '7p'] / 3
+                    + Fqqqq['F' + qqqq + '9p'],
+        '9' + qqqq : Fqqqq['F' + qqqq + '5p'] / 48
+                     - Fqqqq['F' + qqqq + '7p'] / 48,
 
-        '1p'+qqqq : -Fqqqq['F'+qqqq+'1p'] / 3 + 4 * Fqqqq['F'+qqqq+'3p'] / 3,
-        '3p'+qqqq : Fqqqq['F'+qqqq+'1p'] / 12 - Fqqqq['F'+qqqq+'3p'] / 12,
-        '5p'+qqqq : -Fqqqq['F'+qqqq+'5'] / 3 + 4 * Fqqqq['F'+qqqq+'7'] / 3,
-        '7p'+qqqq : Fqqqq['F'+qqqq+'5'] / 3 - Fqqqq['F'+qqqq+'7'] / 3
-                    + Fqqqq['F'+qqqq+'9'],
-        '9p'+qqqq : Fqqqq['F'+qqqq+'5'] / 48 - Fqqqq['F'+qqqq+'7'] / 48
+        '1p' + qqqq : -Fqqqq['F' + qqqq + '1p'] / 3
+                      + 4 * Fqqqq['F' + qqqq + '3p'] / 3,
+        '3p' + qqqq : Fqqqq['F' + qqqq + '1p'] / 12
+                      - Fqqqq['F' + qqqq + '3p'] / 12,
+        '5p' + qqqq : -Fqqqq['F' + qqqq + '5'] / 3
+                      + 4 * Fqqqq['F' + qqqq + '7'] / 3,
+        '7p' + qqqq : Fqqqq['F' + qqqq + '5'] / 3 - Fqqqq['F' + qqqq + '7'] / 3
+                      + Fqqqq['F' + qqqq + '9'],
+        '9p' + qqqq : Fqqqq['F' + qqqq + '5'] / 48
+                      - Fqqqq['F' + qqqq + '7'] / 48
                             }
     else:
         return {
-        '1'+qqqq : -Fqqqq['F'+qqqq+'1']/3 + (4*Fqqqq['F'+qqqq+'3'])/3
-                         - Fqqqq['F'+qqqq+'2']/(3*Nc)
-                         + (4*Fqqqq['F'+qqqq+'4'])/(3*Nc),
-        '2'+qqqq : (-2*Fqqqq['F'+qqqq+'2'])/3 + (8*Fqqqq['F'+qqqq+'4'])/3,
-        '3'+qqqq : Fqqqq['F'+qqqq+'1']/12 - Fqqqq['F'+qqqq+'3']/12
-                         + Fqqqq['F'+qqqq+'2']/(12*Nc)
-                         - Fqqqq['F'+qqqq+'4']/(12*Nc),
-        '4'+ qqqq : Fqqqq['F'+qqqq+'2']/6 - Fqqqq['F'+qqqq+'4']/6,
-        '5'+ qqqq : -Fqqqq['F'+qqqq+'5']/3
-                            + (4*Fqqqq['F'+qqqq+'7'])/3
-                            - Fqqqq['F'+qqqq+'6']/(3*Nc)
-                            + (4*Fqqqq['F'+qqqq+'8'])/(3*Nc),
-        '6'+qqqq : (-2*Fqqqq['F'+qqqq+'6'])/3 + (8*Fqqqq['F'+qqqq+'8'])/3,
-        '7'+qqqq : Fqqqq['F'+qqqq+'5']/3 - Fqqqq['F'+qqqq+'7']/3
-                         + Fqqqq['F'+qqqq+'9'] + Fqqqq['F'+qqqq+'10']/Nc
-                         + Fqqqq['F'+qqqq+'6']/(3*Nc)
-                         - Fqqqq['F'+qqqq+'8']/(3*Nc),
-        '8'+qqqq : 2*Fqqqq['F'+qqqq+'10']
-                         + (2*Fqqqq['F'+qqqq+'6'])/3
-                         - (2*Fqqqq['F'+qqqq+'8'])/3,
-        '9'+qqqq : Fqqqq['F'+qqqq+'5']/48 - Fqqqq['F'+qqqq+'7']/48
-                            + Fqqqq['F'+qqqq+'6']/(48*Nc)
-                            - Fqqqq['F'+qqqq+'8']/(48*Nc),
-        '10'+qqqq : Fqqqq['F'+qqqq+'6']/24 - Fqqqq['F'+qqqq+'8']/24,
-        '1p'+qqqq : -Fqqqq['F'+qqqq+'1p']/3
-                            + (4*Fqqqq['F'+qqqq+'3p'])/3
-                            - Fqqqq['F'+qqqq+'2p']/(3*Nc)
-                            + (4*Fqqqq['F'+qqqq+'4p'])/(3*Nc),
-        '2p'+qqqq : (-2*Fqqqq['F'+qqqq+'2p'])/3
-                            + (8*Fqqqq['F'+qqqq+'4p'])/3,
-        '3p'+qqqq : Fqqqq['F'+qqqq+'1p']/12 - Fqqqq['F'+qqqq+'3p']/12
-                            + Fqqqq['F'+qqqq+'2p']/(12*Nc)
-                            - Fqqqq['F'+qqqq+'4p']/(12*Nc),
-        '4p'+qqqq : Fqqqq['F'+qqqq+'2p']/6 - Fqqqq['F'+qqqq+'4p']/6,
-        '5p'+qqqq : -Fqqqq['F'+qqqq+'5p']/3
-                            + (4*Fqqqq['F'+qqqq+'7p'])/3
-                            - Fqqqq['F'+qqqq+'6p']/(3*Nc)
-                            + (4*Fqqqq['F'+qqqq+'8p'])/(3*Nc),
-        '6p'+qqqq : (-2*Fqqqq['F'+qqqq+'6p'])/3
-                            + (8*Fqqqq['F'+qqqq+'8p'])/3,
-        '7p'+qqqq : Fqqqq['F'+qqqq+'5p']/3
-                            - Fqqqq['F'+qqqq+'7p']/3
-                            + Fqqqq['F'+qqqq+'9p']
-                            + Fqqqq['F'+qqqq+'10p']/Nc
-                            + Fqqqq['F'+qqqq+'6p']/(3*Nc)
-                            - Fqqqq['F'+qqqq+'8p']/(3*Nc),
-        '8p'+qqqq : 2*Fqqqq['F'+qqqq+'10p']
-                            + (2*Fqqqq['F'+qqqq+'6p'])/3
-                            - (2*Fqqqq['F'+qqqq+'8p'])/3,
-        '9p'+qqqq : Fqqqq['F'+qqqq+'5p']/48 - Fqqqq['F'+qqqq+'7p']/48
-                            + Fqqqq['F'+qqqq+'6p']/(48*Nc)
-                            - Fqqqq['F'+qqqq+'8p']/(48*Nc),
-        '10p'+qqqq : Fqqqq['F'+qqqq+'6p']/24 - Fqqqq['F'+qqqq+'8p']/24}
+        '1'+qqqq : -Fqqqq['F' + qqqq + '1']/3 + 4 * Fqqqq['F' + qqqq + '3'] / 3
+                   - Fqqqq['F' + qqqq + '2']/(3 * Nc)
+                   + 4 * Fqqqq['F' + qqqq + '4'] / (3 * Nc),
+        '2'+qqqq : -2 * Fqqqq['F' + qqqq + '2'] / 3
+                    + 8 * Fqqqq['F' + qqqq + '4'] / 3,
+        '3'+qqqq : Fqqqq['F' + qqqq + '1'] / 12
+                   - Fqqqq['F' + qqqq + '3'] / 12
+                   + Fqqqq['F' + qqqq + '2'] / (12 * Nc)
+                   - Fqqqq['F' + qqqq + '4'] / (12 * Nc),
+        '4'+ qqqq : Fqqqq['F' + qqqq + '2'] / 6 - Fqqqq['F' + qqqq + '4'] / 6,
+        '5'+ qqqq : -Fqqqq['F' + qqqq + '5'] / 3
+                    + 4 * Fqqqq['F' + qqqq + '7'] / 3
+                    - Fqqqq['F' + qqqq + '6']/(3 * Nc)
+                    + 4 * Fqqqq['F' + qqqq + '8']/(3 * Nc),
+        '6'+qqqq : -2 * Fqqqq['F' + qqqq + '6'] / 3
+                   + 8 * Fqqqq['F' + qqqq + '8'] / 3,
+        '7'+qqqq : Fqqqq['F' + qqqq + '5'] / 3 - Fqqqq['F' + qqqq + '7'] / 3
+                   + Fqqqq['F' + qqqq + '9'] + Fqqqq['F' + qqqq + '10'] / Nc
+                   + Fqqqq['F' + qqqq + '6']/(3 * Nc)
+                   - Fqqqq['F' + qqqq + '8']/(3 * Nc),
+        '8'+qqqq : 2*Fqqqq['F' + qqqq + '10'] + 2 * Fqqqq['F' + qqqq + '6'] / 3
+                   -2 * Fqqqq['F' + qqqq + '8'] / 3,
+        '9'+qqqq : Fqqqq['F' + qqqq + '5'] / 48 - Fqqqq['F' + qqqq + '7'] / 48
+                   + Fqqqq['F' + qqqq + '6'] / (48 * Nc)
+                   - Fqqqq['F' + qqqq + '8'] / (48 * Nc),
+        '10'+qqqq : Fqqqq['F' + qqqq + '6'] / 24 - Fqqqq['F' + qqqq + '8'] / 24,
+        '1p'+qqqq : -Fqqqq['F' + qqqq + '1p'] / 3
+                    + 4 * Fqqqq['F' + qqqq + '3p'] / 3
+                    - Fqqqq['F' + qqqq + '2p'] / (3 * Nc)
+                    + 4 * Fqqqq['F' + qqqq + '4p'] / (3 * Nc),
+        '2p'+qqqq : -2 * Fqqqq['F' + qqqq + '2p'] / 3
+                    + 8 * Fqqqq['F' + qqqq + '4p'] / 3,
+        '3p'+qqqq : Fqqqq['F' + qqqq + '1p'] / 12
+                    - Fqqqq['F' + qqqq + '3p'] / 12
+                    + Fqqqq['F' + qqqq + '2p'] / (12 * Nc)
+                    - Fqqqq['F' + qqqq + '4p'] / (12 * Nc),
+        '4p'+qqqq : Fqqqq['F' + qqqq + '2p'] / 6 - Fqqqq['F' + qqqq + '4p'] / 6,
+        '5p'+qqqq : -Fqqqq['F' + qqqq + '5p'] / 3
+                    + 4 * Fqqqq['F' + qqqq + '7p'] / 3
+                    - Fqqqq['F' + qqqq + '6p'] / (3 * Nc)
+                    + 4 * Fqqqq['F' + qqqq + '8p'] / (3 * Nc),
+        '6p'+qqqq : -2 * Fqqqq['F' + qqqq + '6p'] / 3
+                    + 8 * Fqqqq['F' + qqqq + '8p'] / 3,
+        '7p'+qqqq : Fqqqq['F' + qqqq + '5p'] / 3 - Fqqqq['F' + qqqq + '7p'] / 3
+                    + Fqqqq['F' + qqqq + '9p'] + Fqqqq['F' + qqqq + '10p'] / Nc
+                    + Fqqqq['F' + qqqq + '6p']/(3 * Nc)
+                    - Fqqqq['F' + qqqq + '8p']/(3 * Nc),
+        '8p'+qqqq : 2 * Fqqqq['F' + qqqq + '10p']
+                    + 2 * Fqqqq['F' + qqqq + '6p'] / 3
+                    - 2 * Fqqqq['F' + qqqq + '8p'] / 3,
+        '9p'+qqqq : Fqqqq['F' + qqqq + '5p'] / 48
+                    - Fqqqq['F' + qqqq + '7p'] / 48
+                    + Fqqqq['F' + qqqq + '6p'] / (48 * Nc)
+                    - Fqqqq['F' + qqqq + '8p'] / (48 * Nc),
+        '10p'+qqqq : Fqqqq['F' + qqqq + '6p'] / 24
+                     - Fqqqq['F' + qqqq + '8p'] / 24
+                    }
 
 
 def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
@@ -403,78 +441,40 @@ def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
     """From Fierz to the EOS basis for b -> s transitions.
     The arguments are dictionaries of the corresponding Fierz bases """
     dic = {
-    'b->s::c1' : (-2*Fsbbb['Fsbbb1'])/5 + Fsbcc['Fsbcc1'] -
-    (6*Fsbdd['Fsbdd1'])/5 + (4*Fsbdd['Fsbdd2'])/5 - (2*Fsbss['Fsbss1'])/5
-    + Fsbuu['Fsbuu1'],
-     'b->s::c2' : (-4*Fsbbb['Fsbbb1'])/15 + Fsbcc['Fsbcc1']/6 +
-    Fsbcc['Fsbcc2']/2 + Fsbdd['Fsbdd1']/5 - (7*Fsbdd['Fsbdd2'])/15 -
-    (4*Fsbss['Fsbss1'])/15 + Fsbuu['Fsbuu1']/6 + Fsbuu['Fsbuu2']/2,
-     'b->s::c3' : (-4*Fsbbb['Fsbbb1'])/45 + (4*Fsbbb['Fsbbb3'])/15 +
-    (4*Fsbbb['Fsbbb4'])/45 + (4*Fsbcc['Fsbcc3'])/15 +
-    (4*Fsbcc['Fsbcc4'])/45 - (7*Fsbdd['Fsbdd1'])/45 + Fsbdd['Fsbdd2']/15
-    + (4*Fsbdd['Fsbdd3'])/15 + (4*Fsbdd['Fsbdd4'])/45 -
-    (4*Fsbss['Fsbss1'])/45 + (4*Fsbss['Fsbss3'])/15 +
-    (4*Fsbss['Fsbss4'])/45 + (4*Fsbuu['Fsbuu3'])/15 +
-    (4*Fsbuu['Fsbuu4'])/45,
-     'b->s::c4' : (-2*Fsbbb['Fsbbb1'])/15 + (8*Fsbbb['Fsbbb4'])/15 +
-    (8*Fsbcc['Fsbcc4'])/15 + (4*Fsbdd['Fsbdd1'])/15 -
-    (2*Fsbdd['Fsbdd2'])/5 + (8*Fsbdd['Fsbdd4'])/15 -
-    (2*Fsbss['Fsbss1'])/15 + (8*Fsbss['Fsbss4'])/15 +
-    (8*Fsbuu['Fsbuu4'])/15,
-     'b->s::c5' : Fsbbb['Fsbbb1']/45 - Fsbbb['Fsbbb3']/60 -
-    Fsbbb['Fsbbb4']/180 - Fsbcc['Fsbcc3']/60 - Fsbcc['Fsbcc4']/180 +
-    (7*Fsbdd['Fsbdd1'])/180 - Fsbdd['Fsbdd2']/60 - Fsbdd['Fsbdd3']/60 -
-    Fsbdd['Fsbdd4']/180 + Fsbss['Fsbss1']/45 - Fsbss['Fsbss3']/60 -
-    Fsbss['Fsbss4']/180 - Fsbuu['Fsbuu3']/60 - Fsbuu['Fsbuu4']/180,
-     'b->s::c6' : Fsbbb['Fsbbb1']/30 - Fsbbb['Fsbbb4']/30 -
-    Fsbcc['Fsbcc4']/30 - Fsbdd['Fsbdd1']/15 + Fsbdd['Fsbdd2']/10 -
-    Fsbdd['Fsbdd4']/30 + Fsbss['Fsbss1']/30 - Fsbss['Fsbss4']/30 -
-    Fsbuu['Fsbuu4']/30}
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-    return {k: prefactor*v for k,v in dic.items()}
-
-
-def _Fierz_to_FormFlavor_V(C, OMN_ffff):
-    """From Fierz to 4-quark FormFlavour basis for V.
-    `C` should be a dictionary of the corresponding Fierz basis
-    and qqqq should be of the form 'VLL_bdbd', 'VRR_sdsd' etc."""
-    O = OMN_ffff[0]
-    M = OMN_ffff[1]
-    N= OMN_ffff[2]
-    ffff = OMN_ffff[4::]
-    if O == 'S':
-            if M == 'R':
-                if N == 'R':
-                    return {'C'+OMN_ffff : C['F'+ffff+'5']}
-                else:
-                    return {'C'+OMN_ffff : C['F'+ffff+'7']}
-            else:
-                if N == 'L':
-                    return {'C'+OMN_ffff : C['F'+ffff+'5p']}
-                else:
-                    return {'C'+OMN_ffff : C['F'+ffff+'7p']}
-    elif O == 'V':
-            if M == 'L':
-                if N == 'L':
-                    return {'C'+OMN_ffff : C['F'+ffff+'1']}
-                else:
-                    return {'C'+OMN_ffff : C['F'+ffff+'3']}
-            else:
-                if N == 'R':
-                    return {'C'+OMN_ffff : C['F'+ffff+'1p']}
-                else:
-                    return {'C'+OMN_ffff : C['F'+ffff+'3p']}
-    elif O == 'T':
-            if M == 'R':
-                if N == 'R':
-                    return {'C'+OMN_ffff : C['F'+ffff+'9']}
-                else:
-                    return {'C'+OMN_ffff : 0}
-            else:
-                if N == 'R':
-                    return {'C'+OMN_ffff : 0}
-                else:
-                    return {'C'+OMN_ffff : C['F'+ffff+'9p']}
+    'b->s::c1' :  -2 * Fsbbb['Fsbbb1'] / 5 + Fsbcc['Fsbcc1'] -
+                  6 * Fsbdd['Fsbdd1'] / 5 + 4 * Fsbdd['Fsbdd2'] / 5
+                  -2 * Fsbss['Fsbss1'] / 5 + Fsbuu['Fsbuu1'],
+     'b->s::c2' : -4 * Fsbbb['Fsbbb1'] / 15 + Fsbcc['Fsbcc1'] / 6
+                  + Fsbcc['Fsbcc2'] / 2 + Fsbdd['Fsbdd1'] / 5
+                  - 7 * Fsbdd['Fsbdd2'] / 15 - 4 * Fsbss['Fsbss1'] / 15
+                  + Fsbuu['Fsbuu1'] / 6 + Fsbuu['Fsbuu2'] / 2,
+     'b->s::c3' : -4 * Fsbbb['Fsbbb1'] / 45 + 4 * Fsbbb['Fsbbb3'] / 15 +
+                    4 * Fsbbb['Fsbbb4'] / 45 + 4 * Fsbcc['Fsbcc3'] / 15 +
+                    4 * Fsbcc['Fsbcc4'] / 45 - (7*Fsbdd['Fsbdd1'])/45
+                    + Fsbdd['Fsbdd2']/15 + 4 * Fsbdd['Fsbdd3'] / 15
+                    + 4 * Fsbdd['Fsbdd4'] / 45 - 4 * Fsbss['Fsbss1'] / 45
+                    + 4 * Fsbss['Fsbss3'] / 15 + 4 * Fsbss['Fsbss4'] / 45
+                    + 4 * Fsbuu['Fsbuu3'] / 15 + 4 * Fsbuu['Fsbuu4'] / 45,
+     'b->s::c4' : - 2 * Fsbbb['Fsbbb1'] / 15 + 8 * Fsbbb['Fsbbb4'] / 15
+                    + 8 * Fsbcc['Fsbcc4'] / 15 + 4 * Fsbdd['Fsbdd1'] / 15
+                    - 2 * Fsbdd['Fsbdd2'] / 5 + 8 * Fsbdd['Fsbdd4'] / 15
+                    - 2 * Fsbss['Fsbss1'] / 15 + 8 * Fsbss['Fsbss4'] / 15
+                    + 8 * Fsbuu['Fsbuu4'] / 15,
+     'b->s::c5' : Fsbbb['Fsbbb1'] / 45 - Fsbbb['Fsbbb3'] / 60
+                    -Fsbbb['Fsbbb4'] / 180 - Fsbcc['Fsbcc3'] / 60
+                    - Fsbcc['Fsbcc4'] / 180 + 7 * Fsbdd['Fsbdd1'] / 180
+                    - Fsbdd['Fsbdd2'] / 60 - Fsbdd['Fsbdd3'] / 60
+                    -Fsbdd['Fsbdd4'] / 180 + Fsbss['Fsbss1'] / 45
+                    - Fsbss['Fsbss3'] / 60 -Fsbss['Fsbss4'] / 180
+                    - Fsbuu['Fsbuu3'] / 60 - Fsbuu['Fsbuu4'] / 180,
+     'b->s::c6' : Fsbbb['Fsbbb1'] / 30 - Fsbbb['Fsbbb4'] / 30
+                  -Fsbcc['Fsbcc4'] / 30 - Fsbdd['Fsbdd1'] / 15
+                  + Fsbdd['Fsbdd2'] / 10 -Fsbdd['Fsbdd4'] / 30
+                  + Fsbss['Fsbss1'] / 30 - Fsbss['Fsbss4'] / 30
+                  -Fsbuu['Fsbuu4'] / 30
+                  }
+    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    return {k: prefactor * v for k,v in dic.items()}
 
 
 # semileptonic operators
@@ -488,44 +488,49 @@ def JMS_to_Fierz_lep(C, ddll):
     lp = lflav[ddll[ddll.find('_',5)+1:len(ddll)]]
     ind = ddll.replace('l_','').replace('nu_','')
     return {
-        'F' + ind + '9': C["VdeLR"][s, b, l, lp]/2 + C["VedLL"][l, lp, s, b]/2,
-        'F' + ind + '10': C["VdeLR"][s, b, l, lp]/2 - C["VedLL"][l, lp, s, b]/2,
-        'F' + ind + 'S': C["SedRL"][lp, l, b, s].conjugate()/2
-                    + C["SedRR"][l, lp, s, b]/2,
-        'F' + ind + 'P': C["SedRL"][lp, l, b, s].conjugate()/2
-                    + C["SedRR"][l, lp, s, b]/2,
-        'F' + ind + 'T': C["TedRR"][l, lp, s, b]/2
-                    + C["TedRR"][lp, l, b, s].conjugate()/2,
-        'F' + ind + 'T5': C["TedRR"][l, lp, s, b]/2
-                    - C["TedRR"][l, lp, s, b].conjugate()/2,
-        'F' + ind + '9p': C["VedLR"][l, lp, s, b]/2 + C["VedRR"][l, lp, s, b]/2,
-        'F' + ind + '10p': -C["VedLR"][l, lp, s, b]/2 + C["VedRR"][l, lp, s, b]/2,
-        'F' + ind + 'Sp': C["SedRL"][l, lp, s, b]/2
-                    + C["SedRR"][lp, l, b, s].conjugate()/2,
-        'F' + ind + 'Pp': C["SedRL"][l, lp, s, b]/2
-                    - C["SedRR"][lp, l, b, s].conjugate() / 2,
-        'F' + ind + 'nu': C["VnudLL"][l, lp, s, b],
-        'F' + ind + 'nup': C["VnudLR"][l, lp, s, b]}
+        'F' + ind + '9' : C["VdeLR"][s, b, l, lp] / 2
+                          + C["VedLL"][l, lp, s, b] / 2,
+        'F' + ind + '10' : C["VdeLR"][s, b, l, lp] / 2
+                           - C["VedLL"][l, lp, s, b] / 2,
+        'F' + ind + 'S' : C["SedRL"][lp, l, b, s].conj() / 2
+                          + C["SedRR"][l, lp, s, b] / 2,
+        'F' + ind + 'P' : C["SedRL"][lp, l, b, s].conj() / 2
+                          + C["SedRR"][l, lp, s, b] / 2,
+        'F' + ind + 'T' : C["TedRR"][l, lp, s, b] / 2
+                          + C["TedRR"][lp, l, b, s].conj() / 2,
+        'F' + ind + 'T5' : C["TedRR"][l, lp, s, b] / 2
+                           - C["TedRR"][l, lp, s, b].conj() / 2,
+        'F' + ind + '9p' : C["VedLR"][l, lp, s, b] / 2
+                           + C["VedRR"][l, lp, s, b] / 2,
+        'F' + ind + '10p' : -C["VedLR"][l, lp, s, b] / 2
+                            + C["VedRR"][l, lp, s, b] / 2,
+        'F' + ind + 'Sp' : C["SedRL"][l, lp, s, b] / 2
+                           + C["SedRR"][lp, l, b, s].conj() / 2,
+        'F' + ind + 'Pp' : C["SedRL"][l, lp, s, b] / 2
+                            - C["SedRR"][lp, l, b, s].conj() / 2,
+        'F' + ind + 'nu' : C["VnudLL"][l, lp, s, b],
+        'F' + ind + 'nup' : C["VnudLR"][l, lp, s, b]
+        }
 
 
 def Fierz_to_Bern_lep(C,ddll):
     """From semileptonic Fierz basis to Bern semileptonic basis for Class V.
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     ind = ddll.replace('l_','').replace('nu_','')
-    return {'1'+ind : (5*C['F'+ind+'10'])/3+C['F'+ind+'9'],
-            '3'+ind : -((C['F'+ind+'10'])/6),
-            '5'+ind : C['F'+ind+'S'] - 5*C['F'+ind+'P']/3,
-            '7'+ind : (2*C['F'+ind+'P'])/3+C['F'+ind+'T']
-                        +C['F'+ind+'T5'],
-            '9'+ind : (C['F'+ind+'P'])/24,
-            '1p'+ind : C['F'+ind+'9p']-(5*C['F'+ind+'10p'])/3,
-            '3p'+ind : (C['F'+ind+'10p'])/6,
-            '5p'+ind : (5*C['F'+ind+'Pp'])/3 + C['F'+ind+'Sp'],
-            '7p'+ind : -((2*C['F'+ind+'Pp'])/3) + C['F'+ind+'T']
-                        - C['F'+ind+'T5'],
-            '9p'+ind : -((C['F'+ind+'Pp'])/24),
-            'nu1'+ind : C['F'+ind+'nu'],
-            'nu1p'+ind : C['F'+ind+'nup']
+    return {'1' + ind : 5 * C['F'+ ind + '10'] / 3 + C['F'+ ind + '9'],
+            '3' + ind : -C['F' + ind + '10'] / 6,
+            '5' + ind : C['F' + ind + 'S'] - 5 * C['F' + ind + 'P'] / 3,
+            '7' + ind : 2 * C['F' + ind + 'P'] / 3 + C['F' + ind + 'T']
+                        + C['F' + ind + 'T5'],
+            '9' + ind : C['F' + ind + 'P'] / 24,
+            '1p' + ind : C['F' + ind + '9p']-5 * C['F' + ind + '10p'] / 3,
+            '3p' + ind : C['F' + ind + '10p'] / 6,
+            '5p' + ind : 5 * C['F' + ind + 'Pp'] / 3 + C['F' + ind + 'Sp'],
+            '7p' + ind : -2 * C['F' + ind + 'Pp'] / 3 + C['F' + ind + 'T']
+                        - C['F' + ind + 'T5'],
+            '9p' + ind : -C['F' + ind + 'Pp'] / 24,
+            'nu1' + ind : C['F' + ind + 'nu'],
+            'nu1p' + ind : C['F' + ind + 'nup']
             }
 
 
@@ -543,19 +548,19 @@ def Fierz_to_Flavio_lep(C, ddll, parameters):
     e = sqrt(4* pi * parameters['alpha_e'])
     mb = parameters['m_b']
     dic = {
-        "C9_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '9'],
-        "C9p_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '9p'],
-        "C10_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '10'],
-        "C10p_" + dd: (16 * pi**2) / e**2 * C['F' + ind + '10p'],
-        "CS_" + dd: (16 * pi**2) / e**2 / mb * C['F' + ind + 'S'],
-        "CSp_" + dd: (16 * pi**2) / e**2 / mb * C['F' + ind + 'Sp'],
-        "CP_" + dd: (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
-        "CPp_" + dd: (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
-        "CL_" + indnu: (8 * pi**2) / e**2 * C['F' + ind + 'nu'],
-        "CR_" + indnu: (8 * pi**2) / e**2 * C['F' + ind + 'nup']
+        "C9_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '9'],
+        "C9p_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '9p'],
+        "C10_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '10'],
+        "C10p_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '10p'],
+        "CS_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'S'],
+        "CSp_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Sp'],
+        "CP_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
+        "CPp_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
+        "CL_" + indnu : (8 * pi**2) / e**2 * C['F' + ind + 'nu'],
+        "CR_" + indnu : (8 * pi**2) / e**2 * C['F' + ind + 'nup']
         }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-    return {k: prefactor*v for k,v in dic.items()}
+    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    return {k: prefactor * v for k,v in dic.items()}
 
 
 def Fierz_to_EOS_lep(C, ddll, parameters):
@@ -582,8 +587,8 @@ def Fierz_to_EOS_lep(C, ddll, parameters):
         'b->s' + ind2 + "::cT"  : (16 * pi**2) / e**2  * C['F' + ind + 'T'],
         'b->s' + ind2 + "::cT5"  : (16 * pi**2) / e**2  * C['F' + ind + 'T5']
         }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-    return {k: prefactor*v for k,v in dic.items()}
+    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    return {k: prefactor * v for k,v in dic.items()}
 
 def JMS_to_FormFlavor_lep(C, dd):
     """From JMS to semileptonic Fierz basis for Classes V.
@@ -595,12 +600,12 @@ def JMS_to_FormFlavor_lep(C, dd):
         'CVRR_' + dd + 'mm' :  C["VedRR"][1, 1, s, b],
         'CVLR_' + dd + 'mm' : C["VdeLR"][s, b, 1, 1],
         'CVRL_' + dd + 'mm' : C["VedLR"][1, 1, s, b],
-        'CSLL_' + dd + 'mm' : C["SedRR"][1, 1, b, s].conjugate(),
+        'CSLL_' + dd + 'mm' : C["SedRR"][1, 1, b, s].conj(),
         'CSRR_' + dd + 'mm' : C["SedRR"][1, 1, s, b],
         'CSLR_' + dd + 'mm' : C["SedRL"][1, 1, s, b],
-        'CSRL_' + dd + 'mm' : C["SedRL"][1, 1, b, s].conjugate(),
+        'CSRL_' + dd + 'mm' : C["SedRL"][1, 1, b, s].conj(),
         'CTLL_' + dd + 'mm' : C["TedRR"][1, 1, s, b],
-        'CTRR_' + dd + 'mm' : C["TedRR"][1, 1, b, s].conjugate(),
+        'CTRR_' + dd + 'mm' : C["TedRR"][1, 1, b, s].conj(),
         'CVLL_sdnn' : C["VnudLL"][1, 1, s-1, s],
         'CVRL_sdnn' : C["VnudLR"][1, 1, s-1, s]}
 
@@ -619,40 +624,40 @@ def JMS_to_Fierz_chrom(C, qq, parameters):
         dic ={
             'F7gamma' + qq: C['dgamma'][s, b],
             "F8g" + qq: C['dG'][s, b],
-            "F7pgamma" + qq: C['dgamma'][b, s].conjugate(),
-            "F8pg" + qq: C['dG'][b, s].conjugate()
+            "F7pgamma" + qq: C['dgamma'][b, s].conj(),
+            "F8pg" + qq: C['dG'][b, s].conj()
         }
-        prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-        return {k: prefactor*v for k,v in dic.items()}
+        prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+        return {k: prefactor * v for k,v in dic.items()}
     if qq[0] in ['e', 'm', 't']:
         l1 = dflav[qq[0]]
         l2 = dflav[qq[1]]
         return {
             'F7gammal' + qq: C['egamma'][s, b],
-            "F7pgammal" + qq: C['egamma'][b, s].conjugate()
+            "F7pgammal" + qq: C['egamma'][b, s].conj()
         }
         if qq[0] in uflav.keys():
             u = uflav[qq[0]]
             c = uflav[qq[1]]
             dic ={
-                'F7gamma' + qq: C['ugamma'][u, c],
-                "F8g" + qq: C['uG'][u, c],
-                "F7pgamma" + qq: C['ugamma'][c, u].conjugate(),
-                "F8pg" + qq: C['uG'][c, u].conjugate()
-            }
+                'F7gamma' + qq : C['ugamma'][u, c],
+                "F8g" + qq : C['uG'][u, c],
+                "F7pgamma" + qq : C['ugamma'][c, u].conj(),
+                "F8pg" + qq : C['uG'][c, u].conj()
+                    }
 
 def Fierz_to_Bern_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Bern basis for Class V.
     `dd` should be of the form 'sb', 'ds' etc."""
-    e = sqrt(4* pi * parameters['alpha_e'])
-    gs = sqrt(4* pi * parameters['alpha_s'])
+    e = sqrt(4 * pi * parameters['alpha_e'])
+    gs = sqrt(4 * pi * parameters['alpha_s'])
     mb = parameters['m_b']
     return {
-        "7gamma"+dd: (gs**2) / e / mb * C['F7gamma' + dd ],
-        "8g"+dd: gs / mb * C['F8g' + dd ],
-        "7pgamma"+dd: (gs**2)/e/mb* C['F7pgamma' + dd],
-        "8pg"+dd: gs/mb*C['F8pg' + dd]
-    }
+        "7gamma"+dd : gs**2 / e / mb * C['F7gamma' + dd ],
+        "8g"+dd : gs / mb * C['F8g' + dd ],
+        "7pgamma"+dd : gs**2 / e /mb * C['F7pgamma' + dd],
+        "8pg"+dd : gs / mb * C['F8pg' + dd]
+            }
 
 
 
@@ -665,17 +670,17 @@ def Fierz_to_Flavio_chrom(C, dd, parameters):
     Vtb = V[2,2]
     Vts = V[2,1]
     ddfl=dd[::-1]
-    e = sqrt(4* pi * parameters['alpha_e'])
-    gs = sqrt(4* pi * parameters['alpha_s'])
+    e = sqrt(4 * pi * parameters['alpha_e'])
+    gs = sqrt(4 * pi * parameters['alpha_s'])
     mb = parameters['m_b']
     dic = {
         "C7_" + ddfl: (16 * pi**2) / e / mb * C['F7gamma' + dd],
         "C8_" + ddfl: (16 * pi**2) / gs / mb * C['F8g' + dd],
         "C7p_" + ddfl: (16 * pi**2) / e / mb * C['F7pgamma' + dd],
         "C8p_" + ddfl: (16 * pi**2) / gs / mb * C['F8pg' + dd]
-    }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-    return {k: prefactor*v for k,v in dic.items()}
+            }
+    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    return {k: prefactor * v for k,v in dic.items()}
 
 
 def Fierz_to_EOS_chrom(C, dd, parameters):
@@ -690,16 +695,17 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
     gs = sqrt(4* pi * parameters['alpha_s'])
     mb = parameters['m_b']
     ms = parameters['m_s']
-    dic = {'b->s::c7': (gs**2*mb*C["F7gamma" + dd])/(e*mb**2 - e*ms**2)
-                        + (gs**2*ms*C["F7pgamma" + dd])/(e*(-mb**2 + ms**2)),
-            "b->s::c7'": (gs*mb*C["F8g" + dd])/(mb**2 - ms**2)
-                        + (gs*ms*C["F8pg" + dd])/(-mb**2 + ms**2),
-            'b->s::c8': (gs**2*ms*C["F7gamma" + dd])/(e*(-mb**2 + ms**2))
-                        + (gs**2*mb*C["F7pgamma" + dd])/(e*mb**2 - e*ms**2),
-            "b->s::c8'": (gs*ms*C["F8g" + dd])/(-mb**2 + ms**2)
-                        + (gs*mb*C["F8pg" + dd])/(mb**2 - ms**2)}
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conjugate()/4
-    return {k: prefactor*v for k,v in dic.items()}
+    dic = {'b->s::c7': gs**2 * mb * C["F7gamma" + dd] / (e * mb**2 - e * ms**2)
+                       + gs**2 * ms * C["F7pgamma" + dd] / (e*(-mb**2 + ms**2)),
+            "b->s::c7'": gs * mb * C["F8g" + dd] / (mb**2 - ms**2)
+                        + gs * ms * C["F8pg" + dd] / (-mb**2 + ms**2),
+            'b->s::c8': gs**2 * ms * C["F7gamma" + dd] / (e*(-mb**2 + ms**2))
+                        + gs**2 * mb * C["F7pgamma" + dd] / (e*mb**2 - e*ms**2),
+            "b->s::c8'": gs * ms * C["F8g" + dd] / (-mb**2 + ms**2)
+                        + gs * mb * C["F8pg" + dd] / (mb**2 - ms**2)
+                        }
+    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    return {k: prefactor * v for k,v in dic.items()}
 
 
 def JMS_to_FormFlavor_chrom(C, qq):
@@ -709,27 +715,27 @@ def JMS_to_FormFlavor_chrom(C, qq):
         s = dflav[qq[0]]
         b = dflav[qq[1]]
         return {
-            'CAR_' + qq: C['dgamma'][s, b],
-            'CGR_' + qq: C['dG'][s, b],
-            'CAL_'  + qq: C['dgamma'][b, s].conjugate(),
-            'CGL_' + qq: C['dG'][b, s].conjugate()
-        }
+            'CAR_' + qq : C['dgamma'][s, b],
+            'CGR_' + qq : C['dG'][s, b],
+            'CAL_'  + qq : C['dgamma'][b, s].conj(),
+            'CGL_' + qq : C['dG'][b, s].conj()
+                }
     if qq[0] in ['e', 'm', 't']:
         l1 = llflav[qq[0]]
         l2 = llflav[qq[1]]
         return {
-            'CAR_' + qq: C['egamma'][l1, l2],
-            'CAL_' + qq: C['egamma'][l2, l1].conjugate()
-        }
+            'CAR_' + qq : C['egamma'][l1, l2],
+            'CAL_' + qq : C['egamma'][l2, l1].conj()
+                }
     if qq[0] in uflav.keys():
         u = uflav[qq[0]]
         c = uflav[qq[1]]
         return {
-            'CAR_' + qq: C['ugamma'][u, c],
-            'CGR_' + qq: C['uG'][u, c],
-            'CAL_'  + qq: C['ugamma'][c, u].conjugate(),
-            'CGL_' + qq: C['uG'][c, u].conjugate()
-        }
+            'CAR_' + qq : C['ugamma'][u, c],
+            'CGR_' + qq : C['uG'][u, c],
+            'CAL_'  + qq : C['ugamma'][c, u].conj(),
+            'CGL_' + qq : C['uG'][c, u].conj()
+                }
 
 
 
@@ -777,11 +783,12 @@ def _JMS_to_array(C):
     C_complete = {k: C.get(k, 0) for k in wc_keys}
     Ca = _scalar2array(C_complete)
     for k in Ca:
-        if k in ["VnueLL", "VnuuLL", "VnudLL", "VeuLL", "VedLL", "V1udLL", "V8udLL",
-                "VeuRR", "VedRR", "V1udRR", "V8udRR", "VnueLR", "VeeLR", "VnuuLR",
-                "VnudLR", "VeuLR", "VedLR", "VueLR", "VdeLR", "V1uuLR", "V8uuLR",
-                "V1udLR", "V8udLR", "V1duLR", "V8duLR", "V1ddLR", "V8ddLR", "SeuRL",
-                "SedRL", "SeuRR", "TeuRR", "SedRR", "TedRR"]:
+        if k in ["VnueLL", "VnuuLL", "VnudLL", "VeuLL", "VedLL", "V1udLL",
+                "V8udLL", "VeuRR", "VedRR", "V1udRR", "V8udRR", "VnueLR",
+                "VeeLR", "VnuuLR", "VnudLR", "VeuLR", "VedLR", "VueLR", "VdeLR",
+                "V1uuLR", "V8uuLR", "V1udLR", "V8udLR", "V1duLR", "V8duLR",
+                "V1ddLR", "V8ddLR", "SeuRL", "SedRL", "SeuRR", "TeuRR",
+                "SedRR", "TedRR"]:
             Ca[k] = _symm_herm(Ca[k])
         if k in ["S1uuRR", "S8uuRR", "S1ddRR", "S8ddRR", "SeeRR"]:
             Ca[k] = _symm_current(Ca[k])
@@ -802,11 +809,13 @@ def JMS_to_EOS(Cflat, parameters=None):
         p.update(parameters)
     C = _JMS_to_array(Cflat)
     d={}
+
     # Class II
     for l in ['e','mu']:
         d.update(_BernII_to_EOS_II(_JMS_to_Bern_II(C, 'ub'+'l_'+l+'nu_'+l),
                                           'ub'+'l_'+l+'nu_'+l,
-                                          p))
+                                        p))
+
     # Class V
     Fsbuu = _JMS_to_Fierz_III_IV_V(C, 'sbuu')
     Fsbdd = _JMS_to_Fierz_III_IV_V(C, 'sbdd')
@@ -815,9 +824,11 @@ def JMS_to_EOS(Cflat, parameters=None):
     Fsbbb = _JMS_to_Fierz_III_IV_V(C, 'sbbb')
 
     d.update(_Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,p))
+
     # Class V semileptonic
     d.update(Fierz_to_EOS_lep(JMS_to_Fierz_lep(C, 'sbl_enu_e'),'sbl_enu_e', p))
-    d.update(Fierz_to_EOS_lep(JMS_to_Fierz_lep(C, 'sbl_munu_mu'),'sbl_munu_mu', p))
+    d.update(Fierz_to_EOS_lep(JMS_to_Fierz_lep(C, 'sbl_munu_mu'),'sbl_munu_mu'
+                                                      , p))
 
     # Class V chromomagnetic
     d.update(Fierz_to_EOS_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
@@ -833,21 +844,26 @@ def JMS_to_flavio(Cflat, parameters=None):
         p.update(parameters)
     C = _JMS_to_array(Cflat)
     d={}
+
     # Class I
     for qq in ['sb', 'db', 'ds']:
         d.update(_BernI_to_Flavio_I(_JMS_to_Bern_I(C, qq), qq))
+
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'cb'+'l_'+l+'nu_'+lp),
-                                          'cb'+'l_'+l+'nu_'+lp,
-                                          p))
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'ub'+'l_'+l+'nu_'+lp),
-                                          'ub'+'l_'+l+'nu_'+lp,
-                                          p))
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C, 'us'+'l_'+l+'nu_'+lp),
-                                          'us'+'l_'+l+'nu_'+lp,
-                                          p))
+            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
+                                          'cb'+'l_'+l+'nu_'+lp),
+                                          'cb'+'l_'+l+'nu_'+lp, p))
+
+            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
+                                            'ub'+'l_'+l+'nu_'+lp),
+                                          'ub'+'l_'+l+'nu_'+lp, p))
+
+            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
+                                            'us'+'l_'+l+'nu_'+lp),
+                                          'us'+'l_'+l+'nu_'+lp, p))
+
     # Class V
     Fsbuu = _JMS_to_Fierz_III_IV_V(C, 'sbuu')
     Fsbdd = _JMS_to_Fierz_III_IV_V(C, 'sbdd')
@@ -860,15 +876,16 @@ def JMS_to_flavio(Cflat, parameters=None):
     Fdbcc = _JMS_to_Fierz_III_IV_V(C, 'dbcc')
     Fdbss = _JMS_to_Fierz_III_IV_V(C, 'dbss')
     Fdbbb = _JMS_to_Fierz_III_IV_V(C, 'dbbb')
+
     # Class V semileptonic
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C, 'sb'+'l_'+l+'nu_'+lp),
-                                         'sb'+'l_'+l+'nu_'+lp,
-                                         p))
-            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp),
-                                         'db'+'l_'+l+'nu_'+lp,
-                                         p))
+            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C,
+                                        'sb'+'l_'+l+'nu_'+lp),
+                                        'sb'+'l_'+l+'nu_'+lp, p))
+            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C,
+                                        'db'+'l_'+l+'nu_'+lp),
+                                         'db'+'l_'+l+'nu_'+lp, p))
 
     # Class V chromomagnetic
     d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
@@ -886,12 +903,15 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
         p.update(parameters)
     C = _JMS_to_array(Cflat)
     d={}
+
     # Class I
     for qq in ['sb', 'db', 'ds', 'uc']:
         d.update(_BernI_to_FormFlavor_I(_JMS_to_Bern_I(C, qq), qq))
+
     # Class V semileptonic
     d.update(JMS_to_FormFlavor_lep(C, 'bs'))
     d.update(JMS_to_FormFlavor_lep(C, 'bd'))
+
     # Class V chromomagnetic
     d.update(JMS_to_FormFlavor_chrom(C, 'sb'))
     d.update(JMS_to_FormFlavor_chrom(C, 'db'))
@@ -916,28 +936,38 @@ def JMS_to_Bern(Cflat, parameters=None):
         p.update(parameters)
     C = _JMS_to_array(Cflat)
     d={}
+
     # Class I
     for qq in ['sb', 'db', 'ds']:
         d.update(_JMS_to_Bern_I(C, qq))
+
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
             d.update(_JMS_to_Bern_II(C, 'cb'+'l_'+l+'nu_'+lp))
             d.update(_JMS_to_Bern_II(C, 'ub'+'l_'+l+'nu_'+lp))
             d.update(_JMS_to_Bern_II(C, 'us'+'l_'+l+'nu_'+lp))
+
     # Class V
     for u1 in uflav.keys():
         for u2 in uflav.keys():
-            d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C, 'sb'+u1+u2), 'sb'+u1+u2))
-            d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C, 'db'+u1+u2), 'db'+u1+u2))
+            d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C,
+                                                      'sb'+u1+u2), 'sb'+u1+u2))
+
+            d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C,
+                                                      'db'+u1+u2), 'db'+u1+u2))
+
     for qqqq in ['sbdd','sbss','dbdd','dbss','dbbb','sbbb','dbds','sbsd','dsbb']:
         d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C, qqqq), qqqq))
 
     # Class V semileptonic
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'sb'+'l_'+l+'nu_'+lp),'sb'+'l_'+l+'nu_'+lp))
-            d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp),'db'+'l_'+l+'nu_'+lp))
+            d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'sb'+'l_'+l+'nu_'+lp)
+                                                         ,'sb'+'l_'+l+'nu_'+lp))
+
+            d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp)
+                                                         ,'db'+'l_'+l+'nu_'+lp))
 
     # Class V chromomagnetic
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
