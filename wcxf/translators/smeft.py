@@ -59,3 +59,49 @@ def warsaw_to_warsawmass(C, parameters=None):
     _dict = smeft_fromarray('llphiphi', _array)
     C_out.update(_dict)
     return C_out
+
+
+def warsaw_to_warsaw_up(C, parameters=None):
+    """Translate from the Warsaw basis to the 'Warsaw mass' basis.
+
+    Parameters used:
+    - `Vus`, `Vub`, `Vcb`, `gamma`: elements of the unitary CKM matrix (defined
+      as the mismatch between left-handed quark mass matrix diagonalization
+      matrices).
+    """
+    C_in = smeftrunner.io.wcxf2arrays(C)
+    C_in = smeftrunner.definitions.symmetrize(C_in)
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
+    Uu = Ud = Ul = Ue = np.eye(3)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Uq = V
+    C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
+                                                    sm_parameters=False)
+    C_out = smeftrunner.io.arrays2wcxf(C_out)
+    return {k: v for k, v in C_out.items() if k in C}
+
+
+def warsaw_up_to_warsaw(C, parameters=None):
+    """Translate from the 'Warsaw up' basis to the Warsaw basis.
+
+    Parameters used:
+    - `Vus`, `Vub`, `Vcb`, `gamma`: elements of the unitary CKM matrix (defined
+      as the mismatch between left-handed quark mass matrix diagonalization
+      matrices).
+    """
+    C_in = smeftrunner.io.wcxf2arrays(C)
+    C_in = smeftrunner.definitions.symmetrize(C_in)
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
+    Uu = Ud = Ul = Ue = np.eye(3)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Uq = V.conj().T
+    C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
+                                                    sm_parameters=False)
+    C_out = smeftrunner.io.arrays2wcxf(C_out)
+    return {k: v for k, v in C_out.items() if k in C}
