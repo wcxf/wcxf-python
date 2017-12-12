@@ -642,17 +642,17 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
     mb = parameters['m_b']
     ms = parameters['m_s']
     dic = {'b->s::c7': 16 * pi**2 * mb * C["F7gamma" + dd]
-                                            / (e * mb**2 - e * ms**2)
-                       + 16 * pi**2 * ms * C["F7pgamma" + dd]
-                                            / (e*(-mb**2 + ms**2)),
-            "b->s::c7'": 16 * pi**2 / gs * mb * C["F8g" + dd] / (mb**2 - ms**2)
-                        + 16 * pi**2 / gs * ms * C["F8pg" + dd]
-                                                            / (-mb**2 + ms**2),
-            'b->s::c8': 16 * pi**2  * ms * C["F7gamma" + dd]
-                                                    / (e*(-mb**2 + ms**2))
+                                            / (e * (mb**2 - ms**2))
+                       - 16 * pi**2 * ms * C["F7pgamma" + dd]
+                                            / (e * (mb**2 - ms**2)),
+            "b->s::c7'": - 16 * pi**2  * ms * C["F7gamma" + dd]
+                                                    / (e * (mb**2 - ms**2))
                         + 16 * pi**2  * mb * C["F7pgamma" + dd]
-                                                        / (e*mb**2 - e*ms**2),
-            "b->s::c8'": 16 * pi**2 / gs * ms * C["F8g" + dd] / (-mb**2 + ms**2)
+                                                        / (e * (mb**2 - ms**2)),
+            'b->s::c8': 16 * pi**2 / gs * mb * C["F8g" + dd] / (mb**2 - ms**2)
+                        - 16 * pi**2 / gs * ms * C["F8pg" + dd]
+                                                            / (mb**2 - ms**2),
+            "b->s::c8'": - 16 * pi**2 / gs * ms * C["F8g" + dd] / (mb**2 - ms**2)
                         + 16 * pi**2 / gs * mb * C["F8pg" + dd] / (mb**2 - ms**2)
                         }
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
@@ -660,8 +660,8 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
 
 
 def JMS_to_FormFlavor_chrom(C, qq):
-    """From JMS to chromomagnetic Fierz basis for Class V.
-    `qq` should be of the form 'sb', 'ds', mt (mu tau), em (e mu) etc."""
+    """From JMS to chromomagnetic FormFlavor basis for Class V.
+    qq should be of the form 'sb', 'ds', 'uu', mt (mu tau), em (e mu) etc."""
     if qq[0] in dflav.keys():
         s = dflav[qq[0]]
         b = dflav[qq[1]]
