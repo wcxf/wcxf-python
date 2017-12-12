@@ -4,8 +4,6 @@ from wcxf.parameters import p as default_parameters
 import ckmutil.ckm, ckmutil.diag
 import wcxf
 
-
-
 # CONSTANTS
 
 Nc = 3.
@@ -779,6 +777,7 @@ def _symm_current(C):
     C[nans] = np.einsum('klij', C)[nans]
     return C
 
+
 def _JMS_to_array(C):
     """For a dictionary with JMS Wilson coefficients, return an dictionary
     of arrays."""
@@ -801,17 +800,60 @@ def _JMS_to_array(C):
     return Ca
 
 
+def rotate_down(C_in, p):
+    """Redefinition of all Wilson coefficients in the JMS basis when rotating
+    down-type quark fields from the flavour to the mass basis.
+
+    C_in is expected to be an array-valued dictionary containg a key
+    for all Wilson coefficient matrices."""
+    C = C_in.copy()
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    UdL = V.conj().T
+    # type dL dL dL dL
+    for k in ['VddLL']:
+        C[k] = np.einsum('ia,jb,kc,ld,ijkl->abcd',
+                         UdL.conj(), UdL, UdL.conj(), UdL,
+                         C_in[k])
+    # type X X dL dL
+    for k in ['V1udLL', 'V8udLL', 'VedLL', 'VnudLL']:
+        C[k] = np.einsum('kc,ld,ijkl->ijcd',
+                         UdL.conj(), UdL,
+                         C_in[k])
+    # type dL dL X X
+    for k in ['V1ddLR', 'V1duLR', 'V8ddLR', 'V8duLR', 'VdeLR']:
+        C[k] = np.einsum('ia,jb,ijkl->abkl',
+                         UdL.conj(), UdL,
+                         C_in[k])
+    # type X dL X X
+    for k in ['V1udduLR', 'V8udduLR']:
+        C[k] = np.einsum('jb,ijkl->ibkl',
+                         UdL,
+                         C_in[k])
+    # type X X dL X
+    for k in ['VnueduLL']:
+        C[k] = np.einsum('kc,ijkl->ijcl',
+                         UdL.conj(),
+                         C_in[k])
+    # type X X X dL
+    for k in ['SedRL', ]:
+        C[k] = np.einsum('ld,ijkl->ijkd',
+                         UdL,
+                         C_in[k])
+    return C
+
+
 # final dicitonaries
 
 def JMS_to_EOS(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
+    C = rotate_down(C, p)
     d={}
 
     # Class II
@@ -840,13 +882,14 @@ def JMS_to_EOS(Cflat, parameters=None):
 
 def JMS_to_flavio(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
+    C = rotate_down(C, p)
     d={}
 
     # Class I
@@ -899,13 +942,14 @@ def JMS_to_flavio(Cflat, parameters=None):
 
 def JMS_to_FormFlavor(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
+    C = rotate_down(C, p)
     d={}
 
     # Class I
@@ -932,13 +976,14 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
 
 def JMS_to_Bern(Cflat, parameters=None):
     p = default_parameters.copy()
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    Vtb = V[2,2]
+    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
+    C = rotate_down(C, p)
     d={}
 
     # Class I
