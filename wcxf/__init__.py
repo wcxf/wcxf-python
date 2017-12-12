@@ -8,9 +8,9 @@ import os
 import glob
 
 _root = os.path.abspath(os.path.dirname(__file__))
-all_efts = glob.glob(os.path.join(_root, 'bases', '*.eft.yml'))
-all_bases = glob.glob(os.path.join(_root, 'bases', '*.basis.yml'))
-child_bases = glob.glob(os.path.join(_root, 'bases', 'child', '*.basis.yml'))
+all_efts = glob.glob(os.path.join(_root, 'bases', '*.eft.json'))
+all_bases = glob.glob(os.path.join(_root, 'bases', '*.basis.json'))
+child_bases = glob.glob(os.path.join(_root, 'bases', 'child', '*.basis.json'))
 
 for eft in all_efts:
     with open(eft, 'r') as f:
