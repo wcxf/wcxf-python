@@ -54,36 +54,25 @@ def _JMS_to_Bern_I(C, qq):
             '1p' + 2 * qq : C["VuuRR"][0,1,0,1],
             '2p' + 2 * qq : C["S1uuRR"][0,1,0,1]
                             - C["S8uuRR"][0,1,0,1]/(2 * Nc),
-            '3p' + 2 * qq : C["S8uuRR"][0,1,0,1]/2
+            '3p' + 2 * qq : C["S8uuRR"][0,1,0,1] / 2
                 }
     else:
         return "not in Bern_I"
 
 
 def _BernI_to_Flavio_I(C, qq):
-    """From BernI to FlavioI basis for down-typ $\Delta F=2$ operators.
+    """From BernI to FlavioI basis for $\Delta F=2$ operators.
     `qq` should be 'sb', 'db', 'ds' or 'uc'"""
-    qqf = qq[::-1] # flavio used "bs" instead of "sb" etc.
-    if qq in ['sb', 'db', 'ds']:
+    qqf = qq[::-1] # flavio uses "bs" instead of "sb" etc.
+    if qq in ['sb', 'db', 'ds', 'uc']:
         return {
             'CVLL_' + 2*qqf: C["1" + 2*qq],
-            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
-            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
-            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2 * C["3" + 2*qq],
+            'CTLL_' + 2*qqf: -1 / 8 * C["3" + 2*qq],
+            'CVLR_' + 2*qqf: -1 / 2 * C["5" + 2*qq],
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
-            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
-            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
-            'CSLR_' + 2*qqf: C["4" + 2*qq]
-            }
-    elif qq == 'uc':
-        return {
-            'CVLL_' + 2*qqf: C["1" + 2*qq],
-            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
-            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
-            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
-            'CVRR_' + 2*qqf: C["1p" + 2*qq],
-            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
-            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2 * C["3p" + 2*qq],
+            'CTRR_' + 2*qqf: -1 / 8 * C["3p" + 2*qq],
             'CSLR_' + 2*qqf: C["4" + 2*qq]
             }
     else:
@@ -91,29 +80,18 @@ def _BernI_to_Flavio_I(C, qq):
 
 
 def _BernI_to_FormFlavor_I(C, qq):
-    """From BernI to FlavioI basis for down-typ $\Delta F=2$ operators.
+    """From BernI to FormFlavorI basis for $\Delta F=2$ operators.
     `qq` should be 'sb', 'db', 'ds' or 'uc'"""
-    qqf = qq[::-1] # FormFlavour used "bs" instead of "sb" etc.
-    if qq in ['sb', 'db', 'ds']:
+    qqf = qq[::-1] # FormFlavour uses "bs" instead of "sb" etc.
+    if qq in ['sb', 'db', 'ds', 'uc']:
         return {
             'CVLL_' + 2*qqf: C["1" + 2*qq],
-            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
-            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
-            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2 * C["3" + 2*qq],
+            'CTLL_' + 2*qqf: -1 / 8 * C["3" + 2*qq],
+            'CVLR_' + 2*qqf: -1 / 2 * C["5" + 2*qq],
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
-            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
-            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
-            'CSLR_' + 2*qqf: C["4" + 2*qq]
-            }
-    elif qq == 'uc':
-        return {
-            'CVLL_' + 2*qqf: C["1" + 2*qq],
-            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2. * C["3" + 2*qq],
-            'CTLL_' + 2*qqf: -1 / 8. * C["3" + 2*qq],
-            'CVLR_' + 2*qqf: -1 / 2. * C["5" + 2*qq],
-            'CVRR_' + 2*qqf: C["1p" + 2*qq],
-            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2. * C["3p" + 2*qq],
-            'CTRR_' + 2*qqf: -1 / 8. * C["3p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2 * C["3p" + 2*qq],
+            'CTRR_' + 2*qqf: -1 / 8 * C["3p" + 2*qq],
             'CSLR_' + 2*qqf: C["4" + 2*qq]
             }
     else:
@@ -123,37 +101,20 @@ def _BernI_to_FormFlavor_I(C, qq):
 ## Class II ##
 
 def _JMS_to_Bern_II(C, udlnu):
-    """From JMS to Bern basis for charged current process semileptonic operators.
-    `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
+    """From JMS to BernII basis for charged current process semileptonic
+    operators. `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
     u = uflav[udlnu[0]]
     d = dflav[udlnu[1]]
     l = lflav[udlnu[4:udlnu.find('n')]]
     lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
-    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
+    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1
+                                                                    :len(udlnu)]
     return {
-        '1' + ind: C["VnueduLL"][lp, l, d, u].conj(),
-        '5' + ind: C["SnueduRL"][lp, l, d, u].conj(),
-        '1p' + ind: C["VnueduLR"][lp, l, d, u].conj(),
-        '5p' + ind: C["SnueduRR"][lp, l, d, u].conj(),
-        '7p' + ind: C["TnueduRR"][lp, l, d, u].conj()
-        }
-
-def _BernII_to_ACFG(C, udlnu):
-    """From BernII to ACFG basis (defined in arXiv:1512.02830)
-    for charged current process semileptonic operators.
-    `udlnu` should be of the form 'udl_enu_tau', 'cbl_munu_e' etc."""
-    u = uflav[udlnu[0]]
-    d = dflav[udlnu[1]]
-    l = lflav[udlnu[4:udlnu.find('n')]]
-    lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
-    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
-    ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+"nu"
-    return {
-        'CV_' + ind2: C['1' + ind],
-        'CVp_'+ ind2: C['1p' + ind],
-        'CSp_'+ ind2: C['5' + ind],
-        'CS_'+ ind2: C['5p' + ind],
-        'CT_'+ ind2: C['7p' + ind]
+        '1' + ind : C["VnueduLL"][lp, l, d, u].conj(),
+        '5' + ind : C["SnueduRL"][lp, l, d, u].conj(),
+        '1p' + ind : C["VnueduLR"][lp, l, d, u].conj(),
+        '5p' + ind : C["SnueduRR"][lp, l, d, u].conj(),
+        '7p' + ind : C["TnueduRR"][lp, l, d, u].conj()
         }
 
 
@@ -166,15 +127,17 @@ def _BernII_to_Flavio_II(C, udlnu, parameters):
     d = dflav[udlnu[1]]
     l = lflav[udlnu[4:udlnu.find('n')]]
     lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
-    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
-    ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[udlnu.find('_',5)+1:len(udlnu)]
+    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1
+                                                                    :len(udlnu)]
+    ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[
+                                                udlnu.find('_',5)+1:len(udlnu)]
     mb = parameters['m_b']
     dic = {
-        'CV_' + ind2: C['1' + ind],
-        'CVp_'+ ind2: C['1p' + ind],
-        'CS_'+ ind2: C['5' + ind] / mb,
-        'CSp_'+ ind2: C['5p' + ind] / mb,
-        'CT_'+ ind2: C['7p' + ind]
+        'CV_' + ind2 : C['1' + ind],
+        'CVp_'+ ind2 : C['1p' + ind],
+        'CS_'+ ind2 : C['5' + ind] / mb,
+        'CSp_'+ ind2 : C['5p' + ind] / mb,
+        'CT_'+ ind2 : C['7p' + ind]
         }
     prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
     return {k: prefactor * v for k,v in dic.items()}
@@ -189,15 +152,16 @@ def _BernII_to_EOS_II(C, udlnu, parameters):
     d = dflav[udlnu[1]]
     l = lflav[udlnu[4:udlnu.find('n')]]
     lp = lflav[udlnu[udlnu.find('_',5)+1:len(udlnu)]]
-    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1:len(udlnu)]
-    ind2 = udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[udlnu.find('_',5)+1:len(udlnu)]
-    mb = parameters['m_b']
+    ind = udlnu[0]+udlnu[1]+udlnu[4:udlnu.find('n')]+udlnu[udlnu.find('_',5)+1
+                                                                    :len(udlnu)]
+    ind2 = udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[
+                                                udlnu.find('_',5)+1:len(udlnu)]
     dic = {
-        'b->' + ind2+ '::cVL': C['1' + ind],
-        'b->' + ind2+ '::cVR': C['1p' + ind],
-        'b->' + ind2+ '::cSR': C['5' + ind],
-        'b->' + ind2+ '::cSL': C['5p' + ind],
-        'b->' + ind2+ '::cT': C['7p' + ind]
+        'b->' + ind2 + '::cVL': C['1' + ind],
+        'b->' + ind2 + '::cVR': C['1p' + ind],
+        'b->' + ind2 + '::cSR': C['5' + ind],
+        'b->' + ind2 + '::cSL': C['5p' + ind],
+        'b->' + ind2 + '::cT': C['7p' + ind]
         }
     prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
     return {k: prefactor * v for k,v in dic.items()}
@@ -210,8 +174,7 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
     #case dduu
     classIII = ['sbuc', 'sbcu', 'dbuc', 'dbcu']
-    classVdduu = ['sbuu', 'bsuu' , 'dbuu', 'bduu', 'sduu', 'dsuu',
-                  'sbcc', 'bscc' , 'dbcc', 'bdcc', 'sdcc', 'dscc']
+    classVdduu = ['sbuu' , 'dbuu', 'sduu', 'sbcc' , 'dbcc', 'sdcc']
     if qqqq in classIII + classVdduu:
         f1 = dflav[qqqq[0]]
         f2 = dflav[qqqq[1]]
@@ -219,41 +182,41 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
         f4 = uflav[qqqq[3]]
         return {
             'F' + qqqq + '1' : C["V1udLL"][f3, f4, f1, f2]
-                            - C["V8udLL"][f3, f4, f1, f2] / (2 * Nc),
-            'F' + qqqq + '2' : C["V8udLL"][f3, f4, f1, f2]/2,
+                                - C["V8udLL"][f3, f4, f1, f2] / (2 * Nc),
+            'F' + qqqq + '2' : C["V8udLL"][f3, f4, f1, f2] / 2,
             'F' + qqqq + '3' : C["V1duLR"][f1, f2, f3, f4]
-                            - C["V8duLR"][f1, f2, f3, f4] / (2 * Nc),
-            'F' + qqqq + '4' : C["V8duLR"][f1, f2, f3, f4]/2,
+                                - C["V8duLR"][f1, f2, f3, f4] / (2 * Nc),
+            'F' + qqqq + '4' : C["V8duLR"][f1, f2, f3, f4] / 2,
             'F' + qqqq + '5' : C["S1udRR"][f3, f4, f1, f2]
-                            - C["S8udduRR"][f3, f2, f1, f4] / 4
-                            - C["S8udRR"][f3, f4, f1, f2] / (2 * Nc),
+                                - C["S8udduRR"][f3, f2, f1, f4] / 4
+                                - C["S8udRR"][f3, f4, f1, f2] / (2 * Nc),
             'F' + qqqq + '6' : -C["S1udduRR"][f3, f2, f1, f4] / 2
-                            + C["S8udduRR"][f3, f2, f1, f4] /(4 * Nc)
-                            + C["S8udRR"][f3, f4, f1, f2] / 2,
+                                + C["S8udduRR"][f3, f2, f1, f4] /(4 * Nc)
+                                + C["S8udRR"][f3, f4, f1, f2] / 2,
             'F' + qqqq + '7' : -C["V8udduLR"][f4, f1, f2, f3].conj(),
             'F' + qqqq + '8' : -2 * C["V1udduLR"][f4, f1, f2, f3].conj()
-                            + C["V8udduLR"][f4, f1, f2, f3].conj() / Nc,
+                                + C["V8udduLR"][f4, f1, f2, f3].conj() / Nc,
             'F' + qqqq + '9' : -C["S8udduRR"][f3, f2, f1, f4] / 16,
             'F' + qqqq + '10' : -C["S1udduRR"][f3, f2, f1, f4] / 8
-                            + C["S8udduRR"][f3, f2, f1, f4] / (16 * Nc),
+                                + C["S8udduRR"][f3, f2, f1, f4] / (16 * Nc),
             'F' + qqqq + '1p' : C["V1udRR"][f3, f4, f1, f2]
-                            - C["V8udRR"][f3, f4, f1, f2] / (2 * Nc),
-            'F' + qqqq + '2p' : C["V8udRR"][f3, f4, f1, f2]/2,
+                                - C["V8udRR"][f3, f4, f1, f2] / (2 * Nc),
+            'F' + qqqq + '2p' : C["V8udRR"][f3, f4, f1, f2] / 2,
             'F' + qqqq + '3p' : C["V1udLR"][f3, f4, f1, f2]
-                            - C["V8udLR"][f3, f4, f1, f2] / (2 * Nc),
+                                - C["V8udLR"][f3, f4, f1, f2] / (2 * Nc),
             'F' + qqqq + '4p' : C["V8udLR"][f3, f4, f1, f2] / 2,
-            'F' + qqqq + '5p' : C["S1udRR"][f4, f4, f2, f1].conj() -
-                            C["S8udduRR"][f4, f1, f2, f3].conj() / 4
-                           - C["S8udRR"][f4, f4, f2, f1].conj() / (2 * Nc),
+            'F' + qqqq + '5p' : C["S1udRR"][f4, f3, f2, f1].conj() -
+                                C["S8udduRR"][f4, f1, f2, f3].conj() / 4
+                                - C["S8udRR"][f4, f3, f2, f1].conj() / (2 * Nc),
             'F' + qqqq + '6p' : -C["S1udduRR"][f4, f1, f2, f3].conj() / 2 +
-                            C["S8udduRR"][f4, f1, f2, f3].conj()/(4 * Nc)
-                            + C["S8udRR"][f4, f4, f2, f1].conj() / 2,
+                                C["S8udduRR"][f4, f1, f2, f3].conj()/(4 * Nc)
+                                + C["S8udRR"][f4, f3, f2, f1].conj() / 2,
             'F' + qqqq + '7p' : -C["V8udduLR"][f3, f2, f1, f4],
             'F' + qqqq + '8p' : - 2 * C["V1udduLR"][f3, f2, f1, f4]
-                            + C["V8udduLR"][f3, f2, f1, f4] / Nc,
+                                + C["V8udduLR"][f3, f2, f1, f4] / Nc,
             'F' + qqqq + '9p' : -C["S8udduRR"][f4, f1, f2, f3].conj() / 16,
             'F' + qqqq + '10p' : -C["S1udduRR"][f4, f1, f2, f3].conj() / 8
-                            +C["S8udduRR"][f4, f1, f2, f3].conj() / 16 / Nc
+                                + C["S8udduRR"][f4, f1, f2, f3].conj() / 16 / Nc
                             }
     #case dddd
     classIV = ['sbsd','dbds','bsbd']
@@ -271,24 +234,24 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
                                   - C["V8ddLR"][f1, f2, f3, f4]/(2 * Nc),
                  'F'+ qqqq +'4' : C["V8ddLR"][f1, f2, f3, f4] / 2,
                  'F'+ qqqq +'5' : C["S1ddRR"][f3, f4, f1, f2]
-                                - C["S8ddRR"][f3, f2, f1,f4] / 4
+                                  - C["S8ddRR"][f3, f2, f1,f4] / 4
                                   - C["S8ddRR"][f3, f4, f1, f2] / (2 * Nc),
                  'F'+ qqqq +'6' : -C["S1ddRR"][f1, f4, f3, f2] / 2
                                   + C["S8ddRR"][f3, f2, f1, f4] / (4 * Nc)
                                   + C["S8ddRR"][f3, f4, f1, f2] / 2,
                  'F'+ qqqq +'7' : -C["V8ddLR"][f1, f4, f3, f2],
                  'F'+ qqqq +'8' : -2 * C["V1ddLR"][f1, f4, f3, f2]
-                                    + C["V8ddLR"][f1, f4, f3, f2] / Nc,
+                                  + C["V8ddLR"][f1, f4, f3, f2] / Nc,
                  'F'+ qqqq +'9' : -C["S8ddRR"][f3, f2, f1, f4] / 16,
                  'F'+ qqqq +'10' : -C["S1ddRR"][f1, f4, f3, f2] / 8
-                                    + C["S8ddRR"][f3, f2, f1, f4] / (16 * Nc),
+                                   + C["S8ddRR"][f3, f2, f1, f4] / (16 * Nc),
                  'F'+ qqqq +'1p' : C["VddRR"][f3, f4, f1, f2],
                  'F'+ qqqq +'2p' : C["VddRR"][f1, f3, f4, f2],
                  'F'+ qqqq +'3p' : C["V1ddLR"][f3, f4, f1, f2]
                                    - C["V8ddLR"][f3, f4, f1,f2] / (2 * Nc),
                  'F'+ qqqq +'4p' : C["V8ddLR"][f3, f4, f1, f2] / 2,
                  'F'+ qqqq +'5p' : C["S1ddRR"][f4, f3, f2, f1].conj() -
-                                    C["S8ddRR"][f4, f1, f2, f3].conj() / 4
+                                   C["S8ddRR"][f4, f1, f2, f3].conj() / 4
                                    -C["S8ddRR"][f4, f3, f2, f1].conj() / 2 / Nc,
                  'F'+ qqqq +'6p' : -C["S1ddRR"][f4, f1, f2, f3].conj() / 2 +
                                     C["S8ddRR"][f4, f1, f2, f3].conj() / 4 / Nc
@@ -314,7 +277,7 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
                                    - C["V8uuLR"][f1, f2, f3, f4] / (2 * Nc),
                 'F' + qqqq + '4' : C["V8uuLR"][f1, f2, f3, f4] / 2,
                 'F' + qqqq + '5' : C["S1uuRR"][f3, f4, f1, f2]
-                                    - C["S8uuRR"][f3, f2, f1,f4] / 4
+                                    - C["S8uuRR"][f3, f2, f1, f4] / 4
                                     - C["S8uuRR"][f3, f4, f1, f2] / (2 * Nc),
                 'F' + qqqq + '6' : -C["S1uuRR"][f1, f4, f3, f2] / 2
                                     + C["S8uuRR"][f3, f2, f1, f4] / (4 * Nc)
@@ -351,7 +314,7 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
     """From Fierz to 4-quark Bern basis for Classes III, IV and V.
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
 
-    if qqqq in ['sbss','dbdd','dbbb','sbbb','dbds','sbsd']:
+    if qqqq in ['sbss','dbdd','dbbb','sbbb','dbds','sbsd', 'bsbd']:
         return {
         '1' + qqqq : -Fqqqq['F' + qqqq + '1'] / 3
                         + 4 * Fqqqq['F' + qqqq + '3'] / 3,
@@ -452,8 +415,8 @@ def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
                   + Fsbuu['Fsbuu1'] / 6 + Fsbuu['Fsbuu2'] / 2,
      'b->s::c3' : -4 * Fsbbb['Fsbbb1'] / 45 + 4 * Fsbbb['Fsbbb3'] / 15 +
                     4 * Fsbbb['Fsbbb4'] / 45 + 4 * Fsbcc['Fsbcc3'] / 15 +
-                    4 * Fsbcc['Fsbcc4'] / 45 - (7*Fsbdd['Fsbdd1'])/45
-                    + Fsbdd['Fsbdd2']/15 + 4 * Fsbdd['Fsbdd3'] / 15
+                    4 * Fsbcc['Fsbcc4'] / 45 - 7 * Fsbdd['Fsbdd1'] / 45
+                    + Fsbdd['Fsbdd2'] / 15 + 4 * Fsbdd['Fsbdd3'] / 15
                     + 4 * Fsbdd['Fsbdd4'] / 45 - 4 * Fsbss['Fsbss1'] / 45
                     + 4 * Fsbss['Fsbss3'] / 15 + 4 * Fsbss['Fsbss4'] / 45
                     + 4 * Fsbuu['Fsbuu3'] / 15 + 4 * Fsbuu['Fsbuu4'] / 45,
@@ -463,12 +426,12 @@ def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
                     - 2 * Fsbss['Fsbss1'] / 15 + 8 * Fsbss['Fsbss4'] / 15
                     + 8 * Fsbuu['Fsbuu4'] / 15,
      'b->s::c5' : Fsbbb['Fsbbb1'] / 45 - Fsbbb['Fsbbb3'] / 60
-                    -Fsbbb['Fsbbb4'] / 180 - Fsbcc['Fsbcc3'] / 60
-                    - Fsbcc['Fsbcc4'] / 180 + 7 * Fsbdd['Fsbdd1'] / 180
-                    - Fsbdd['Fsbdd2'] / 60 - Fsbdd['Fsbdd3'] / 60
-                    -Fsbdd['Fsbdd4'] / 180 + Fsbss['Fsbss1'] / 45
-                    - Fsbss['Fsbss3'] / 60 -Fsbss['Fsbss4'] / 180
-                    - Fsbuu['Fsbuu3'] / 60 - Fsbuu['Fsbuu4'] / 180,
+                  -Fsbbb['Fsbbb4'] / 180 - Fsbcc['Fsbcc3'] / 60
+                  - Fsbcc['Fsbcc4'] / 180 + 7 * Fsbdd['Fsbdd1'] / 180
+                  - Fsbdd['Fsbdd2'] / 60 - Fsbdd['Fsbdd3'] / 60
+                  -Fsbdd['Fsbdd4'] / 180 + Fsbss['Fsbss1'] / 45
+                  - Fsbss['Fsbss3'] / 60 -Fsbss['Fsbss4'] / 180
+                  - Fsbuu['Fsbuu3'] / 60 - Fsbuu['Fsbuu4'] / 180,
      'b->s::c6' : Fsbbb['Fsbbb1'] / 30 - Fsbbb['Fsbbb4'] / 30
                   -Fsbcc['Fsbcc4'] / 30 - Fsbdd['Fsbdd1'] / 15
                   + Fsbdd['Fsbdd2'] / 10 -Fsbdd['Fsbdd4'] / 30
@@ -480,10 +443,11 @@ def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
 
 
 # semileptonic operators
+# arguments are of the form ddl_lnu_l' to simplify the notation
 
 def JMS_to_Fierz_lep(C, ddll):
-    """From JMS to semileptonic Fierz basis for Classes V.
-    `ddll` should be of the form 'sbl_eni_tau', 'dbl_munu_e' etc."""
+    """From JMS to semileptonic Fierz basis for Class V.
+    `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     s = dflav[ddll[0]]
     b = dflav[ddll[1]]
     l = lflav[ddll[4:ddll.find('n')]]
@@ -496,12 +460,12 @@ def JMS_to_Fierz_lep(C, ddll):
                            - C["VedLL"][l, lp, s, b] / 2,
         'F' + ind + 'S' : C["SedRL"][lp, l, b, s].conj() / 2
                           + C["SedRR"][l, lp, s, b] / 2,
-        'F' + ind + 'P' : C["SedRL"][lp, l, b, s].conj() / 2
+        'F' + ind + 'P' : - C["SedRL"][lp, l, b, s].conj() / 2
                           + C["SedRR"][l, lp, s, b] / 2,
         'F' + ind + 'T' : C["TedRR"][l, lp, s, b] / 2
                           + C["TedRR"][lp, l, b, s].conj() / 2,
         'F' + ind + 'T5' : C["TedRR"][l, lp, s, b] / 2
-                           - C["TedRR"][l, lp, s, b].conj() / 2,
+                           - C["TedRR"][lp, l, b, s].conj() / 2,
         'F' + ind + '9p' : C["VedLR"][l, lp, s, b] / 2
                            + C["VedRR"][l, lp, s, b] / 2,
         'F' + ind + '10p' : -C["VedLR"][l, lp, s, b] / 2
@@ -517,6 +481,7 @@ def JMS_to_Fierz_lep(C, ddll):
 
 def Fierz_to_Bern_lep(C,ddll):
     """From semileptonic Fierz basis to Bern semileptonic basis for Class V.
+    C should be the corresponding leptonic Fierz basis and
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     ind = ddll.replace('l_','').replace('nu_','')
     return {'1' + ind : 5 * C['F'+ ind + '10'] / 3 + C['F'+ ind + '9'],
@@ -525,7 +490,7 @@ def Fierz_to_Bern_lep(C,ddll):
             '7' + ind : 2 * C['F' + ind + 'P'] / 3 + C['F' + ind + 'T']
                         + C['F' + ind + 'T5'],
             '9' + ind : C['F' + ind + 'P'] / 24,
-            '1p' + ind : C['F' + ind + '9p']-5 * C['F' + ind + '10p'] / 3,
+            '1p' + ind : C['F' + ind + '9p'] - 5 * C['F' + ind + '10p'] / 3,
             '3p' + ind : C['F' + ind + '10p'] / 6,
             '5p' + ind : 5 * C['F' + ind + 'Pp'] / 3 + C['F' + ind + 'Sp'],
             '7p' + ind : -2 * C['F' + ind + 'Pp'] / 3 + C['F' + ind + 'T']
@@ -536,28 +501,28 @@ def Fierz_to_Bern_lep(C,ddll):
             }
 
 
-
 def Fierz_to_Flavio_lep(C, ddll, parameters):
     """From semileptonic Fierz basis to Flavio semileptonic basis for Class V.
+    C should be the corresponding leptonic Fierz basis and
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
     ind = ddll.replace('l_','').replace('nu_','')
-    dd = ddll[1::-1]+ind[2:]
+    indfl = ddll[1::-1]+ind[2:] # flavio has first two indices inverted
     indnu = ddll[1::-1]+ddll.replace('l_','nu').replace('nu_','nu')[2:]
     e = sqrt(4* pi * parameters['alpha_e'])
     mb = parameters['m_b']
     dic = {
-        "C9_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '9'],
-        "C9p_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '9p'],
-        "C10_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '10'],
-        "C10p_" + dd : (16 * pi**2) / e**2 * C['F' + ind + '10p'],
-        "CS_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'S'],
-        "CSp_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Sp'],
-        "CP_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
-        "CPp_" + dd : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
+        "C9_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '9'],
+        "C9p_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '9p'],
+        "C10_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '10'],
+        "C10p_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '10p'],
+        "CS_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'S'],
+        "CSp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Sp'],
+        "CP_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
+        "CPp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
         "CL_" + indnu : (8 * pi**2) / e**2 * C['F' + ind + 'nu'],
         "CR_" + indnu : (8 * pi**2) / e**2 * C['F' + ind + 'nup']
         }
@@ -567,6 +532,7 @@ def Fierz_to_Flavio_lep(C, ddll, parameters):
 
 def Fierz_to_EOS_lep(C, ddll, parameters):
     """From semileptonic Fierz basis to EOS semileptonic basis for Class V.
+    C should be the corresponding leptonic Fierz basis and
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
@@ -574,8 +540,6 @@ def Fierz_to_EOS_lep(C, ddll, parameters):
     Vts = V[2,1]
     ind = ddll.replace('l_','').replace('nu_','')
     ind2 = ddll.replace('l_','').replace('nu_','')[2::]
-    dd = ddll[1::-1]+ind[2:]
-    indnu = ddll[1::-1]+ddll.replace('l_','nu').replace('nu_','nu')[2:]
     e = sqrt(4* pi * parameters['alpha_e'])
     dic = {
         'b->s' + ind2 + '::c9' : (16 * pi**2) / e**2 * C['F' + ind + '9'],
@@ -594,7 +558,8 @@ def Fierz_to_EOS_lep(C, ddll, parameters):
 
 def JMS_to_FormFlavor_lep(C, dd):
     """From JMS to semileptonic Fierz basis for Classes V.
-    `ddll` should be of the form 'sbl_eni_tau', 'dbl_munu_e' etc."""
+    C should be the JMS basis and `ddll` should be of the
+    form 'sbl_eni_tau', 'dbl_munu_e' etc."""
     b = dflav[dd[0]]
     s = dflav[dd[1]]
     return {
@@ -606,105 +571,89 @@ def JMS_to_FormFlavor_lep(C, dd):
         'CSRR_' + dd + 'mm' : C["SedRR"][1, 1, s, b],
         'CSLR_' + dd + 'mm' : C["SedRL"][1, 1, s, b],
         'CSRL_' + dd + 'mm' : C["SedRL"][1, 1, b, s].conj(),
-        'CTLL_' + dd + 'mm' : C["TedRR"][1, 1, s, b],
-        'CTRR_' + dd + 'mm' : C["TedRR"][1, 1, b, s].conj(),
-        'CVLL_sdnn' : C["VnudLL"][1, 1, s-1, s],
-        'CVRL_sdnn' : C["VnudLR"][1, 1, s-1, s]}
-
+        'CTLL_' + dd + 'mm' : C["TedRR"][1, 1, b, s].conj(),
+        'CTRR_' + dd + 'mm' : C["TedRR"][1, 1, s, b],
+        'CVLL_sdnn' : 1 / 3 * C["VnudLL"][0, 0, s-1, s]
+                      + 1 / 3 * C["VnudLL"][1, 1, s-1, s]
+                      + 1 / 3 * C["VnudLL"][2, 2, s-1, s],
+        'CVRL_sdnn' : 1 / 3 * C["VnudLR"][0, 0, s-1, s]
+                      + 1 / 3 * C["VnudLR"][1, 1, s-1, s]
+                      + 1 / 3 * C["VnudLR"][2, 2, s-1, s]
+            }
 
 # chromomagnetic operators
-def JMS_to_Fierz_chrom(C, qq, parameters):
+def JMS_to_Fierz_chrom(C, dd):
     """From JMS to chromomagnetic Fierz basis for Class V.
-    `qq` should be of the form 'sb', 'ds', mt (mu tau), em (e mu) etc."""
-    p = parameters
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
-    if qq[0] in dflav.keys():
-        s = dflav[qq[0]]
-        b = dflav[qq[1]]
-        dic ={
-            'F7gamma' + qq: C['dgamma'][s, b],
-            "F8g" + qq: C['dG'][s, b],
-            "F7pgamma" + qq: C['dgamma'][b, s].conj(),
-            "F8pg" + qq: C['dG'][b, s].conj()
-        }
-        prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
-        return {k: prefactor * v for k,v in dic.items()}
-    if qq[0] in ['e', 'm', 't']:
-        l1 = dflav[qq[0]]
-        l2 = dflav[qq[1]]
-        return {
-            'F7gammal' + qq: C['egamma'][s, b],
-            "F7pgammal" + qq: C['egamma'][b, s].conj()
-        }
-        if qq[0] in uflav.keys():
-            u = uflav[qq[0]]
-            c = uflav[qq[1]]
-            dic ={
-                'F7gamma' + qq : C['ugamma'][u, c],
-                "F8g" + qq : C['uG'][u, c],
-                "F7pgamma" + qq : C['ugamma'][c, u].conj(),
-                "F8pg" + qq : C['uG'][c, u].conj()
-                    }
+    qq should be of the form 'sb', 'ds' etc."""
+    s = dflav[dd[0]]
+    b = dflav[dd[1]]
+    return {
+            'F7gamma' + dd : C['dgamma'][s, b],
+            'F8g' + dd : C['dG'][s, b],
+            'F7pgamma' + dd : C['dgamma'][b, s].conj(),
+            'F8pg' + dd : C['dG'][b, s].conj()
+                }
+
 
 def Fierz_to_Bern_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Bern basis for Class V.
-    `dd` should be of the form 'sb', 'ds' etc."""
+    dd should be of the form 'sb', 'ds' etc."""
     e = sqrt(4 * pi * parameters['alpha_e'])
     gs = sqrt(4 * pi * parameters['alpha_s'])
     mb = parameters['m_b']
     return {
-        "7gamma"+dd : gs**2 / e / mb * C['F7gamma' + dd ],
-        "8g"+dd : gs / mb * C['F8g' + dd ],
-        "7pgamma"+dd : gs**2 / e /mb * C['F7pgamma' + dd],
-        "8pg"+dd : gs / mb * C['F8pg' + dd]
+        '7gamma' + dd : gs**2 / e / mb * C['F7gamma' + dd ],
+        '8g' + dd : gs / mb * C['F8g' + dd ],
+        '7pgamma' + dd : gs**2 / e /mb * C['F7pgamma' + dd],
+        '8pg' + dd : gs / mb * C['F8pg' + dd]
             }
-
-
 
 
 def Fierz_to_Flavio_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Flavio basis for Class V.
-    `dd` should be of the form 'sb', 'ds' etc."""
+    dd should be of the form 'sb', 'ds' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
-    ddfl=dd[::-1]
+    ddfl = dd[::-1]
     e = sqrt(4 * pi * parameters['alpha_e'])
     gs = sqrt(4 * pi * parameters['alpha_s'])
     mb = parameters['m_b']
     dic = {
-        "C7_" + ddfl: (16 * pi**2) / e / mb * C['F7gamma' + dd],
-        "C8_" + ddfl: (16 * pi**2) / gs / mb * C['F8g' + dd],
-        "C7p_" + ddfl: (16 * pi**2) / e / mb * C['F7pgamma' + dd],
-        "C8p_" + ddfl: (16 * pi**2) / gs / mb * C['F8pg' + dd]
+        "C7_" + ddfl : (16 * pi**2) / e / mb * C['F7gamma' + dd],
+        "C8_" + ddfl : (16 * pi**2) / gs / mb * C['F8g' + dd],
+        "C7p_" + ddfl : (16 * pi**2) / e / mb * C['F7pgamma' + dd],
+        "C8p_" + ddfl : (16 * pi**2) / gs / mb * C['F8pg' + dd]
             }
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
     return {k: prefactor * v for k,v in dic.items()}
 
 
 def Fierz_to_EOS_chrom(C, dd, parameters):
-    """From Fierz to chromomagnetic Flavio basis for Class V.
-    `dd` should be of the form 'sb', 'ds' etc."""
+    """From Fierz to chromomagnetic EOS basis for Class V.
+    dd should be of the form 'sb', 'ds' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
     Vts = V[2,1]
-    ddfl=dd[::-1]
-    e = sqrt(4* pi * parameters['alpha_e'])
-    gs = sqrt(4* pi * parameters['alpha_s'])
+    e = sqrt(4 * pi * parameters['alpha_e'])
+    gs = sqrt(4 * pi * parameters['alpha_s'])
     mb = parameters['m_b']
     ms = parameters['m_s']
-    dic = {'b->s::c7': gs**2 * mb * C["F7gamma" + dd] / (e * mb**2 - e * ms**2)
-                       + gs**2 * ms * C["F7pgamma" + dd] / (e*(-mb**2 + ms**2)),
-            "b->s::c7'": gs * mb * C["F8g" + dd] / (mb**2 - ms**2)
-                        + gs * ms * C["F8pg" + dd] / (-mb**2 + ms**2),
-            'b->s::c8': gs**2 * ms * C["F7gamma" + dd] / (e*(-mb**2 + ms**2))
-                        + gs**2 * mb * C["F7pgamma" + dd] / (e*mb**2 - e*ms**2),
-            "b->s::c8'": gs * ms * C["F8g" + dd] / (-mb**2 + ms**2)
-                        + gs * mb * C["F8pg" + dd] / (mb**2 - ms**2)
+    dic = {'b->s::c7': 16 * pi**2 * mb * C["F7gamma" + dd]
+                                            / (e * mb**2 - e * ms**2)
+                       + 16 * pi**2 * ms * C["F7pgamma" + dd]
+                                            / (e*(-mb**2 + ms**2)),
+            "b->s::c7'": 16 * pi**2 / gs * mb * C["F8g" + dd] / (mb**2 - ms**2)
+                        + 16 * pi**2 / gs * ms * C["F8pg" + dd]
+                                                            / (-mb**2 + ms**2),
+            'b->s::c8': 16 * pi**2  * ms * C["F7gamma" + dd]
+                                                    / (e*(-mb**2 + ms**2))
+                        + 16 * pi**2  * mb * C["F7pgamma" + dd]
+                                                        / (e*mb**2 - e*ms**2),
+            "b->s::c8'": 16 * pi**2 / gs * ms * C["F8g" + dd] / (-mb**2 + ms**2)
+                        + 16 * pi**2 / gs * mb * C["F8pg" + dd] / (mb**2 - ms**2)
                         }
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
     return {k: prefactor * v for k,v in dic.items()}
@@ -738,7 +687,6 @@ def JMS_to_FormFlavor_chrom(C, qq):
             'CAL_'  + qq : C['ugamma'][c, u].conj(),
             'CGL_' + qq : C['uG'][c, u].conj()
                 }
-
 
 
 # symmetrize JMS basis
@@ -877,7 +825,7 @@ def JMS_to_EOS(Cflat, parameters=None):
                                                       , p))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_EOS_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
+    d.update(Fierz_to_EOS_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
     return d
 
 def JMS_to_flavio(Cflat, parameters=None):
@@ -935,8 +883,8 @@ def JMS_to_flavio(Cflat, parameters=None):
                                          'db'+'l_'+l+'nu_'+lp, p))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
-    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
+    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
+    d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
     return d
 
 
@@ -1019,6 +967,6 @@ def JMS_to_Bern(Cflat, parameters=None):
                                                          ,'db'+'l_'+l+'nu_'+lp))
 
     # Class V chromomagnetic
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb', p), 'sb', p))
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db', p), 'db', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
     return d
