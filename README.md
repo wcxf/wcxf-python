@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/wcxf/wcxf-python.svg?branch=master)](https://travis-ci.org/wcxf/wcxf-python) [![Coverage Status](https://coveralls.io/repos/github/wcxf/wcxf-python/badge.svg?branch=master)](https://coveralls.io/github/wcxf/wcxf-python?branch=master)
+
 # WCxf Python API and command line interface
 
 This Python package provides a Python API and command line interface to
