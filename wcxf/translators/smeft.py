@@ -77,7 +77,7 @@ def warsaw_to_warsaw_up(C, parameters=None):
         p.update(parameters)
     Uu = Ud = Ul = Ue = np.eye(3)
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Uq = V
+    Uq = V.conj().T
     C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
                                                     sm_parameters=False)
     C_out = smeftrunner.io.arrays2wcxf(C_out)
@@ -100,7 +100,7 @@ def warsaw_up_to_warsaw(C, parameters=None):
         p.update(parameters)
     Uu = Ud = Ul = Ue = np.eye(3)
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Uq = V.conj().T
+    Uq = V
     C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
                                                     sm_parameters=False)
     C_out = smeftrunner.io.arrays2wcxf(C_out)
