@@ -1,6 +1,6 @@
 import numpy as np
 from math import sqrt, pi
-import smeftrunner.definitions
+import smeftrunner
 import wcxf
 from wcxf.parameters import p as default_parameters
 

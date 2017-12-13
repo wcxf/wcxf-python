@@ -1,7 +1,7 @@
 from wcxf.parameters import p as default_parameters
 import ckmutil.ckm
 import ckmutil.diag
-import smeftrunner.definitions
+import smeftrunner
 import numpy as np
 from collections import OrderedDict
 

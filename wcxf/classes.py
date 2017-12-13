@@ -73,6 +73,7 @@ def _testtex(s, delete=True):
                            stdout=subprocess.DEVNULL)
     except FileNotFoundError:
         logging.warn('latex executable not found. Cannot check tex code')
+        return {'success': True}
     if p.returncode == 0:
         res = {'success': True}
     else:
