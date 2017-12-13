@@ -611,7 +611,7 @@ def Fierz_to_Bern_chrom(C, dd, parameters):
 
 def Fierz_to_Flavio_chrom(C, dd, parameters):
     """From Fierz to chromomagnetic Flavio basis for Class V.
-    dd should be of the form 'sb', 'ds' etc."""
+    dd should be of the form 'sb', 'db' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Vtb = V[2,2]
@@ -641,20 +641,19 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
     gs = sqrt(4 * pi * parameters['alpha_s'])
     mb = parameters['m_b']
     ms = parameters['m_s']
-    dic = {'b->s::c7': 16 * pi**2 * mb * C["F7gamma" + dd]
-                                            / (e * (mb**2 - ms**2))
-                       - 16 * pi**2 * ms * C["F7pgamma" + dd]
-                                            / (e * (mb**2 - ms**2)),
-            "b->s::c7'": - 16 * pi**2  * ms * C["F7gamma" + dd]
-                                                    / (e * (mb**2 - ms**2))
-                        + 16 * pi**2  * mb * C["F7pgamma" + dd]
-                                                        / (e * (mb**2 - ms**2)),
-            'b->s::c8': 16 * pi**2 / gs * mb * C["F8g" + dd] / (mb**2 - ms**2)
-                        - 16 * pi**2 / gs * ms * C["F8pg" + dd]
+    dic = {"b->s::c7": 16 * pi**2 * mb / e * C["F7gamma" + dd] / (mb**2 - ms**2)
+                       -16 * pi**2 * ms / e * C["F7pgamma" + dd]
+                                                              / (mb**2 - ms**2),
+            "b->s::c7'": - 16 * pi**2  * ms / e * C["F7gamma" + dd]
+                                                    / (mb**2 - ms**2)
+                        + 16 * pi**2  * mb / e * C["F7pgamma" + dd]
+                                                        / (mb**2 - ms**2),
+            "b->s::c8": 16 * pi**2 * mb / gs * C["F8g" + dd] / (mb**2 - ms**2)
+                        - 16 * pi**2 * ms / gs * C["F8pg" + dd]
                                                             / (mb**2 - ms**2),
-            "b->s::c8'": - 16 * pi**2 / gs * ms * C["F8g" + dd] / (mb**2 - ms**2)
-                        + 16 * pi**2 / gs * mb * C["F8pg" + dd] / (mb**2 - ms**2)
-                        }
+            "b->s::c8'": - 16 * pi**2 * ms / gs * C["F8g" + dd] / (mb**2 - ms**2)
+                        + 16 * pi**2 * mb / gs * C["F8pg" + dd] / (mb**2 - ms**2)
+                }
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
     return {k: prefactor * v for k,v in dic.items()}
 
@@ -671,7 +670,7 @@ def JMS_to_FormFlavor_chrom(C, qq):
             'CAL_'  + qq : C['dgamma'][b, s].conj(),
             'CGL_' + qq : C['dG'][b, s].conj()
                 }
-    if qq[0] in ['e', 'm', 't']:
+    if qq[0] in llflav.keys():
         l1 = llflav[qq[0]]
         l2 = llflav[qq[1]]
         return {
@@ -687,6 +686,8 @@ def JMS_to_FormFlavor_chrom(C, qq):
             'CAL_'  + qq : C['ugamma'][c, u].conj(),
             'CGL_' + qq : C['uG'][c, u].conj()
                 }
+    else:
+        return 'not in FormFlav_chrom'
 
 
 # symmetrize JMS basis
@@ -726,8 +727,9 @@ def _symm_current(C):
     return C
 
 
+
 def _JMS_to_array(C):
-    """For a dictionary with JMS Wilson coefficients, return an dictionary
+    """For a dictionary with JMS Wilson coefficients, return a dictionary
     of arrays."""
     wc_keys = wcxf.Basis['WET', 'JMS'].all_wcs
     # fill in zeros for missing coefficients
@@ -738,10 +740,9 @@ def _JMS_to_array(C):
                 "V8udLL", "VeuRR", "VedRR", "V1udRR", "V8udRR", "VnueLR",
                 "VeeLR", "VnuuLR", "VnudLR", "VeuLR", "VedLR", "VueLR", "VdeLR",
                 "V1uuLR", "V8uuLR", "V1udLR", "V8udLR", "V1duLR", "V8duLR",
-                "V1ddLR", "V8ddLR", "SeuRL", "SedRL", "SeuRR", "TeuRR",
-                "SedRR", "TedRR"]:
+                "V1ddLR", "V8ddLR"]:
             Ca[k] = _symm_herm(Ca[k])
-        if k in ["S1uuRR", "S8uuRR", "S1ddRR", "S8ddRR", "SeeRR"]:
+        if k in ["S1uuRR", "S8uuRR", "S1ddRR", "S8ddRR"]:
             Ca[k] = _symm_current(Ca[k])
         if k in ["VuuLL", "VddLL", "VuuRR", "VddRR"]:
             Ca[k] = _symm_herm(_symm_current(Ca[k]))
@@ -756,7 +757,7 @@ def rotate_down(C_in, p):
     for all Wilson coefficient matrices."""
     C = C_in.copy()
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    UdL = V.conj().T
+    UdL = V
     # type dL dL dL dL
     for k in ['VddLL']:
         C[k] = np.einsum('ia,jb,kc,ld,ijkl->abcd',
@@ -797,9 +798,6 @@ def JMS_to_EOS(Cflat, parameters=None):
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     C = rotate_down(C, p)
     d={}
@@ -833,9 +831,6 @@ def JMS_to_flavio(Cflat, parameters=None):
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     C = rotate_down(C, p)
     d={}
@@ -859,19 +854,6 @@ def JMS_to_flavio(Cflat, parameters=None):
                                             'us'+'l_'+l+'nu_'+lp),
                                           'us'+'l_'+l+'nu_'+lp, p))
 
-    # Class V
-    Fsbuu = _JMS_to_Fierz_III_IV_V(C, 'sbuu')
-    Fsbdd = _JMS_to_Fierz_III_IV_V(C, 'sbdd')
-    Fsbcc = _JMS_to_Fierz_III_IV_V(C, 'sbcc')
-    Fsbss = _JMS_to_Fierz_III_IV_V(C, 'sbss')
-    Fsbbb = _JMS_to_Fierz_III_IV_V(C, 'sbbb')
-
-    Fdbuu = _JMS_to_Fierz_III_IV_V(C, 'dbuu')
-    Fdbdd = _JMS_to_Fierz_III_IV_V(C, 'dbdd')
-    Fdbcc = _JMS_to_Fierz_III_IV_V(C, 'dbcc')
-    Fdbss = _JMS_to_Fierz_III_IV_V(C, 'dbss')
-    Fdbbb = _JMS_to_Fierz_III_IV_V(C, 'dbbb')
-
     # Class V semileptonic
     for l in lflav.keys():
         for lp in lflav.keys():
@@ -893,9 +875,6 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     C = rotate_down(C, p)
     d={}
@@ -909,17 +888,9 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
     d.update(JMS_to_FormFlavor_lep(C, 'bd'))
 
     # Class V chromomagnetic
-    d.update(JMS_to_FormFlavor_chrom(C, 'sb'))
-    d.update(JMS_to_FormFlavor_chrom(C, 'db'))
-    d.update(JMS_to_FormFlavor_chrom(C, 'uu'))
-    d.update(JMS_to_FormFlavor_chrom(C, 'dd'))
-    d.update(JMS_to_FormFlavor_chrom(C, 'mt'))
-    d.update(JMS_to_FormFlavor_chrom(C, 'em'))
-    d.update(JMS_to_FormFlavor_chrom(C, 'et'))
+    for ind in ['sb', 'db', 'uu', 'dd', 'mt', 'em', 'et']:
+        d.update(JMS_to_FormFlavor_chrom(C, ind))
     return d
-
-
-
 
 
 def JMS_to_Bern(Cflat, parameters=None):
@@ -927,9 +898,6 @@ def JMS_to_Bern(Cflat, parameters=None):
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
-    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
     C = _JMS_to_array(Cflat)
     C = rotate_down(C, p)
     d={}
