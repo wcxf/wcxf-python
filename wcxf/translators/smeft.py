@@ -1,8 +1,46 @@
 from wcxf.parameters import p as default_parameters
-import ckmutil.ckm, ckmutil.diag
-import smeftrunner
+import ckmutil.ckm
+import ckmutil.diag
+import smeftrunner.definitions
 import numpy as np
 from collections import OrderedDict
+
+
+def arrays2wcxf(C):
+    """Convert a dictionary with Wilson coefficient names as keys and
+    numbers or numpy arrays as values to a dictionary with a Wilson coefficient
+    name followed by underscore and numeric indices as keys and numbers as
+    values. This is needed for the output in WCxf format."""
+    d = {}
+    for k, v in C.items():
+        if np.shape(v) == ():
+            d[k] = v
+        else:
+            ind = np.indices(v.shape).reshape(v.ndim, v.size).T
+            for i in ind:
+                name = k + '_' + ''.join([str(j + 1) for j in i])
+                d[name] = v[tuple(i)]
+    return d
+
+
+def wcxf2arrays(d):
+    """Convert a dictionary dictionary with a Wilson coefficient
+    name followed by underscore and numeric indices as keys and numbers as
+    values to a dictionary with Wilson coefficient names as keys and
+    numbers or numpy arrays as values. This is needed for the parsing
+    of input in WCxf format."""
+    C = {}
+    for k, v in d.items():
+        name = k.split('_')[0]
+        s = smeftrunner.definitions.C_keys_shape[name]
+        if s == 1:
+            C[k] = v
+        else:
+            ind = k.split('_')[-1]
+            if name not in C:
+                C[name] = np.zeros(s, dtype=complex)
+            C[name][tuple([int(i) - 1 for i in ind])] = v
+    return C
 
 
 def smeft_toarray(wc_name, wc_dict):
@@ -14,8 +52,8 @@ def smeft_toarray(wc_name, wc_dict):
     for k, v in wc_dict.items():
         if k.split('_')[0] != wc_name:
             continue
-        indices = k.split('_')[-1] # e.g. '1213'
-        indices = tuple(int(s)-1 for s in indices) # e.g. (1, 2, 1, 3)
+        indices = k.split('_')[-1]  # e.g. '1213'
+        indices = tuple(int(s) - 1 for s in indices)  # e.g. (1, 2, 1, 3)
         C[indices] = v
     C = smeftrunner.definitions.symmetrize({wc_name: C})[wc_name]
     return C
@@ -69,7 +107,7 @@ def warsaw_to_warsaw_up(C, parameters=None):
       as the mismatch between left-handed quark mass matrix diagonalization
       matrices).
     """
-    C_in = smeftrunner.io.wcxf2arrays(C)
+    C_in = wcxf2arrays(C)
     C_in = smeftrunner.definitions.symmetrize(C_in)
     p = default_parameters.copy()
     if parameters is not None:
@@ -80,7 +118,7 @@ def warsaw_to_warsaw_up(C, parameters=None):
     Uq = V.conj().T
     C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
                                                     sm_parameters=False)
-    C_out = smeftrunner.io.arrays2wcxf(C_out)
+    C_out = arrays2wcxf(C_out)
     return {k: v for k, v in C_out.items() if k in C}
 
 
@@ -92,7 +130,7 @@ def warsaw_up_to_warsaw(C, parameters=None):
       as the mismatch between left-handed quark mass matrix diagonalization
       matrices).
     """
-    C_in = smeftrunner.io.wcxf2arrays(C)
+    C_in = wcxf2arrays(C)
     C_in = smeftrunner.definitions.symmetrize(C_in)
     p = default_parameters.copy()
     if parameters is not None:
@@ -103,5 +141,5 @@ def warsaw_up_to_warsaw(C, parameters=None):
     Uq = V
     C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
                                                     sm_parameters=False)
-    C_out = smeftrunner.io.arrays2wcxf(C_out)
+    C_out = arrays2wcxf(C_out)
     return {k: v for k, v in C_out.items() if k in C}

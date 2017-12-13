@@ -48,3 +48,18 @@ class TestWarsawUp(unittest.TestCase):
         for k, v in wc_Warsaw_random.dict.items():
             self.assertAlmostEqual(v, wc_roundtrip.dict[k], places=12,
                                    msg="Failed for {}".format(k))
+
+
+class TestIO(unittest.TestCase):
+    def test_arrays2wcxf(self):
+        """Test the functions needed for WCxf IO."""
+        import smeftrunner
+        wcout = pkgutil.get_data('smeftrunner', 'tests/data/Output_SMEFTrunner.dat').decode('utf-8')
+        smeft = smeftrunner.SMEFT()
+        smeft.load_initial((wcout,))
+        d_wcxf = wcxf.translators.smeft.arrays2wcxf(smeft.C_in)
+        C_out = wcxf.translators.smeft.wcxf2arrays(d_wcxf)
+        C_out = smeftrunner.definitions.symmetrize(C_out)
+        for k, v in smeft.C_in.items():
+            npt.assert_array_equal(v, C_out[k],
+                                   err_msg="Arrays are not equal for {}".format(k))

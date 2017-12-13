@@ -1,6 +1,6 @@
 import numpy as np
 from math import sqrt, pi
-import smeftrunner
+import smeftrunner.definitions
 import wcxf
 from wcxf.parameters import p as default_parameters
 
@@ -218,11 +218,11 @@ def match_all(d_SMEFT, parameters=None):
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
-    C = smeftrunner.io.wcxf2arrays(d_SMEFT)
+    C = wcxf.translators.smeft.wcxf2arrays(d_SMEFT)
     C = smeftrunner.definitions.symmetrize(C)
     C['vT'] = 246.22
     C_WET = match_all_array(C, p)
-    d_WET = smeftrunner.io.arrays2wcxf(C_WET)
+    d_WET = wcxf.translators.smeft.arrays2wcxf(C_WET)
     basis = wcxf.Basis['WET', 'JMS']
     d_WET = {k: v for k, v in d_WET.items() if k in basis.all_wcs}
     return d_WET
