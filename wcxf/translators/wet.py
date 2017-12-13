@@ -131,12 +131,11 @@ def _BernII_to_Flavio_II(C, udlnu, parameters):
                                                                     :len(udlnu)]
     ind2 = udlnu[1]+udlnu[0]+udlnu[4:udlnu.find('n')]+'nu'+udlnu[
                                                 udlnu.find('_',5)+1:len(udlnu)]
-    mb = parameters['m_b']
     dic = {
-        'CV_' + ind2 : C['1' + ind],
-        'CVp_'+ ind2 : C['1p' + ind],
-        'CS_'+ ind2 : C['5' + ind] / mb,
-        'CSp_'+ ind2 : C['5p' + ind] / mb,
+        'CVL_' + ind2 : C['1' + ind],
+        'CVR_'+ ind2 : C['1p' + ind],
+        'CSR_'+ ind2 : C['5' + ind],
+        'CSL_'+ ind2 : C['5p' + ind],
         'CT_'+ ind2 : C['7p' + ind]
         }
     prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
