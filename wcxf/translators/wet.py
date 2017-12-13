@@ -313,7 +313,7 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
     """From Fierz to 4-quark Bern basis for Classes III, IV and V.
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
 
-    if qqqq in ['sbss','dbdd','dbbb','sbbb','dbds','sbsd', 'bsbd']:
+    if qqqq in ['sbss','dbdd','dbds','sbsd', 'bsbd']:
         return {
         '1' + qqqq : -Fqqqq['F' + qqqq + '1'] / 3
                         + 4 * Fqqqq['F' + qqqq + '3'] / 3,
@@ -335,6 +335,29 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
                       + Fqqqq['F' + qqqq + '9'],
         '9p' + qqqq : Fqqqq['F' + qqqq + '5'] / 48
                       - Fqqqq['F' + qqqq + '7'] / 48
+                            }
+    if qqqq in ['dbbb','sbbb']:
+        return {
+        '1' + qqqq : -Fqqqq['F' + qqqq + '1'] / 3
+                        + 4 * Fqqqq['F' + qqqq + '3'] / 3,
+        '3' + qqqq : Fqqqq['F' + qqqq + '1'] / 12 - Fqqqq['F' + qqqq + '3'] / 12,
+        '5' + qqqq : -Fqqqq['F' + qqqq + '5'] / 3
+                    + 4 * Fqqqq['F' + qqqq + '7'] / 3,
+        '7' + qqqq : Fqqqq['F' + qqqq + '5'] / 3 - Fqqqq['F' + qqqq + '7'] / 3
+                    + Fqqqq['F' + qqqq + '9'],
+        '9' + qqqq : Fqqqq['F' + qqqq + '5'] / 48
+                     - Fqqqq['F' + qqqq + '7'] / 48,
+
+        '1p' + qqqq : -Fqqqq['F' + qqqq + '1p'] / 3
+                      + 4 * Fqqqq['F' + qqqq + '3p'] / 3,
+        '3p' + qqqq : Fqqqq['F' + qqqq + '1p'] / 12
+                      - Fqqqq['F' + qqqq + '3p'] / 12,
+        '5p' + qqqq : -Fqqqq['F' + qqqq + '5p'] / 3
+                      + 4 * Fqqqq['F' + qqqq + '7p'] / 3,
+        '7p' + qqqq : Fqqqq['F' + qqqq + '5p'] / 3 - Fqqqq['F' + qqqq + '7p'] / 3
+                      + Fqqqq['F' + qqqq + '9p'],
+        '9p' + qqqq : Fqqqq['F' + qqqq + '5p'] / 48
+                      - Fqqqq['F' + qqqq + '7p'] / 48
                             }
     else:
         return {
