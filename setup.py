@@ -14,7 +14,9 @@ setup(name='wcxf',
                 ]
       },
       install_requires=['pyyaml', 'ckmutil>=0.3'],
-      tests_require=['nose', 'smeftrunner'],
+      extras_require={
+            'testing': ['nose', 'smeftrunner'],
+      },
       entry_points={
         'console_scripts': [
             'wcxf = wcxf.cli:wcxf_cli',
