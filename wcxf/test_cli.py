@@ -61,7 +61,7 @@ class TestCLI(unittest.TestCase):
 
     def test_validate(self):
         _root = os.path.abspath(os.path.dirname(__file__))
-        wet = os.path.join(_root, 'bases', 'wet.eft.yml')
+        wet = os.path.join(_root, 'bases', 'wet.eft.json')
         with open(wet, 'rb') as f:
             s = f.read()
         res = subprocess.run(['wcxf', 'validate', 'eft', '-'],
@@ -71,7 +71,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(res, "Validation successful.\n")
 
         _root = os.path.abspath(os.path.dirname(__file__))
-        wet = os.path.join(_root, 'bases', 'wet.flavio.basis.yml')
+        wet = os.path.join(_root, 'bases', 'wet.flavio.basis.json')
         with open(wet, 'rb') as f:
             s = f.read()
         res = subprocess.run(['wcxf', 'validate', 'basis', '-'],

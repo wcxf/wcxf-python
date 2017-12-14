@@ -1,15 +1,20 @@
 from setuptools import setup, find_packages
 
 setup(name='wcxf',
-      version='0.2',
+      version='0.3',
       author='David M. Straub, Jason Aebischer',
       author_email='david.straub@tum.de, jason.aebischer@tum.de',
       license='MIT',
-      packages=['wcxf'],
+      packages=find_packages(),
       package_data={
-      'wcxf':['data/*.yml']
+        'wcxf': ['data/*.yml',
+                 'data/*.yaml',
+                 'bases/*.json',
+                 'bases/child/*.json',
+                ]
       },
-      install_requires=['pyyaml', 'ckmutil>=0.3', 'smeftrunner>=1.9'],
+      install_requires=['pyyaml', 'ckmutil>=0.3'],
+      tests_require=['nose', 'smeftrunner'],
       entry_points={
         'console_scripts': [
             'wcxf = wcxf.cli:wcxf_cli',
