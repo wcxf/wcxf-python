@@ -1,6 +1,7 @@
-from wcxf.classes import *
-from wcxf import matchers
-from wcxf import translators
+from .classes import *
+from . import matchers
+from . import translators
+from . import util
 
 # read all EFTs and bases from the wcxf-bases submodule
 

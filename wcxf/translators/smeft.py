@@ -1,7 +1,7 @@
 from wcxf.parameters import p as default_parameters
 import ckmutil.ckm
 import ckmutil.diag
-import smeftrunner
+from wcxf.util import smeftutil
 import numpy as np
 from collections import OrderedDict
 
@@ -32,7 +32,7 @@ def wcxf2arrays(d):
     C = {}
     for k, v in d.items():
         name = k.split('_')[0]
-        s = smeftrunner.definitions.C_keys_shape[name]
+        s = smeftutil.C_keys_shape[name]
         if s == 1:
             C[k] = v
         else:
@@ -47,7 +47,7 @@ def smeft_toarray(wc_name, wc_dict):
     """Construct a numpy array with Wilson coefficient values from a
     dictionary of label-value pairs corresponding to the non-redundant
     elements."""
-    shape = smeftrunner.definitions.C_keys_shape[wc_name]
+    shape = smeftutil.C_keys_shape[wc_name]
     C = np.zeros(shape, dtype=complex)
     for k, v in wc_dict.items():
         if k.split('_')[0] != wc_name:
@@ -55,7 +55,7 @@ def smeft_toarray(wc_name, wc_dict):
         indices = k.split('_')[-1]  # e.g. '1213'
         indices = tuple(int(s) - 1 for s in indices)  # e.g. (1, 2, 1, 3)
         C[indices] = v
-    C = smeftrunner.definitions.symmetrize({wc_name: C})[wc_name]
+    C = smeftutil.symmetrize({wc_name: C})[wc_name]
     return C
 
 
@@ -108,7 +108,7 @@ def warsaw_to_warsaw_up(C, parameters=None):
       matrices).
     """
     C_in = wcxf2arrays(C)
-    C_in = smeftrunner.definitions.symmetrize(C_in)
+    C_in = smeftutil.symmetrize(C_in)
     p = default_parameters.copy()
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
@@ -116,8 +116,7 @@ def warsaw_to_warsaw_up(C, parameters=None):
     Uu = Ud = Ul = Ue = np.eye(3)
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Uq = V.conj().T
-    C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
-                                                    sm_parameters=False)
+    C_out = smeftutil.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue)
     C_out = arrays2wcxf(C_out)
     return {k: v for k, v in C_out.items() if k in C}
 
@@ -131,7 +130,7 @@ def warsaw_up_to_warsaw(C, parameters=None):
       matrices).
     """
     C_in = wcxf2arrays(C)
-    C_in = smeftrunner.definitions.symmetrize(C_in)
+    C_in = smeftutil.symmetrize(C_in)
     p = default_parameters.copy()
     if parameters is not None:
         # if parameters are passed in, overwrite the default values
@@ -139,7 +138,6 @@ def warsaw_up_to_warsaw(C, parameters=None):
     Uu = Ud = Ul = Ue = np.eye(3)
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
     Uq = V
-    C_out = smeftrunner.definitions.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue,
-                                                    sm_parameters=False)
+    C_out = smeftutil.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue)
     C_out = arrays2wcxf(C_out)
     return {k: v for k, v in C_out.items() if k in C}
