@@ -11,6 +11,7 @@ install:
   - pip install
   - pip install coveralls
 
-script: nosetests --with-coverage --cover-package=wcxf
+script:
+  - COVERAGE_PROCESS_START=1 nosetests --with-coverage --cover-package=wcxf
 
 after_success: coveralls
