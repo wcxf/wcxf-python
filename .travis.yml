@@ -13,6 +13,6 @@ install:
 
 script:
   - echo 'import coverage; coverage.process_startup()' > sitecustomize.py
-  - COVERAGE_PROCESS_START=1 nosetests --with-coverage --cover-package=wcxf
+  - COVERAGE_PROCESS_START=.coveragerc nosetests --with-coverage --cover-package=wcxf
 
 after_success: coveralls
