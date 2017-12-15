@@ -23,6 +23,7 @@ WC_keys_4f = ["ll", "qq1", "qq3", "lq1", "lq3", "ee", "uu", "dd", "eu", "ed",
 
 
 C_keys = SM_keys + WC_keys_0f + WC_keys_2f + WC_keys_4f
+WC_keys = WC_keys_0f + WC_keys_2f + WC_keys_4f
 
 C_keys_shape = {
    'g': 1,
@@ -566,6 +567,14 @@ def symmetrize(C):
         elif i in C_symm_keys[9]:
             C_symm[i] = symmetrize_9(C[i])
     return C_symm
+
+
+def add_missing(C):
+    """Add arrays with zeros for missing Wilson coefficient keys"""
+    C_out = C.copy()
+    for k in (set(WC_keys) - set(C.keys())):
+        C_out[k] = np.zeros(C_keys_shape[k])
+    return C_out
 
 
 def flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue):
