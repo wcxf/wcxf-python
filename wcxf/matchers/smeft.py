@@ -210,7 +210,10 @@ C["SuddRR"] = lambda C, p: np.zeros((3,3,3,3))
 C["SdddRR"] = lambda C, p: np.zeros((3,3,3,3))
 
 def match_all_array(C_SMEFT, p):
-    return {k: f(C_SMEFT, p) for k, f in C.items()}
+    # generate a dictionary with 0 Wilson coefficients = Standard Model
+    C_SMEFT_0 = {k: 0*v for k, v in C_SMEFT.items()}
+    # compute the SMEFT matching contribution but subtract the SM part
+    return {k: f(C_SMEFT, p) - f(C_SMEFT_0, p) for k, f in C.items()}
 
 def match_all(d_SMEFT, parameters=None):
     """Match the SMEFT Warsaw basis onto the WET JMS basis."""
