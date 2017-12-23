@@ -682,33 +682,35 @@ def Fierz_to_EOS_chrom(C, dd, parameters):
     return {k: prefactor * v for k,v in dic.items()}
 
 
-def JMS_to_FormFlavor_chrom(C, qq):
+def JMS_to_FormFlavor_chrom(C, qq, parameters):
     """From JMS to chromomagnetic FormFlavor basis for Class V.
     qq should be of the form 'sb', 'ds', 'uu', mt (mu tau), em (e mu) etc."""
+    e = sqrt(4 * pi * parameters['alpha_e'])
+    gs = sqrt(4 * pi * parameters['alpha_s'])
     if qq[0] in dflav.keys():
         s = dflav[qq[0]]
         b = dflav[qq[1]]
         return {
-            'CAR_' + qq : C['dgamma'][s, b],
-            'CGR_' + qq : C['dG'][s, b],
-            'CAL_'  + qq : C['dgamma'][b, s].conj(),
-            'CGL_' + qq : C['dG'][b, s].conj()
+            'CAR_' + qq : C['dgamma'][s, b] / e,
+            'CGR_' + qq : C['dG'][s, b] / gs,
+            'CAL_'  + qq : C['dgamma'][b, s].conj() / e,
+            'CGL_' + qq : C['dG'][b, s].conj() / gs,
                 }
     if qq[0] in llflav.keys():
         l1 = llflav[qq[0]]
         l2 = llflav[qq[1]]
         return {
-            'CAR_' + qq : C['egamma'][l1, l2],
-            'CAL_' + qq : C['egamma'][l2, l1].conj()
+            'CAR_' + qq : C['egamma'][l1, l2] / e,
+            'CAL_' + qq : C['egamma'][l2, l1].conj() / gs,
                 }
     if qq[0] in uflav.keys():
         u = uflav[qq[0]]
         c = uflav[qq[1]]
         return {
-            'CAR_' + qq : C['ugamma'][u, c],
-            'CGR_' + qq : C['uG'][u, c],
-            'CAL_'  + qq : C['ugamma'][c, u].conj(),
-            'CGL_' + qq : C['uG'][c, u].conj()
+            'CAR_' + qq : C['ugamma'][u, c] / e,
+            'CGR_' + qq : C['uG'][u, c] / gs,
+            'CAL_'  + qq : C['ugamma'][c, u].conj() / e,
+            'CGL_' + qq : C['uG'][c, u].conj() / gs,
                 }
     else:
         return 'not in FormFlav_chrom'
@@ -913,7 +915,7 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
 
     # Class V chromomagnetic
     for ind in ['sb', 'db', 'uu', 'dd', 'mt', 'em', 'et']:
-        d.update(JMS_to_FormFlavor_chrom(C, ind))
+        d.update(JMS_to_FormFlavor_chrom(C, ind, p))
     return d
 
 
