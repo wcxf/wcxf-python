@@ -3,6 +3,8 @@ import numpy as np
 from wcxf.parameters import p as default_parameters
 import ckmutil.ckm, ckmutil.diag
 import wcxf
+import pkgutil
+import json
 
 # CONSTANTS
 
@@ -961,3 +963,71 @@ def JMS_to_Bern(Cflat, parameters=None):
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
     prefactor = sqrt(2)/p['GF']/4
     return {k: prefactor * v for k,v in d.items()}
+
+
+def FlavorKit_to_JMS(C, parameters=None):
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
+    d = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms.json').decode('utf8'))
+    d_conj = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms_conj.json').decode('utf8'))
+    C_out = {}
+    for k, v in C.items():
+        if k in d:
+            C_out[d[k]] = v
+        elif k in d_conj:
+            C_out[d_conj[k]] = v.conjugate()
+        elif k == 'AVLL_2231':
+            C_out['VeeLL_1223'] = v
+        elif k == 'AVRR_2231':
+            C_out['VeeRR_1223'] = v
+        elif k[:4] == 'K2R_':
+            ind = k[4:][::-1]
+            e = sqrt(4* pi * p['alpha_e'])
+            if ind[1] == '1':
+                m = p['m_e']
+            if ind[1] == '2':
+                m = p['m_mu']
+            if ind[1] == '3':
+                m = p['m_tau']
+            C_out['egamma_' + ind] = 1/2 * e * m * v
+        else:
+            raise ValueError("Unexpected key: {}".format(k))
+    return C_out
+
+
+def JMS_to_FlavorKit(C, parameters=None):
+    p = default_parameters.copy()
+    if parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(parameters)
+    d = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms.json').decode('utf8'))
+    d = {v: k for k, v in d.items()}  # revert dict
+    d_conj = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms_conj.json').decode('utf8'))
+    d_conj = {v: k for k, v in d_conj.items()}  # revert dict
+    C_out = {}
+    for k, v in C.items():
+        if k in d:
+            C_out[d[k]] = v
+        elif k in d_conj:
+            C_out[d_conj[k]] = v.conjugate()
+        elif k == 'VeeLL_1223':
+            C_out['AVLL_2231'] = v
+        elif k == 'VeeRR_1223':
+            C_out['AVRR_2231'] = v
+        elif k.split('_')[0] == 'egamma':
+            ind = k.split('_')[1][::-1]
+            if ind[0] == ind[1]:
+                continue  # diagonal dipoles are not in basis
+            e = sqrt(4* pi * p['alpha_e'])
+            if ind[0] == '1':
+                m = p['m_e']
+            if ind[0] == '2':
+                m = p['m_mu']
+            if ind[0] == '3':
+                m = p['m_tau']
+            C_out['K2R_' + ind] = 2 / e / m * v
+        else:
+            pass  # FlavorKit is not complete, so there will be unknown keys
+    return C_out

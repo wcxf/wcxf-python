@@ -36,3 +36,13 @@ def JMS_to_Bern(C, parameters):
 @wcxf.translator('WET', 'JMS', 'formflavor')
 def JMS_to_FormFlavor(C, parameters):
     return wet.JMS_to_FormFlavor(C, parameters)
+
+
+@wcxf.translator('WET', 'FlavorKit', 'JMS')
+def FlavorKit_to_JMS(C, parameters):
+    return wet.FlavorKit_to_JMS(C, parameters)
+
+
+@wcxf.translator('WET', 'JMS', 'FlavorKit')
+def JMS_to_FlavorKit(C, parameters):
+    return wet.JMS_to_FlavorKit(C, parameters)

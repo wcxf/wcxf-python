@@ -100,7 +100,7 @@ class TestJMS2EOS(unittest.TestCase):
                          for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
 
-class TestJMS2FormFLavor(unittest.TestCase):
+class TestJMS2FormFlavor(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -117,5 +117,45 @@ class TestJMS2FormFLavor(unittest.TestCase):
     def test_missing(self):
         fkeys = set(self.formflavor_wc.values.keys())
         fkeys_all = set([k for s in wcxf.Basis['WET', 'formflavor'].sectors.values()
+                         for k in s])
+        self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
+
+
+class TestFlavorKit2JMS(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.fk_wc = get_random_wc('WET', 'FlavorKit')
+        cls.jms_wc = cls.fk_wc.translate('JMS')
+
+    def test_validate(self):
+        self.jms_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.jms_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+
+    def count_nonzero(self):
+        self.assertEqual(len(self.jms_wc.dict), len(self.fk_wc.dict))
+
+
+class TestJMS2FlavorKit(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.jms_wc = get_random_wc('WET', 'JMS')
+        cls.jms_wc = cls.jms_wc.translate('FlavorKit')
+
+    def test_validate(self):
+        self.jms_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.jms_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+
+    def count_nonzero(self):
+        self.assertEqual(len(self.jms_wc.dict), len(self.jms_wc.dict))
+
+    def test_missing(self):
+        fkeys = set(self.jms_wc.values.keys())
+        fkeys_all = set([k for s in wcxf.Basis['WET', 'FlavorKit'].sectors.values()
                          for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")

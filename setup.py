@@ -9,6 +9,7 @@ setup(name='wcxf',
       package_data={
         'wcxf': ['data/*.yml',
                  'data/*.yaml',
+                 'data/*.json',
                  'bases/*.json',
                  'bases/child/*.json',
                 ]
