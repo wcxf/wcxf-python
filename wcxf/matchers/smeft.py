@@ -226,6 +226,7 @@ def match_all(d_SMEFT, parameters=None):
     C = smeftutil.add_missing(C)
     C['vT'] = 246.22
     C_WET = match_all_array(C, p)
+    C_WET = wcxf.translators.wet.rotate_down(C_WET, p)
     d_WET = wcxf.translators.smeft.arrays2wcxf(C_WET)
     basis = wcxf.Basis['WET', 'JMS']
     d_WET = {k: v for k, v in d_WET.items() if k in basis.all_wcs}

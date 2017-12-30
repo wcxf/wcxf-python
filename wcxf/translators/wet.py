@@ -825,7 +825,6 @@ def JMS_to_EOS(Cflat, parameters=None):
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
     C = _JMS_to_array(Cflat)
-    C = rotate_down(C, p)
     d={}
 
     # Class II
@@ -858,7 +857,6 @@ def JMS_to_flavio(Cflat, parameters=None):
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
     C = _JMS_to_array(Cflat)
-    C = rotate_down(C, p)
     d={}
 
     # Class I
@@ -902,7 +900,6 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
     C = _JMS_to_array(Cflat)
-    C = rotate_down(C, p)
     d={}
 
     # Class I
@@ -925,7 +922,6 @@ def JMS_to_Bern(Cflat, parameters=None):
         # if parameters are passed in, overwrite the default values
         p.update(parameters)
     C = _JMS_to_array(Cflat)
-    C = rotate_down(C, p)
     d={}
 
     # Class I
