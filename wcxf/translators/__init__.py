@@ -23,6 +23,16 @@ def JMS_to_flavio(C, parameters):
     return wet.JMS_to_flavio(C, parameters)
 
 
+@wcxf.translator('WET', 'Bern', 'flavio')
+def Bern_to_flavio(C, parameters):
+    return wet.Bern_to_flavio(C, parameters)
+
+
+@wcxf.translator('WET', 'flavio', 'Bern')
+def flavio_to_Bern(C, parameters):
+    return wet.flavio_to_Bern(C, parameters)
+
+
 @wcxf.translator('WET', 'JMS', 'EOS')
 def JMS_to_EOS(C, parameters):
     return wet.JMS_to_EOS(C, parameters)

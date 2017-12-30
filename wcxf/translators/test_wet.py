@@ -3,6 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import wcxf
 from . import wet
+from math import sqrt
 
 np.random.seed(87)
 
@@ -141,21 +142,113 @@ class TestFlavorKit2JMS(unittest.TestCase):
 class TestJMS2FlavorKit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.jms_wc = get_random_wc('WET', 'JMS')
-        cls.jms_wc = cls.jms_wc.translate('FlavorKit')
+        jms_wc = get_random_wc('WET', 'JMS')
+        cls.fk_wc = jms_wc.translate('FlavorKit')
 
     def test_validate(self):
-        self.jms_wc.validate()
+        self.fk_wc.validate()
 
     def test_nan(self):
-        for k, v in self.jms_wc.dict.items():
+        for k, v in self.fk_wc.dict.items():
             self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
 
     def count_nonzero(self):
-        self.assertEqual(len(self.jms_wc.dict), len(self.jms_wc.dict))
+        self.assertEqual(len(self.fk_wc.dict), len(self.fk_wc.dict))
 
     def test_missing(self):
-        fkeys = set(self.jms_wc.values.keys())
+        fkeys = set(self.fk_wc.values.keys())
         fkeys_all = set([k for s in wcxf.Basis['WET', 'FlavorKit'].sectors.values()
                          for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
+
+
+class TestBern2flavio(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.from_wc = get_random_wc('WET', 'Bern')
+        cls.to_wc = cls.from_wc.translate('flavio')
+
+    def test_validate(self):
+        self.to_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.to_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+
+    def count_nonzero(self):
+        self.assertEqual(len(self.to_wc.dict), len(self.to_wc.dict))
+
+    def test_roundtrip(self):
+        round_wc = self.to_wc.translate('Bern')
+        for k, v in round_wc.dict.items():
+            if k[0] != '7':  # to avoid problem with flavio tensors missing
+                self.assertAlmostEqual(v, self.from_wc.dict[k],
+                                       delta=1e-12,
+                                       msg="Failed for {}".format(k))
+
+    def test_jms(self):
+        jms_wc = get_random_wc('WET', 'JMS')
+        jms_direct = jms_wc.translate('flavio')
+        jms_indirect = jms_wc.translate('Bern').translate('flavio')
+        for k, v in jms_direct.dict.items():
+            self.assertAlmostEqual(v, jms_indirect.dict[k],
+                                   delta=1e-8,
+                                   msg="Failed for {}".format(k))
+
+    def test_incomplete_input(self):
+        # generate and input WC instance with just 1 non-zero coeff.
+        jms_wc = wcxf.WC('WET', 'Bern', 80, {'1sbsb': {'Im': -1}})
+        flavio_wc = jms_wc.translate('flavio')
+        flavio_wc.validate()
+        # the output WC instance should contain only one as well
+        self.assertEqual(list(flavio_wc.dict.keys()), ['CVLL_bsbs'])
+        GF = wcxf.parameters.p['GF']
+        pre = 4*GF/sqrt(2)
+        self.assertAlmostEqual(flavio_wc.dict['CVLL_bsbs'], -1j * pre)
+
+
+class Testflavio2Bern(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.from_wc = get_random_wc('WET', 'flavio')
+        cls.to_wc = cls.from_wc.translate('Bern')
+
+    def test_validate(self):
+        self.to_wc.validate()
+
+    def test_nan(self):
+        for k, v in self.to_wc.dict.items():
+            self.assertFalse(np.isnan(v), msg="{} is NaN".format(k))
+
+    def count_nonzero(self):
+        self.assertEqual(len(self.to_wc.dict), len(self.to_wc.dict))
+
+    def test_roundtrip(self):
+        round_wc = self.to_wc.translate('flavio')
+        for k, v in round_wc.dict.items():
+            self.assertAlmostEqual(v, self.from_wc.dict[k],
+                                   delta=1e-12,
+                                   msg="Failed for {} {}".format(k, v))
+
+    def test_jms(self):
+        jms_wc = get_random_wc('WET', 'JMS')
+        jms_direct = jms_wc.translate('Bern')
+        jms_indirect = jms_wc.translate('flavio').translate('Bern')
+        for k, v in jms_direct.dict.items():
+            if k in jms_indirect.dict:  # since flavio misses 4Q operators
+                if k[0] != '7':  # to avoid problem with flavio tensors missing
+                    self.assertAlmostEqual(v, jms_indirect.dict[k],
+                                           delta=1e-8,
+                                           msg="Failed for {}".format(k))
+
+
+    def test_incomplete_input(self):
+        # generate and input WC instance with just 1 non-zero coeff.
+        jms_wc = wcxf.WC('WET', 'flavio', 80, {'CVLL_bsbs': {'Im': -1e-6}})
+        bern_wc = jms_wc.translate('Bern')
+        bern_wc.validate()
+        # the output WC instance should contain only one as well
+        self.assertEqual(list(bern_wc.dict.keys()), ['1sbsb'])
+        GF = wcxf.parameters.p['GF']
+        pre = 4*GF/sqrt(2)
+        self.assertAlmostEqual(bern_wc.dict['1sbsb'], -1e-6j / pre)
