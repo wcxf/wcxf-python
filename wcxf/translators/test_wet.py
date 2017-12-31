@@ -138,6 +138,15 @@ class TestFlavorKit2JMS(unittest.TestCase):
     def count_nonzero(self):
         self.assertEqual(len(self.jms_wc.dict), len(self.fk_wc.dict))
 
+    def test_incomplete_input(self):
+        # generate and input WC instance with just 1 non-zero coeff.
+        jms_wc = wcxf.WC('WET', 'FlavorKit', 80, {'DVLL_2323': {'Im': -1}})
+        to_wc = jms_wc.translate('JMS')
+        to_wc.validate()
+        # the output WC instance should contain only one as well
+        self.assertEqual(list(to_wc.dict.keys()), ['VddLL_2323'])
+        self.assertAlmostEqual(to_wc.dict['VddLL_2323'], +1j)
+
 
 class TestJMS2FlavorKit(unittest.TestCase):
     @classmethod
@@ -160,6 +169,15 @@ class TestJMS2FlavorKit(unittest.TestCase):
         fkeys_all = set([k for s in wcxf.Basis['WET', 'FlavorKit'].sectors.values()
                          for k in s])
         self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
+
+    def test_incomplete_input(self):
+        # generate and input WC instance with just 1 non-zero coeff.
+        jms_wc = wcxf.WC('WET', 'JMS', 80, {'VddLL_2323': {'Im': -1}})
+        to_wc = jms_wc.translate('FlavorKit')
+        to_wc.validate()
+        # the output WC instance should contain only one as well
+        self.assertEqual(list(to_wc.dict.keys()), ['DVLL_2323'])
+        self.assertAlmostEqual(to_wc.dict['DVLL_2323'], +1j)
 
 
 class TestBern2flavio(unittest.TestCase):
