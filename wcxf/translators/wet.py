@@ -69,11 +69,11 @@ def _BernI_to_Flavio_I(C, qq):
     if qq in ['sb', 'db', 'ds', 'uc']:
         return {
             'CVLL_' + 2*qqf: C["1" + 2*qq],
-            'CSLL_' + 2*qqf: C["2" + 2*qq] + 1 / 2 * C["3" + 2*qq],
+            'CSLL_' + 2*qqf: C["2" + 2*qq] - 1 / 2 * C["3" + 2*qq],
             'CTLL_' + 2*qqf: -1 / 8 * C["3" + 2*qq],
             'CVLR_' + 2*qqf: -1 / 2 * C["5" + 2*qq],
             'CVRR_' + 2*qqf: C["1p" + 2*qq],
-            'CSRR_' + 2*qqf: C["2p" + 2*qq] + 1 / 2 * C["3p" + 2*qq],
+            'CSRR_' + 2*qqf: C["2p" + 2*qq] - 1 / 2 * C["3p" + 2*qq],
             'CTRR_' + 2*qqf: -1 / 8 * C["3p" + 2*qq],
             'CSLR_' + 2*qqf: C["4" + 2*qq]
             }
@@ -88,12 +88,12 @@ def _FlavioI_to_Bern_I(C, qq):
     if qq in ['bs', 'bd', 'sd', 'cu']:
         return {
             '1' + 2*qqb: C["CVLL_" + 2*qq],
-            '2' + 2*qqb: C["CSLL_" + 2*qq] + 4 * C["CTLL_" + 2*qq],
+            '2' + 2*qqb: C["CSLL_" + 2*qq] - 4 * C["CTLL_" + 2*qq],
             '3' + 2*qqb: -8 * C["CTLL_" + 2*qq],
             '4' + 2*qqb: C["CSLR_" + 2*qq],
             '5' + 2*qqb: -2 * C["CVLR_" + 2*qq],
             '1p' + 2*qqb: C["CVRR_" + 2*qq],
-            '2p' + 2*qqb: C["CSRR_" + 2*qq] + 4 * C["CTRR_" + 2*qq],
+            '2p' + 2*qqb: C["CSRR_" + 2*qq] - 4 * C["CTRR_" + 2*qq],
             '3p' + 2*qqb: -8 * C["CTRR_" + 2*qq],
             }
     else:
