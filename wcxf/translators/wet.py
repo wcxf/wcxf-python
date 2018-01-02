@@ -1,6 +1,7 @@
 from math import pi, sqrt
 import numpy as np
 from wcxf.parameters import p as default_parameters
+from wcxf.util.qcd import alpha_s, m_b, m_s
 import ckmutil.ckm, ckmutil.diag
 import wcxf
 import pkgutil
@@ -946,13 +947,32 @@ def rotate_down(C_in, p):
     return C
 
 
+def get_parameters(scale, f=5, input_parameters=None):
+    """Get parameters (masses, coupling constants, ...) at the scale
+    `scale` in QCD with `f` dynamical quark flavours. Optionally takes a
+    dictionary of inputs (otherwise, defaults are used)."""
+    p = default_parameters.copy()
+    if input_parameters is not None:
+        # if parameters are passed in, overwrite the default values
+        p.update(input_parameters)
+    parameters = {}
+    # running quark masses and alpha_s
+    parameters['m_b'] = m_b(p['m_b'], scale, f, p['alpha_s'])
+    parameters['m_s'] = m_s(p['m_s'], scale, f, p['alpha_s'])
+    parameters['alpha_s'] = alpha_s(scale, f, p['alpha_s'])
+    # no running is performed for these parameters
+    for k in ['m_W', 'm_Z', 'GF',
+              'alpha_e',
+              'Vus', 'Vub', 'Vcb', 'gamma',
+              'm_e', 'm_mu', 'm_tau', ]:
+        parameters[k] = p[k]
+    return parameters
+
+
 # final dicitonaries
 
-def JMS_to_EOS(Cflat, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def JMS_to_EOS(Cflat, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -981,11 +1001,8 @@ def JMS_to_EOS(Cflat, parameters=None):
     return d
 
 
-def JMS_to_flavio(Cflat, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def JMS_to_flavio(Cflat, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -1024,11 +1041,8 @@ def JMS_to_flavio(Cflat, parameters=None):
     return d
 
 
-def Bern_to_flavio(C_incomplete, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def Bern_to_flavio(C_incomplete, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     # fill in zeros for missing coefficients
     wc_keys = wcxf.Basis['WET', 'Bern'].all_wcs
     C = {k: C_incomplete.get(k, 0) for k in wc_keys}
@@ -1063,11 +1077,8 @@ def Bern_to_flavio(C_incomplete, parameters=None):
 
 
 
-def flavio_to_Bern(C_incomplete, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def flavio_to_Bern(C_incomplete, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     # fill in zeros for missing coefficients
     wc_keys = wcxf.Basis['WET', 'flavio'].all_wcs
     C = {k: C_incomplete.get(k, 0) for k in wc_keys}
@@ -1101,11 +1112,8 @@ def flavio_to_Bern(C_incomplete, parameters=None):
     return {k: prefactor * v for k,v in d.items()}
 
 
-def JMS_to_FormFlavor(Cflat, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def JMS_to_FormFlavor(Cflat, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -1123,11 +1131,8 @@ def JMS_to_FormFlavor(Cflat, parameters=None):
     return d
 
 
-def JMS_to_Bern(Cflat, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def JMS_to_Bern(Cflat, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     C = _JMS_to_array(Cflat)
     d={}
 
@@ -1170,11 +1175,8 @@ def JMS_to_Bern(Cflat, parameters=None):
     return {k: prefactor * v for k,v in d.items()}
 
 
-def FlavorKit_to_JMS(C, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def FlavorKit_to_JMS(C, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     d = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms.json').decode('utf8'))
     d_conj = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms_conj.json').decode('utf8'))
     C_out = {}
@@ -1202,11 +1204,8 @@ def FlavorKit_to_JMS(C, parameters=None):
     return C_out
 
 
-def JMS_to_FlavorKit(C, parameters=None):
-    p = default_parameters.copy()
-    if parameters is not None:
-        # if parameters are passed in, overwrite the default values
-        p.update(parameters)
+def JMS_to_FlavorKit(C, scale, parameters=None):
+    p = get_parameters(scale, f=5, input_parameters=parameters)
     d = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms.json').decode('utf8'))
     d = {v: k for k, v in d.items()}  # revert dict
     d_conj = json.loads(pkgutil.get_data('wcxf', 'data/flavorkit_jms_conj.json').decode('utf8'))

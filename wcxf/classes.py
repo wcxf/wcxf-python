@@ -416,7 +416,7 @@ class Translator(NamedInstanceClass):
 
     def translate(self, WC_in, parameters=None):
         """Translate a WC object from `from_basis` to `to_basis`."""
-        dict_out = self.function(WC_in.dict, parameters)
+        dict_out = self.function(WC_in.dict, WC_in.scale, parameters)
         # filter out zero values
         dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)
@@ -438,7 +438,7 @@ class Matcher(NamedInstanceClass):
     def match(self, WC_in, parameters=None):
         """Translate a WC object in EFT `from_eft` and basis `from_basis`
         to EFT `to_eft` and basis `to_basis`."""
-        dict_out = self.function(WC_in.dict, parameters)
+        dict_out = self.function(WC_in.dict, WC_in.scale, parameters)
         # filter out zero values
         dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)
