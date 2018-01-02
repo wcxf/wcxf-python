@@ -14,7 +14,7 @@ setup(name='wcxf',
                  'bases/child/*.json',
                 ]
       },
-      install_requires=['pyyaml', 'ckmutil>=0.3'],
+      install_requires=['pyyaml', 'ckmutil>=0.3', 'rundec>=0.5'],
       extras_require={
             'testing': ['nose', 'smeftrunner'],
       },
