@@ -56,3 +56,9 @@ def FlavorKit_to_JMS(C, scale, parameters):
 @wcxf.translator('WET', 'JMS', 'FlavorKit')
 def JMS_to_FlavorKit(C, scale, parameters):
     return wet.JMS_to_FlavorKit(C, scale, parameters)
+
+
+@wcxf.translator('WET', 'FlavorKit', 'flavio')
+def FlavorKit_to_JMS(C, scale, parameters):
+    C_JMS = wet.FlavorKit_to_JMS(C, scale, parameters)
+    return wet.JMS_to_flavio(C_JMS, scale, parameters)

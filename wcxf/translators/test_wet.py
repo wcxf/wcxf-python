@@ -270,3 +270,20 @@ class Testflavio2Bern(unittest.TestCase):
         GF = wcxf.parameters.p['GF']
         pre = 4*GF/sqrt(2)
         self.assertAlmostEqual(bern_wc.dict['1sbsb'], -1e-6j / pre)
+
+
+class TestFlavorKit2flavio(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.from_wc = get_random_wc('WET', 'FlavorKit')
+        cls.to_wc = cls.from_wc.translate('flavio')
+
+    def test_validate(self):
+        self.to_wc.validate()
+
+    def test_detour(self):
+        to_wc_2 = self.from_wc.translate('JMS').translate('flavio')
+        for k, v in self.to_wc.dict.items():
+            self.assertEqual(v, to_wc_2.dict[k],
+                             msg="Failed for {}".format(k))
