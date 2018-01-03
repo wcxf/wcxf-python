@@ -224,6 +224,11 @@ class TestBern2flavio(unittest.TestCase):
         pre = 4*GF/sqrt(2)
         self.assertAlmostEqual(flavio_wc.dict['CVLL_bsbs'], -1j * pre)
 
+    def test_missing(self):
+        fkeys = set(self.to_wc.values.keys())
+        fkeys_all = set([k for s in wcxf.Basis['WET', 'flavio'].sectors.values()
+                         for k in s])
+        self.assertSetEqual(fkeys_all - fkeys, set(), msg="Missing coefficients")
 
 class Testflavio2Bern(unittest.TestCase):
     @classmethod

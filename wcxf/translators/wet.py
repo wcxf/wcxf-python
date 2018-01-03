@@ -589,7 +589,7 @@ def Bern_to_Fierz_lep(C,ddll):
             }
 
 
-def Fierz_to_Flavio_lep(C, ddll, parameters):
+def Fierz_to_Flavio_lep(C, ddll, parameters, include_charged=True):
     """From semileptonic Fierz basis to Flavio semileptonic basis for Class V.
     C should be the corresponding leptonic Fierz basis and
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
@@ -603,17 +603,20 @@ def Fierz_to_Flavio_lep(C, ddll, parameters):
     e = sqrt(4* pi * parameters['alpha_e'])
     mb = parameters['m_b']
     dic = {
-        "C9_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '9'],
-        "C9p_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '9p'],
-        "C10_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '10'],
-        "C10p_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '10p'],
-        "CS_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'S'],
-        "CSp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Sp'],
-        "CP_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
-        "CPp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
         "CL_" + indnu : (8 * pi**2) / e**2 * C['F' + ind + 'nu'],
         "CR_" + indnu : (8 * pi**2) / e**2 * C['F' + ind + 'nup']
-        }
+    }
+    if include_charged:
+        dic.update({
+            "C9_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '9'],
+            "C9p_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '9p'],
+            "C10_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '10'],
+            "C10p_" + indfl : (16 * pi**2) / e**2 * C['F' + ind + '10p'],
+            "CS_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'S'],
+            "CSp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Sp'],
+            "CP_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
+            "CPp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
+        })
     prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
     return {k: prefactor * v for k,v in dic.items()}
 
@@ -1013,17 +1016,10 @@ def JMS_to_flavio(Cflat, scale, parameters=None):
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
-                                          'cb'+'l_'+l+'nu_'+lp),
-                                          'cb'+'l_'+l+'nu_'+lp, p))
-
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
-                                            'ub'+'l_'+l+'nu_'+lp),
-                                          'ub'+'l_'+l+'nu_'+lp, p))
-
-            d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
-                                            'us'+'l_'+l+'nu_'+lp),
-                                          'us'+'l_'+l+'nu_'+lp, p))
+            for qq in ['cb', 'ub', 'us', 'cs', 'cd', 'ud']:
+                d.update(_BernII_to_Flavio_II(_JMS_to_Bern_II(C,
+                                              qq+'l_'+l+'nu_'+lp),
+                                              qq+'l_'+l+'nu_'+lp, p))
 
     # Class V semileptonic
     for l in lflav.keys():
@@ -1034,6 +1030,10 @@ def JMS_to_flavio(Cflat, scale, parameters=None):
             d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C,
                                         'db'+'l_'+l+'nu_'+lp),
                                          'db'+'l_'+l+'nu_'+lp, p))
+            d.update(Fierz_to_Flavio_lep(JMS_to_Fierz_lep(C,
+                                        'ds'+'l_'+l+'nu_'+lp),
+                                        'ds'+'l_'+l+'nu_'+lp, p,
+                                        include_charged=False))
 
     # Class V chromomagnetic
     d.update(Fierz_to_Flavio_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
@@ -1055,9 +1055,8 @@ def Bern_to_flavio(C_incomplete, scale, parameters=None):
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(_BernII_to_Flavio_II(C, 'cb'+'l_'+l+'nu_'+lp, p))
-            d.update(_BernII_to_Flavio_II(C, 'ub'+'l_'+l+'nu_'+lp, p))
-            d.update(_BernII_to_Flavio_II(C, 'us'+'l_'+l+'nu_'+lp, p))
+            for qq in ['cb', 'ub', 'us', 'cs', 'cd', 'ud']:
+                d.update(_BernII_to_Flavio_II(C, qq+'l_'+l+'nu_'+lp, p))
 
     # Class V semileptonic
     for l in lflav.keys():
@@ -1068,6 +1067,10 @@ def Bern_to_flavio(C_incomplete, scale, parameters=None):
             d.update(Fierz_to_Flavio_lep(Bern_to_Fierz_lep(C,
                                         'db'+'l_'+l+'nu_'+lp),
                                          'db'+'l_'+l+'nu_'+lp, p))
+            d.update(Fierz_to_Flavio_lep(Bern_to_Fierz_lep(C,
+                                        'ds'+'l_'+l+'nu_'+lp),
+                                         'ds'+'l_'+l+'nu_'+lp, p,
+                                         include_charged=False))
 
     # Class V chromomagnetic
     d.update(Fierz_to_Flavio_chrom(Bern_to_Fierz_chrom(C, 'sb', p), 'sb', p))
@@ -1091,9 +1094,8 @@ def flavio_to_Bern(C_incomplete, scale, parameters=None):
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(_FlavioII_to_BernII(C, 'cb'+'l_'+l+'nu_'+lp, p))
-            d.update(_FlavioII_to_BernII(C, 'ub'+'l_'+l+'nu_'+lp, p))
-            d.update(_FlavioII_to_BernII(C, 'us'+'l_'+l+'nu_'+lp, p))
+            for qq in ['cb', 'ub', 'us', 'cs', 'cd', 'ud']:
+                d.update(_FlavioII_to_BernII(C, qq+'l_'+l+'nu_'+lp, p))
 
     # Class V semileptonic
     for l in lflav.keys():
@@ -1143,9 +1145,8 @@ def JMS_to_Bern(Cflat, scale, parameters=None):
     # Class II
     for l in lflav.keys():
         for lp in lflav.keys():
-            d.update(_JMS_to_Bern_II(C, 'cb'+'l_'+l+'nu_'+lp))
-            d.update(_JMS_to_Bern_II(C, 'ub'+'l_'+l+'nu_'+lp))
-            d.update(_JMS_to_Bern_II(C, 'us'+'l_'+l+'nu_'+lp))
+            for qq in ['cb', 'ub', 'us', 'cs', 'cd', 'ud']:
+                d.update(_JMS_to_Bern_II(C, qq+'l_'+l+'nu_'+lp))
 
     # Class V
     for u1 in uflav.keys():
@@ -1164,9 +1165,10 @@ def JMS_to_Bern(Cflat, scale, parameters=None):
         for lp in lflav.keys():
             d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'sb'+'l_'+l+'nu_'+lp)
                                                          ,'sb'+'l_'+l+'nu_'+lp))
-
             d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'db'+'l_'+l+'nu_'+lp)
                                                          ,'db'+'l_'+l+'nu_'+lp))
+            d.update(Fierz_to_Bern_lep(JMS_to_Fierz_lep(C, 'ds'+'l_'+l+'nu_'+lp)
+                                                         ,'ds'+'l_'+l+'nu_'+lp))
 
     # Class V chromomagnetic
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
