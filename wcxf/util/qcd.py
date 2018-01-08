@@ -61,12 +61,12 @@ def m_b(mbmb, scale, f, alphasMZ=0.1185):
     if f == 5:
         alphas_scale = alpha_s(scale, f, alphasMZ=alphasMZ)
         return crd.mMS2mMS(mbmb, alphas_mb, alphas_scale, f, loop)
-    elif f == 4 and scale <= mbmb:
+    elif f == 4:
         crd.nfMmu.Mth = 4.8
         crd.nfMmu.muth = 4.8
         crd.nfMmu.nf = 5
         return crd.mH2mL(mbmb, alphas_mb, mbmb, crd.nfMmu, scale, loop)
-    elif f == 3 and scale < mbmb:
+    elif f == 3:
         mc = 1.3
         crd.nfMmu.Mth = 4.8
         crd.nfMmu.muth = 4.8
@@ -77,7 +77,7 @@ def m_b(mbmb, scale, f, alphasMZ=0.1185):
         crd.nfMmu.nf = 4
         alphas_mc = alpha_s(mc, 4, alphasMZ=alphasMZ)
         return crd.mH2mL(mbmc, alphas_mc, mc, crd.nfMmu, scale, loop)
-    elif f == 6 and scale > mbmb:
+    elif f == 6:
         crd.nfMmu.Mth = 170
         crd.nfMmu.muth = 170
         crd.nfMmu.nf = 6
@@ -99,12 +99,12 @@ def m_c(mcmc, scale, f, alphasMZ=0.1185):
     if f == 4:
         alphas_scale = alpha_s(scale, f, alphasMZ=alphasMZ)
         return crd.mMS2mMS(mcmc, alphas_mc, alphas_scale, f, loop)
-    elif f == 3 and scale <= mcmc:
+    elif f == 3:
         crd.nfMmu.Mth = 1.3
         crd.nfMmu.muth = 1.3
         crd.nfMmu.nf = 4
         return crd.mH2mL(mcmc, alphas_mc, mcmc, crd.nfMmu, scale, loop)
-    elif f == 5 and scale > mcmc:
+    elif f == 5:
         crd.nfMmu.Mth = 4.8
         crd.nfMmu.muth = 4.8
         crd.nfMmu.nf = 5
@@ -126,12 +126,12 @@ def m_s(ms2, scale, f, alphasMZ=0.1185):
     if f == 3:
         alphas_scale = alpha_s(scale, f, alphasMZ=alphasMZ)
         return crd.mMS2mMS(ms2, alphas_2, alphas_scale, f, loop)
-    elif f == 4 and scale >= ms2:
+    elif f == 4:
         crd.nfMmu.Mth = 1.3
         crd.nfMmu.muth = 1.3
         crd.nfMmu.nf = 4
         return crd.mL2mH(ms2, alphas_2, 2, crd.nfMmu, scale, loop)
-    elif f == 5 and scale > ms2:
+    elif f == 5:
         mc = 1.3
         crd.nfMmu.Mth = mc
         crd.nfMmu.muth = mc
