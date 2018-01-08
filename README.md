@@ -12,11 +12,8 @@ perform the following operations on WCxf files (or dictionaries):
 
 ## Installation
 
-Since the package is currently in active development, the preferred way
-to install it is in development mode. From the base directory:
-
 ```bash
-pip3 install -e . --user
+pip3 install wcxf
 ```
 
 ## Command line interface
