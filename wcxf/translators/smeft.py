@@ -1,3 +1,4 @@
+import wcxf
 from wcxf.parameters import p as default_parameters
 import ckmutil.ckm
 import ckmutil.diag
@@ -118,7 +119,8 @@ def warsaw_to_warsaw_up(C, parameters=None):
     Uq = V.conj().T
     C_out = smeftutil.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue)
     C_out = arrays2wcxf(C_out)
-    return {k: v for k, v in C_out.items() if k in C}
+    warsawup = wcxf.Basis['SMEFT', 'Warsaw up']
+    return {k: v for k, v in C_out.items() if k in warsawup.all_wcs}
 
 
 def warsaw_up_to_warsaw(C, parameters=None):
@@ -140,4 +142,5 @@ def warsaw_up_to_warsaw(C, parameters=None):
     Uq = V
     C_out = smeftutil.flavor_rotation(C_in, Uq, Uu, Ud, Ul, Ue)
     C_out = arrays2wcxf(C_out)
-    return {k: v for k, v in C_out.items() if k in C}
+    warsaw = wcxf.Basis['SMEFT', 'Warsaw']
+    return {k: v for k, v in C_out.items() if k in warsaw.all_wcs}
