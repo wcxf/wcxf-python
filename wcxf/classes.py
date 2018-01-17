@@ -283,6 +283,12 @@ class Basis(WCxf, NamedInstanceClass):
 
     def _markdown_tables(self):
         md = "## Sectors\n\n"
+        md += "The effective Lagrangian is defined as\n"
+        # general definition of Leff according to WCxf papaer
+        md += (r"$$\mathcal L_\text{eff} = -\mathcal H_\text{eff} ="
+               r"\sum_{O_i= O_i^\dagger} C_i \, O_i + \sum_{O_i\neq O_i^\dagger}"
+               r"\left( C_i \, O_i + C^*_i \, O^\dagger_i\right).$$")
+        md += "\n\n"
         for s, wcs in self.sectors.items():
             md += "### `{}`\n\n".format(s)
             if wcs:
