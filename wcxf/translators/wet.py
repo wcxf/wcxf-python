@@ -218,8 +218,8 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
     """From JMS to 4-quark Fierz basis for Classes III, IV and V.
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
     #case dduu
-    classIII = ['sbuc', 'sbcu', 'dbuc', 'dbcu']
-    classVdduu = ['sbuu' , 'dbuu', 'sduu', 'sbcc' , 'dbcc', 'sdcc']
+    classIII = ['sbuc', 'sbcu', 'dbuc', 'dbcu', 'dsuc', 'dscu']
+    classVdduu = ['sbuu' , 'dbuu', 'dsuu', 'sbcc' , 'dbcc', 'dscc']
     if qqqq in classIII + classVdduu:
         f1 = dflav[qqqq[0]]
         f2 = dflav[qqqq[1]]
@@ -264,9 +264,9 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
                                 + C["S8udduRR"][f4, f1, f2, f3].conj() / 16 / Nc
                             }
     #case dddd
-    classIV = ['sbsd','dbds','bsbd']
-    classVdddd = ['sbss', 'dbdd', 'bsbb', 'dsdd', 'bdbb', 'bsbb','sbbb','dbbb']
-    classVddddind = ['sbdd', 'bsdd', 'sdbb', 'dsbb', 'dbss', 'bdss']
+    classIV = ['sbsd', 'dbds', 'bsbd']
+    classVdddd = ['sbss', 'dbdd', 'dsdd', 'sbbb', 'dbbb', 'dsss']
+    classVddddind = ['sbdd', 'dsbb', 'dbss']
     if qqqq in classIV + classVdddd + classVddddind:
         f1 = dflav[qqqq[0]]
         f2 = dflav[qqqq[1]]
@@ -358,8 +358,8 @@ def _JMS_to_Fierz_III_IV_V(C, qqqq):
 def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
     """From Fierz to 4-quark Bern basis for Classes III, IV and V.
     `qqqq` should be of the form 'sbuc', 'sdcc', 'ucuu' etc."""
-
-    if qqqq in ['sbss','dbdd','dbds','sbsd', 'bsbd']:
+    # 2nd != 4th, color-octet redundant
+    if qqqq in ['sbss', 'dbdd', 'dbds', 'sbsd', 'bsbd', 'dsdd']:
         return {
         '1' + qqqq : -Fqqqq['F' + qqqq + '1'] / 3
                         + 4 * Fqqqq['F' + qqqq + '3'] / 3,
@@ -382,7 +382,7 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
         '9p' + qqqq : Fqqqq['F' + qqqq + '5'] / 48
                       - Fqqqq['F' + qqqq + '7'] / 48
                             }
-    if qqqq in ['dbbb','sbbb']:
+    if qqqq in ['dbbb', 'sbbb', 'dsss']:  # 2nd = 4th, color-octet redundant
         return {
         '1' + qqqq : -Fqqqq['F' + qqqq + '1'] / 3
                         + 4 * Fqqqq['F' + qqqq + '3'] / 3,
@@ -405,7 +405,10 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
         '9p' + qqqq : Fqqqq['F' + qqqq + '5p'] / 48
                       - Fqqqq['F' + qqqq + '7p'] / 48
                             }
-    else:
+    # generic case
+    if qqqq in ['sbuu', 'sbdd', 'sbuu', 'sbuc', 'sbcu', 'sbcc',
+                'dbuu', 'dbss', 'dbuu', 'dbuc', 'dbcu', 'dbcc',
+                'dsuu', 'dsbb', 'dsuu', 'dsuc', 'dscu', 'dscc',]:
         return {
         '1'+qqqq : -Fqqqq['F' + qqqq + '1']/3 + 4 * Fqqqq['F' + qqqq + '3'] / 3
                    - Fqqqq['F' + qqqq + '2']/(3 * Nc)
@@ -464,6 +467,7 @@ def _Fierz_to_Bern_III_IV_V(Fqqqq, qqqq):
         '10p'+qqqq : Fqqqq['F' + qqqq + '6p'] / 24
                      - Fqqqq['F' + qqqq + '8p'] / 24
                     }
+    raise ValueError("Case not implemented: {}".format(qqqq))
 
 
 def _Fierz_to_EOS_V(Fsbuu,Fsbdd,Fsbcc,Fsbss,Fsbbb,parameters):
@@ -1157,7 +1161,13 @@ def JMS_to_Bern(Cflat, scale, parameters=None):
             d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C,
                                                       'db'+u1+u2), 'db'+u1+u2))
 
-    for qqqq in ['sbdd','sbss','dbdd','dbss','dbbb','sbbb','dbds','sbsd','dsbb']:
+            d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C,
+                                                      'ds'+u1+u2), 'ds'+u1+u2))
+
+    for qqqq in ['sbdd', 'sbss', 'dbdd', 'dbss', 'dbbb', 'sbbb',
+                 'dbds', 'sbsd', 'dsbb',
+                 'dsss', 'dsdd',
+                 ]:
         d.update(_Fierz_to_Bern_III_IV_V(_JMS_to_Fierz_III_IV_V(C, qqqq), qqqq))
 
     # Class V semileptonic
@@ -1173,6 +1183,7 @@ def JMS_to_Bern(Cflat, scale, parameters=None):
     # Class V chromomagnetic
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sd'), 'sd', p))
     prefactor = sqrt(2)/p['GF']/4
     return {k: prefactor * v for k,v in d.items()}
 

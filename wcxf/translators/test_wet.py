@@ -105,8 +105,7 @@ class TestJMS2Bern(unittest.TestCase):
     def test_missing(self):
         bkeys = set(self.bern_wc.values.keys())
         bkeys_all = set([k for s in wcxf.Basis['WET', 'Bern'].sectors.values()
-                         for k in s
-                         if 'b' in k]) # for the time being, only look at b operators
+                         for k in s])
         self.assertSetEqual(bkeys_all - bkeys, set(), msg="Missing coefficients")
 
 
