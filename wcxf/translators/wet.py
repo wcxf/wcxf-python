@@ -1183,7 +1183,7 @@ def JMS_to_Bern(Cflat, scale, parameters=None):
     # Class V chromomagnetic
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sb'), 'sb', p))
     d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'db'), 'db', p))
-    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'sd'), 'sd', p))
+    d.update(Fierz_to_Bern_chrom(JMS_to_Fierz_chrom(C, 'ds'), 'ds', p))
     prefactor = sqrt(2)/p['GF']/4
     return {k: prefactor * v for k,v in d.items()}
 
