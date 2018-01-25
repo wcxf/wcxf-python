@@ -260,7 +260,7 @@ class TestBern2flavio(unittest.TestCase):
         jms_indirect = jms_wc.translate('Bern').translate('flavio')
         for k, v in jms_direct.dict.items():
             self.assertAlmostEqual(v, jms_indirect.dict[k],
-                                   delta=1e-8,
+                                   delta=1e-6,
                                    msg="Failed for {}".format(k))
 
     def test_incomplete_input(self):
@@ -357,7 +357,7 @@ class TestBern2flavioWET3(unittest.TestCase):
         jms_indirect = jms_wc.translate('Bern').translate('flavio')
         for k, v in jms_direct.dict.items():
             self.assertAlmostEqual(v, jms_indirect.dict[k],
-                                   delta=1e-8,
+                                   delta=1e-6,
                                    msg="Failed for {}".format(k))
 
     def test_incomplete_input(self):

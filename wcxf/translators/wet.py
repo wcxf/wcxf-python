@@ -160,7 +160,8 @@ def _BernII_to_Flavio_II(C, udlnu, parameters):
         'CSL_'+ ind2 : C['5p' + ind],
         'CT_'+ ind2 : C['7p' + ind]
         }
-    prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    prefactor = -sqrt(2) / p['GF'] / V[u, d] / 4
     return {k: prefactor * v for k, v in dic.items()}
 
 
@@ -184,7 +185,8 @@ def _FlavioII_to_BernII(C, udlnu, parameters):
         '5p' + ind: C['CSL_' + ind2],
         '7p' + ind: C['CT_' + ind2],
         }
-    prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    prefactor = -sqrt(2) / p['GF'] / V[u, d] / 4
     return {k: v / prefactor for k, v in dic.items()}
 
 
@@ -208,7 +210,8 @@ def _BernII_to_EOS_II(C, udlnu, parameters):
         'b->' + ind2 + '::cSL': C['5p' + ind],
         'b->' + ind2 + '::cT': C['7p' + ind]
         }
-    prefactor = -sqrt(2) / p['GF'] / p['Vcb'] / 4
+    V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
+    prefactor = -sqrt(2) / p['GF'] / V[u, d] / 4
     return {k: prefactor * v for k,v in dic.items()}
 
 
@@ -599,8 +602,14 @@ def Fierz_to_Flavio_lep(C, ddll, parameters, include_charged=True):
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
+    if ddll[:2] == 'sb':
+        xi = V[2, 2] * V[2, 1].conj()
+    elif ddll[:2] == 'db':
+        xi = V[2, 2] * V[2, 0].conj()
+    elif ddll[:2] == 'ds':
+        xi = V[2, 1] * V[2, 0].conj()
+    else:
+        raise ValueError("Unexpected flavours: {}".format(ddll[:2]))
     ind = ddll.replace('l_','').replace('nu_','')
     indfl = ddll[1::-1]+ind[2:] # flavio has first two indices inverted
     indnu = ddll[1::-1]+ddll.replace('l_','nu').replace('nu_','nu')[2:]
@@ -621,7 +630,7 @@ def Fierz_to_Flavio_lep(C, ddll, parameters, include_charged=True):
             "CP_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'P'],
             "CPp_" + indfl : (16 * pi**2) / e**2 / mb * C['F' + ind + 'Pp'],
         })
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    prefactor = sqrt(2)/p['GF']/xi/4
     return {k: prefactor * v for k,v in dic.items()}
 
 
@@ -631,8 +640,14 @@ def Flavio_to_Fierz_lep(C, ddll, parameters):
     `ddll` should be of the form 'sbl_enu_tau', 'dbl_munu_e' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
+    if ddll[:2] == 'sb':
+        xi = V[2, 2] * V[2, 1].conj()
+    elif ddll[:2] == 'db':
+        xi = V[2, 2] * V[2, 0].conj()
+    elif ddll[:2] == 'ds':
+        xi = V[2, 1] * V[2, 0].conj()
+    else:
+        raise ValueError("Unexpected flavours: {}".format(ddll[:2]))
     ind = ddll.replace('l_','').replace('nu_','')
     indfl = ddll[1::-1]+ind[2:] # flavio has first two indices inverted
     indnu = ddll[1::-1]+ddll.replace('l_','nu').replace('nu_','nu')[2:]
@@ -652,7 +667,7 @@ def Flavio_to_Fierz_lep(C, ddll, parameters):
         'F' + ind + 'T': 0,  # tensors not implemented in flavio basis yet
         'F' + ind + 'T5': 0,  # tensors not implemented in flavio basis yet
         }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    prefactor = sqrt(2)/p['GF']/xi/4
     return {k: v / prefactor for k, v in dic.items()}
 
 
@@ -754,8 +769,14 @@ def Fierz_to_Flavio_chrom(C, dd, parameters):
     dd should be of the form 'sb', 'db' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
+    if dd == 'sb':
+        xi = V[2, 2] * V[2, 1].conj()
+    elif dd == 'db':
+        xi = V[2, 2] * V[2, 0].conj()
+    elif dd == 'ds':
+        xi = V[2, 1] * V[2, 0].conj()
+    else:
+        raise ValueError("Unexpected flavours: {}".format(dd))
     ddfl = dd[::-1]
     e = sqrt(4 * pi * parameters['alpha_e'])
     gs = sqrt(4 * pi * parameters['alpha_s'])
@@ -766,7 +787,7 @@ def Fierz_to_Flavio_chrom(C, dd, parameters):
         "C7p_" + ddfl : (16 * pi**2) / e / mb * C['F7pgamma' + dd],
         "C8p_" + ddfl : (16 * pi**2) / gs / mb * C['F8pg' + dd]
             }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    prefactor = sqrt(2)/p['GF']/xi/4
     return {k: prefactor * v for k, v in dic.items()}
 
 
@@ -775,8 +796,14 @@ def Flavio_to_Fierz_chrom(C, dd, parameters):
     dd should be of the form 'sb', 'db' etc."""
     p = parameters
     V = ckmutil.ckm.ckm_tree(p["Vus"], p["Vub"], p["Vcb"], p["gamma"])
-    Vtb = V[2,2]
-    Vts = V[2,1]
+    if dd == 'sb':
+        xi = V[2, 2] * V[2, 1].conj()
+    elif dd == 'db':
+        xi = V[2, 2] * V[2, 0].conj()
+    elif dd == 'ds':
+        xi = V[2, 1] * V[2, 0].conj()
+    else:
+        raise ValueError("Unexpected flavours: {}".format(dd))
     ddfl = dd[::-1]
     e = sqrt(4 * pi * parameters['alpha_e'])
     gs = sqrt(4 * pi * parameters['alpha_s'])
@@ -787,7 +814,7 @@ def Flavio_to_Fierz_chrom(C, dd, parameters):
         'F7pgamma' + dd: C["C7p_" + ddfl] / ((16 * pi**2) / e / mb),
         'F8pg' + dd: C["C8p_" + ddfl] / ((16 * pi**2) / gs / mb)
             }
-    prefactor = sqrt(2)/p['GF']/Vtb/Vts.conj()/4
+    prefactor = sqrt(2)/p['GF']/xi/4
     return {k: v / prefactor for k, v in dic.items()}
 
 
