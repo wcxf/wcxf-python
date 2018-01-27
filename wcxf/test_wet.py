@@ -1,7 +1,6 @@
 import unittest
 import wcxf
-
-
+import pkgutil
 class TestWET(unittest.TestCase):
     def test_bern(self):
         basis = wcxf.Basis['WET', 'Bern']
@@ -110,3 +109,35 @@ class TestWET(unittest.TestCase):
         # compare total count to table 22
         ntot = sum([1 if isreal(k) else 2 for k in all_wc])
         self.assertEqual(ntot, 1+87+186+76+21+66+76+90+252+266+171+45+342+254+1+66+156+51+15+51+51+72+207+216+171+45+342+254+9+9+26+26)
+
+# Unit test for Bern to flavio translator
+class TestCal(unittest.TestCase):
+	def test_wc(self):
+            f = pkgutil.get_data('wcxf', 'data/test.wcs.bern.yml').decode('utf-8')
+            wc0 = wcxf.WC.load(f)
+            wc0.validate()
+            self.assertEqual(wc0.eft, 'WET')
+            self.assertEqual(wc0.basis, 'Bern')
+            self.assertEqual(wc0.scale, 4.8)
+            wc1= wc0.translate('flavio')
+            f = pkgutil.get_data('wcxf', 'data/test.wcs.flavio.out.yml').decode('utf-8')
+            wc2 = wcxf.WC.load(f)
+            self.assertEqual(wc2.eft, 'WET')
+            self.assertEqual(wc2.basis, 'flavio')
+            self.assertEqual(wc2.scale, 4.8)
+            wc2.validate()
+            self.assertAlmostEqual(wc1.dict['CVLL_sdsd'], wc2.dict['CVLL_sdsd'])
+            self.assertAlmostEqual(wc1.dict['CVLL_bsbs'], wc2.dict['CVLL_bsbs'])
+            self.assertAlmostEqual(wc1.dict['CVLL_bdbd'], wc2.dict['CVLL_bdbd'])
+            self.assertAlmostEqual(wc1.dict['CVL_dumunumu'], wc2.dict['CVL_dumunumu'])
+            self.assertAlmostEqual(wc1.dict['CVL_sumunumu'], wc2.dict['CVL_sumunumu'])
+            self.assertAlmostEqual(wc1.dict['CVL_bumunumu'], wc2.dict['CVL_bumunumu'])
+            self.assertAlmostEqual(wc1.dict['CVL_dcmunumu'], wc2.dict['CVL_dcmunumu'])
+            self.assertAlmostEqual(wc1.dict['CVL_scmunumu'], wc2.dict['CVL_scmunumu'])
+            self.assertAlmostEqual(wc1.dict['CVL_bcmunumu'], wc2.dict['CVL_bcmunumu'])
+            self.assertAlmostEqual(wc1.dict['C9_bsmumu'], wc2.dict['C9_bsmumu'])
+            self.assertAlmostEqual(wc1.dict['C9_bdmumu'], wc2.dict['C9_bdmumu'])
+            self.assertAlmostEqual(wc1.dict['C7_bs'], wc2.dict['C7_bs'])
+            self.assertAlmostEqual(wc1.dict['C8_bs'], wc2.dict['C8_bs'])
+            self.assertAlmostEqual(wc1.dict['C7_bd'], wc2.dict['C7_bd'])
+            self.assertAlmostEqual(wc1.dict['C8_bd'], wc2.dict['C8_bd'])
