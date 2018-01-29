@@ -228,6 +228,7 @@ class Basis(WCxf, NamedInstanceClass):
                 raise ValueError("Parent basis {} not found".format(self.parent))
         else:
             self.sectors = sectors
+        self._all_wcs = None
 
     @property
     def known_translators(self):
@@ -242,7 +243,9 @@ class Basis(WCxf, NamedInstanceClass):
     @property
     def all_wcs(self):
         """Return a list with all Wilson coefficients defined in this basis."""
-        return [wc for sector, wcs in self.sectors.items() for wc in wcs]
+        if self._all_wcs is None:
+            self._all_wcs = [wc for sector, wcs in self.sectors.items() for wc in wcs]
+        return self._all_wcs
 
     def validate(self):
         """Validate the basis file."""
