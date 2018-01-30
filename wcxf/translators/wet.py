@@ -963,13 +963,19 @@ def rotate_down(C_in, p):
         C[k] = np.einsum('ia,jb,ijkl->abkl',
                          UdL.conj(), UdL,
                          C_in[k])
+    # type dL X dL X
+    for k in ['S1ddRR', ]:
+        C[k] = np.einsum('ia,kc,ijkl->ajcl',
+                         UdL.conj(), UdL.conj(),
+                         C_in[k])
     # type X dL X X
     for k in ['V1udduLR', 'V8udduLR']:
         C[k] = np.einsum('jb,ijkl->ibkl',
                          UdL,
                          C_in[k])
     # type X X dL X
-    for k in ['VnueduLL']:
+    for k in ['VnueduLL', 'SedRR', 'TedRR', 'SnueduRR', 'TnueduRR',
+              'S1udRR',  'S8udRR', 'S1udduRR',  'S8udduRR', ]:
         C[k] = np.einsum('kc,ijkl->ijcl',
                          UdL.conj(),
                          C_in[k])

@@ -229,5 +229,6 @@ def match_all(d_SMEFT, parameters=None):
     C_WET = wcxf.translators.wet.rotate_down(C_WET, p)
     d_WET = wcxf.translators.smeft.arrays2wcxf(C_WET)
     basis = wcxf.Basis['WET', 'JMS']
-    d_WET = {k: v for k, v in d_WET.items() if k in basis.all_wcs}
+    keys = set(d_WET.keys()) & set(basis.all_wcs)
+    d_WET = {k: d_WET[k] for k in keys}
     return d_WET

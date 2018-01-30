@@ -141,7 +141,6 @@ class TestWET(unittest.TestCase):
         self.assertAlmostEqual(wc1.dict['C7_bd'], wc2.dict['C7_bd'])
         self.assertAlmostEqual(wc1.dict['C8_bd'], wc2.dict['C8_bd'])
 
-
 #   Unit test for flavio to Bern translator
     def test_wc2(self):
         f = pkgutil.get_data('wcxf', 'data/test.wcs.flavio.yml').decode('utf-8')
@@ -172,14 +171,3 @@ class TestWET(unittest.TestCase):
         self.assertAlmostEqual(wc1.dict['8gsb'], wc2.dict['8gsb'])
         self.assertAlmostEqual(wc1.dict['7gammadb'], wc2.dict['7gammadb'])
         self.assertAlmostEqual(wc1.dict['8gdb'], wc2.dict['8gdb'])
-
-
-
-
-
-
-
-
-
-
-

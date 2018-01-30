@@ -19,7 +19,7 @@ def arrays2wcxf(C):
         else:
             ind = np.indices(v.shape).reshape(v.ndim, v.size).T
             for i in ind:
-                name = k + '_' + ''.join([str(j + 1) for j in i])
+                name = k + '_' + ''.join([str(int(j) + 1) for j in i])
                 d[name] = v[tuple(i)]
     return d
 
