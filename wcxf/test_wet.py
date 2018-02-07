@@ -171,7 +171,7 @@ class TestWET(unittest.TestCase):
         self.assertAlmostEqual(wc1.dict['8gsb'], wc2.dict['8gsb'])
         self.assertAlmostEqual(wc1.dict['7gammadb'], wc2.dict['7gammadb'])
         self.assertAlmostEqual(wc1.dict['8gdb'], wc2.dict['8gdb'])
-
+        
 #   Unit test for JMS to Bern translator
     def test_wc3(self):
         f = pkgutil.get_data('wcxf', 'data/test.wcs.jms.yml').decode('utf-8')
