@@ -22,6 +22,7 @@ setup(name='wcxf',
         'console_scripts': [
             'wcxf = wcxf.cli:wcxf_cli',
             'wcxf2eos = wcxf.cli:eos',
+            'wcxf2smeftsim = wcxf.cli:smeftsim',
         ]
       },
     )

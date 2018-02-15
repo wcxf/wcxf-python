@@ -4,6 +4,7 @@ import sys
 import logging
 import os
 import yaml
+import pylha
 
 
 def wcxf_cli():
@@ -149,5 +150,46 @@ def eos():
     # convert to EOS parameters
     eos_dict = wcxf2eos(wc, sm_wc_dict)
     yaml.dump(eos_dict, f, default_flow_style=False)
+    f.close()
+    return 0
+
+def smeftsim():
+    from wcxf.converters.smeftsim import initialize_smeftsim_card, smeftsim_card_fill, smeftsim_card_text
+    parser = argparse.ArgumentParser(description="""Command line script to convert a WCxf file to a MadGraph param_card file for SMEFTsim.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("FILE", nargs='?', help="Input file. Must be specified.",
+                        type=argparse.FileType('r'), default="{}")
+    parser.add_argument("--output", nargs='?', help="Output file. Default is wcxf2smeftsim_param_card.dat.", default="wcxf2smeftsim_param_card.dat")
+    parser.add_argument("--input-scheme", nargs='?', help="Input parameters set. Can be either alpha (alpha_ew, m_Z, G_F) or mw (m_W, m_Z, G_F). Default is alpha.", choices=['alpha','mw'], default='alpha')
+    parser.add_argument("--cutoff-scale", nargs='?', help="Value of the EFT cutoff scale in GeV. Default is 1 TeV.", type=float, default=1000)
+    parser.add_argument("--model-set", nargs='?', help="SMEFTsim model set to be used. Can be either A or B, default is A.", choices=['A','B'],default="A")
+  
+    args = parser.parse_args()
+   
+
+    # read in & validate WCxf file
+    wc = wcxf.WC.load(args.FILE)
+    wc.validate()
+    # check that the input is in the Warsaw mass basis. quit otherwise.
+    if wc.basis != "Warsaw mass":
+      print('''
+WARNING: The input file must be in the 'Warsaw mass' basis!
+Please translate into 'Warsaw mass' before converting to SMEFTsim. 
+	              
+Press 'i' to ignore this warning or any other key to exit.''')
+          
+      key = input()      
+      if key != 'i' and key != 'I': quit()
+      
+    f = open(args.output, 'w')
+    
+    # initialize and fill the dictionary for the param_card
+    card = initialize_smeftsim_card(args.model_set)
+    card_filled = smeftsim_card_fill(card, wc, args.model_set, args.cutoff_scale, args.input_scheme)
+
+    # write output file
+    f.write(smeftsim_card_text(args.model_set, args.input_scheme)[0])
+    pylha.dump(card_filled, fmt='lha', stream = f)
+    f.write(smeftsim_card_text(args.model_set, args.input_scheme)[1])
     f.close()
     return 0
