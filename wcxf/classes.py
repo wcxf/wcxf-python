@@ -397,6 +397,8 @@ class WC(WCxf):
     def translate(self, to_basis, parameters=None):
         """Translate the Wilson coefficients to a different basis.
         Returns a WC instance."""
+        if to_basis == self.basis:
+            return self  # nothing to do
         try:
             translator = Translator[self.eft, self.basis, to_basis]
         except (KeyError, AttributeError):
@@ -406,6 +408,8 @@ class WC(WCxf):
     def match(self, to_eft, to_basis, parameters=None):
         """Match the Wilson coefficients to a different EFT.
         Returns a WC instance."""
+        if to_eft == self.eft and to_basis == self.basis:
+            return self  # nothing to do
         try:
             matcher = Matcher[self.eft, self.basis, to_eft, to_basis]
         except (KeyError, AttributeError):
