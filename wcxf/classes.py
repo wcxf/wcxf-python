@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import os
 import subprocess
+from pandas import DataFrame
 
 # the following is necessary to get pretty representations of
 # OrderedDict and defaultdict instances in YAML
@@ -324,6 +325,7 @@ class WC(WCxf):
         self.scale = float(scale)
         self.values = values
         self._dict = None
+        self._df = None
         super().__init__()
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -378,6 +380,19 @@ class WC(WCxf):
             self._dict = {k: self._to_number(v) for k, v in self.values.items()}
         return self._dict
 
+    @property
+    def df(self):
+        """Return a pandas.DataFrame with the Wilson coefficient values
+        split by real and imaginary part.
+        The DataFrame will be cached when called for the first time."""
+        if self._df is None:
+            re = [self.dict[k].real for k in self.values]
+            im = [self.dict[k].imag for k in self.values]
+            self._df = DataFrame({'Re': re, 'Im': im},
+                                 index=self.values,
+                                 columns=('Re', 'Im'))
+        return self._df
+
     def __repr__(self):
         return ("wcxf.WC(eft='{}', basis='{}', scale='{}', values={{...}})"
                 .format(self.eft, self.basis, self.scale))
@@ -399,6 +414,29 @@ class WC(WCxf):
         for name, v in self.dict.items():
             md += "| `{}` | {} |\n".format(name, v)
         return md
+
+    def _repr_html_(self):
+        html = "<h3>WCxf Wilson coefficients</h3>\n\n"
+        html += """<table>
+  <thead>
+    <tr>
+      <th>EFT</th>
+      <th>Basis</th>
+      <th>scale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>{}</code></td>
+      <td><code>{}</code></td>
+      <td>{} GeV</td>
+    </tr>
+  </tbody>
+</table>
+""".format(self.eft, self.basis, self.scale)
+        html += "<h4>Values</h4>\n\n"
+        html += self.df._repr_html_()
+        return html
 
     def translate(self, to_basis, parameters=None):
         """Translate the Wilson coefficients to a different basis.
