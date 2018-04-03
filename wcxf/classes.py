@@ -350,6 +350,12 @@ class WC(WCxf):
     def dict2values(cls, d):
         return {k: cls._to_complex_dict(v) for k, v in d.items()}
 
+    def __getitem__(self, key):
+        try:
+            return self.dict[key]
+        except KeyError:
+            return 0
+
     def validate(self):
         """Validate the Wilson coefficient file."""
         try:
