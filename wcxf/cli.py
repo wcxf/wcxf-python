@@ -153,6 +153,7 @@ def eos():
     f.close()
     return 0
 
+
 def smeftsim():
     from wcxf.converters.smeftsim import initialize_smeftsim_card, smeftsim_card_fill, smeftsim_card_text
     parser = argparse.ArgumentParser(description="""Command line script to convert a WCxf file to a MadGraph param_card file for SMEFTsim.""",
@@ -163,9 +164,9 @@ def smeftsim():
     parser.add_argument("--input-scheme", nargs='?', help="Input parameters set. Can be either alpha (alpha_ew, m_Z, G_F) or mw (m_W, m_Z, G_F). Default is alpha.", choices=['alpha','mw'], default='alpha')
     parser.add_argument("--cutoff-scale", nargs='?', help="Value of the EFT cutoff scale in GeV. Default is 1 TeV.", type=float, default=1000)
     parser.add_argument("--model-set", nargs='?', help="SMEFTsim model set to be used. Can be either A or B, default is A.", choices=['A','B'],default="A")
-  
+
     args = parser.parse_args()
-   
+
 
     # read in & validate WCxf file
     wc = wcxf.WC.load(args.FILE)
@@ -174,15 +175,15 @@ def smeftsim():
     if wc.basis != "Warsaw mass":
       print('''
 WARNING: The input file must be in the 'Warsaw mass' basis!
-Please translate into 'Warsaw mass' before converting to SMEFTsim. 
-	              
+Please translate into 'Warsaw mass' before converting to SMEFTsim.
+
 Press 'i' to ignore this warning or any other key to exit.''')
-          
-      key = input()      
+
+      key = input()
       if key != 'i' and key != 'I': quit()
-      
+
     f = open(args.output, 'w')
-    
+
     # initialize and fill the dictionary for the param_card
     card = initialize_smeftsim_card(args.model_set)
     card_filled = smeftsim_card_fill(card, wc, args.model_set, args.cutoff_scale, args.input_scheme)
@@ -192,4 +193,32 @@ Press 'i' to ignore this warning or any other key to exit.''')
     pylha.dump(card_filled, fmt='lha', stream = f)
     f.write(smeftsim_card_text(args.model_set, args.input_scheme)[1])
     f.close()
+    return 0
+
+
+def wcxf2dsixtools():
+    from wcxf.converters import dsixtools
+    parser = argparse.ArgumentParser(description="""Command line script to convert a WCxf file to a DsixTools Wilson coefficient file.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
+                        type=argparse.FileType('w'), default=sys.stdout)
+    args = parser.parse_args()
+    wc = wcxf.WC.load(args.FILE)
+    wc.validate()
+    dsixtools.wcxf2dsixtools(wc, stream=args.output)
+    return 0
+
+
+def dsixtools2wcxf():
+    from wcxf.converters import dsixtools
+    parser = argparse.ArgumentParser(description="""Command line script to convert DsixTools output files to a WCxf file.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("FILE", nargs='+', help="Input file(s).",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
+                        type=argparse.FileType('w'), default=sys.stdout)
+    args = parser.parse_args()
+    dsixtools.dsixtools2wcxf(tuple(f for f in args.FILE), stream=args.output)
     return 0

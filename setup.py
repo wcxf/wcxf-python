@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='wcxf',
-      version='1.3',
+      version='1.4-dev',
       author='David M. Straub, Jason Aebischer',
       author_email='david.straub@tum.de, jason.aebischer@tum.de',
       license='MIT',
@@ -22,6 +22,8 @@ setup(name='wcxf',
         'console_scripts': [
             'wcxf = wcxf.cli:wcxf_cli',
             'wcxf2eos = wcxf.cli:eos',
+            'wcxf2dsixtools = wcxf.cli:wcxf2dsixtools',
+            'dsixtools2wcxf = wcxf.cli:dsixtools2wcxf',
             'wcxf2smeftsim = wcxf.cli:smeftsim',
         ]
       },
