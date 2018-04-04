@@ -223,7 +223,7 @@ class Basis(WCxf, NamedInstanceClass):
             setattr(self, k, v)
         if hasattr(self, 'parent'):
             try:
-                self.sectors = Basis[self.eft, self.parent].sectors
+                self.sectors = Basis[self.eft, self.parent].sectors.copy()
                 self.sectors.update(sectors)
             except (AttributeError, KeyError):
                 raise ValueError("Parent basis {} not found".format(self.parent))

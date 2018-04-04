@@ -90,3 +90,12 @@ class TestBasis(unittest.TestCase):
         f = pkgutil.get_data('wcxf', 'data/test.basis2.yml')
         child = wcxf.Basis.load(f.decode('utf-8'))
         self.assertDictEqual(parent.sectors, child.sectors)
+
+    def test_inheritance_modifiedsector(self):
+        f = pkgutil.get_data('wcxf', 'data/test.basis1.yml')
+        parent = wcxf.Basis.load(f.decode('utf-8'))
+        f = pkgutil.get_data('wcxf', 'data/test.basis3.yml')
+        child = wcxf.Basis.load(f.decode('utf-8'))
+        self.assertEqual(set(parent.sectors.keys()), set(child.sectors.keys()))
+        self.assertEqual(set(parent.sectors['My Sector 1'].keys()), {'C_1', 'C_2'})
+        self.assertEqual(set(child.sectors['My Sector 1'].keys()), {'C_1'})
