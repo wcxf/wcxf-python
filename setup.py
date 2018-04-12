@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='wcxf',
-      version='1.4-dev',
+      version='1.4',
       author='David M. Straub, Jason Aebischer',
       author_email='david.straub@tum.de, jason.aebischer@tum.de',
       license='MIT',
