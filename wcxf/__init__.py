@@ -1,7 +1,7 @@
 from .classes import *
 from . import matchers
 from . import translators
-from . import util
+from wilson import util
 
 # read all EFTs and bases from the wcxf-bases submodule
 

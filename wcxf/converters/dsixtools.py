@@ -5,7 +5,7 @@ import json
 import yaml
 from math import sqrt
 import ckmutil
-from wcxf.util import smeftutil
+from wilson.util import smeftutil
 from . import dsixtools_definitions as definitions
 
 
