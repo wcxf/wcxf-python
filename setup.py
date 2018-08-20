@@ -24,7 +24,7 @@ setup(name='wcxf',
       install_requires=['pyyaml', 'ckmutil>=0.3', 'rundec>=0.5', 'pandas',
                         'wilson'],
       extras_require={
-            'testing': ['nose', 'smeftrunner'],
+            'testing': ['nose'],
       },
       entry_points={
         'console_scripts': [
