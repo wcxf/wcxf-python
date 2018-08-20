@@ -8,7 +8,6 @@ notifications:
 
 install:
   - pip install -e .[testing]
-  - pip install
   - pip install coveralls
 
 script:
