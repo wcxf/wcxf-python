@@ -4,7 +4,7 @@ with open('README.md') as f:
     LONG_DESCRIPTION = f.read()
 
 setup(name='wcxf',
-      version='1.4.3',
+      version='1.4.4',
       author='David M. Straub, Jason Aebischer',
       author_email='david.straub@tum.de, jason.aebischer@tum.de',
       license='MIT',
