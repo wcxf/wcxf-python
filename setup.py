@@ -11,6 +11,7 @@ setup(name='wcxf',
       url='https://wcxf.github.io',
       description='Python API and command line interface for the Wilson Coefficient exchange format',
       long_description=LONG_DESCRIPTION,
+      long_description_content_type='text/markdown',
       packages=find_packages(),
       package_data={
         'wcxf': ['data/*.yml',
