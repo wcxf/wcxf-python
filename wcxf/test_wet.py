@@ -108,7 +108,7 @@ class TestWET(unittest.TestCase):
         assert_len('S8udduRR', 2*36)
         # compare total count to table 22
         ntot = sum([1 if isreal(k) else 2 for k in all_wc])
-        self.assertEqual(ntot, 1+87+186+76+21+66+76+90+252+266+171+45+342+254+1+66+156+51+15+51+51+72+207+216+171+45+342+254+9+9+26+26)
+        self.assertEqual(ntot, 1+87+186+76+21+66+76+90+252+266+171+45+342+254+1+66+156+51+15+51+51+72+207+216+171+45+342+254+9+9+26+26+288*2)
 
 #   Unit test for Bern to flavio translator
     def test_wc1(self):
@@ -171,7 +171,7 @@ class TestWET(unittest.TestCase):
         self.assertAlmostEqual(wc1.dict['8gsb'], wc2.dict['8gsb'])
         self.assertAlmostEqual(wc1.dict['7gammadb'], wc2.dict['7gammadb'])
         self.assertAlmostEqual(wc1.dict['8gdb'], wc2.dict['8gdb'])
-        
+
 #   Unit test for JMS to Bern translator
     def test_wc3(self):
         f = pkgutil.get_data('wcxf', 'data/test.wcs.jms.yml').decode('utf-8')
@@ -228,3 +228,10 @@ class TestWET(unittest.TestCase):
         self.assertAlmostEqual(wc1.dict['3dsdd'], wc2.dict['3dsdd'])
         self.assertAlmostEqual(wc1.dict['7gammasb'], wc2.dict['7gammasb'])
         self.assertAlmostEqual(wc1.dict['8gsb'], wc2.dict['8gsb'])
+
+    def test_jms_bnv(self):
+        basis = wcxf.Basis['WET', 'JMS']
+        bnvsec = ['uddnu' , 'udsnu' , 'udbnu' , 'ussnu' , 'usbnu' , 'ubbnu' , 'ddcnu' , 'dscnu' , 'dcbnu' , 'sscnu' , 'scbnu' , 'cbbnu' , 'uude' , 'uudmu' , 'uudtau' , 'udce' , 'udcmu' , 'udctau' , 'dcce' , 'dccmu' , 'dcctau' , 'uuse' , 'uusmu' , 'uustau' , 'usce' , 'uscmu' , 'usctau' , 'scce' , 'sccmu' , 'scctau' , 'uube' , 'uubmu' , 'uubtau' , 'ucbe' , 'ucbmu' , 'ucbtau' , 'ccbe' , 'ccbmu' , 'ccbtau' ]
+        Ntot = sum([len(basis.sectors[s]) for s in bnvsec])
+        # arXiv:1709.04486, table 20
+        self.assertEqual(Ntot, 288)
