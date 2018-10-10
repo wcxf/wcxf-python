@@ -231,7 +231,7 @@ class TestWET(unittest.TestCase):
 
     def test_jms_bnv(self):
         basis = wcxf.Basis['WET', 'JMS']
-        bnvsec = ['uddnu' , 'udsnu' , 'udbnu' , 'ussnu' , 'usbnu' , 'ubbnu' , 'ddcnu' , 'dscnu' , 'dcbnu' , 'sscnu' , 'scbnu' , 'cbbnu' , 'uude' , 'uudmu' , 'uudtau' , 'udce' , 'udcmu' , 'udctau' , 'dcce' , 'dccmu' , 'dcctau' , 'uuse' , 'uusmu' , 'uustau' , 'usce' , 'uscmu' , 'usctau' , 'scce' , 'sccmu' , 'scctau' , 'uube' , 'uubmu' , 'uubtau' , 'ucbe' , 'ucbmu' , 'ucbtau' , 'ccbe' , 'ccbmu' , 'ccbtau' ]
+        bnvsec = ['uddnu', 'udsnu', 'udbnu', 'ussnu', 'usbnu', 'ubbnu', 'cddnu', 'cdsnu', 'cdbnu', 'cssnu', 'csbnu', 'cbbnu', 'uude', 'uudmu', 'uudtau', 'ucde', 'ucdmu', 'ucdtau', 'ccde', 'ccdmu', 'ccdtau', 'uuse', 'uusmu', 'uustau', 'ucse', 'ucsmu', 'ucstau', 'ccse', 'ccsmu', 'ccstau', 'uube', 'uubmu', 'uubtau', 'ucbe', 'ucbmu', 'ucbtau', 'ccbe', 'ccbmu', 'ccbtau']
         Ntot = sum([len(basis.sectors[s]) for s in bnvsec])
         # arXiv:1709.04486, table 20
         self.assertEqual(Ntot, 288)
