@@ -258,7 +258,7 @@ class SMEFTio(object):
             self.scale_high = scale_high
         elif self.scale_high is None:
             self.scale_high = wc.scale
-        C = wilson.translate.smeft.wcxf2arrays(wc.dict)
+        C = smeftutil.wcxf2arrays(wc.dict)
         keys_dim5 = ['llphiphi']
         keys_dim6 = list(set(smeftutil.WC_keys_0f + smeftutil.WC_keys_2f + smeftutil.WC_keys_4f) - set(keys_dim5))
         self.scale_in = wc.scale
@@ -319,7 +319,7 @@ class SMEFTio(object):
         import wcxf
         # C = self.rotate_defaultbasis(C_out)
         C = C_out.copy()  # FIXME
-        d = wilson.translate.smeft.arrays2wcxf(C)
+        d = smeftutil.arrays2wcxf(C)
         basis = wcxf.Basis['SMEFT', 'Warsaw']
         d = {k: v for k, v in d.items() if k in basis.all_wcs and v != 0}
         keys_dim5 = ['llphiphi']
