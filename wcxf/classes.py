@@ -438,16 +438,24 @@ class WC(WCxf):
         html += self.df._repr_html_()
         return html
 
-    def translate(self, to_basis, parameters=None):
+    def translate(self, to_basis, parameters=None, sectors=None):
         """Translate the Wilson coefficients to a different basis.
-        Returns a WC instance."""
+        Returns a WC instance.
+
+        Parameters:
+        - `to_basis`: name of output basis
+        - parameters: an optional dictionary of parameters specific to the
+          translation function
+        - sectors: an optional iterable of sector names of interest that the
+          translator function may choose (but is not obliged) to limit itself
+          to in the output."""
         if to_basis == self.basis:
             return self  # nothing to do
         try:
             translator = Translator[self.eft, self.basis, to_basis]
         except (KeyError, AttributeError):
             raise ValueError("No translator from basis {} to {} found.".format(self.basis, to_basis))
-        return translator.translate(self, parameters=parameters)
+        return translator.translate(self, parameters=parameters, sectors=sectors)
 
     def match(self, to_eft, to_basis, parameters=None):
         """Match the Wilson coefficients to a different EFT.
@@ -471,9 +479,20 @@ class Translator(NamedInstanceClass):
         self.to_basis = to_basis
         self.function = function
 
-    def translate(self, WC_in, parameters=None):
-        """Translate a WC object from `from_basis` to `to_basis`."""
-        dict_out = self.function(WC_in.dict, WC_in.scale, parameters)
+    def translate(self, WC_in, parameters=None, sectors=None):
+        r"""Translate a WC object from `from_basis` to `to_basis`.
+
+        Parameters:
+        - `WC_in`: the input `WC` instance
+        - parameters: an optional dictionary of parameters specific to the
+          translation function
+        - sectors: an optional iterable of sector names of interest that the
+          translator function may choose (but is not obliged) to limit itself
+          to in the output."""
+        if sectors is None:
+            dict_out = self.function(WC_in.dict, WC_in.scale, parameters)
+        else:
+            dict_out = self.function(WC_in.dict, WC_in.scale, parameters, sectors=sectors)
         # filter out zero values
         dict_out = {k: v for k, v in dict_out.items() if v != 0}
         values = WC.dict2values(dict_out)
