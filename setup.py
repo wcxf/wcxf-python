@@ -4,7 +4,7 @@ with open('README.md') as f:
     LONG_DESCRIPTION = f.read()
 
 setup(name='wcxf',
-      version='1.4.7',
+      version='1.5',
       author='David M. Straub, Jason Aebischer',
       author_email='david.straub@tum.de, jason.aebischer@tum.de',
       license='MIT',
@@ -21,7 +21,7 @@ setup(name='wcxf',
                  'bases/child/*.json',
                 ]
       },
-      install_requires=['pyyaml', 'ckmutil>=0.3', 'rundec>=0.5', 'pandas',
+      install_requires=['pyyaml', 'ckmutil>=0.3.2', 'pandas',
                         'wilson'],
       extras_require={
             'testing': ['nose'],
