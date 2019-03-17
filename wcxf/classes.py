@@ -7,6 +7,7 @@ import shutil
 import os
 import subprocess
 from pandas import DataFrame
+import random
 
 # the following is necessary to get pretty representations of
 # OrderedDict and defaultdict instances in YAML
@@ -326,9 +327,13 @@ class WC(WCxf):
         self.values = values
         self._dict = None
         self._df = None
+        self._hash = hash(random.random())
         super().__init__()
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def __hash__(self):
+        return self._hash
 
     @staticmethod
     def _to_number(v):
