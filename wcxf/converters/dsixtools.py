@@ -21,7 +21,7 @@ def load(stream, fmt='lha'):
         else:
             return json.load(stream)
     elif fmt == 'yaml':
-        return yaml.load(stream)
+        return yaml.load(stream, Loader=yaml.FullLoader)
 
 def lha2matrix(values, shape):
     """Return a matrix given a list of values of the form
