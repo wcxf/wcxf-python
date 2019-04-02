@@ -36,7 +36,7 @@ def _load_yaml_json(stream, **kwargs):
     try:
         return json.loads(ss, **kwargs)
     except ValueError:
-        return yaml.load(ss, Loader=yaml.FullLoader, **kwargs)
+        return yaml.safe_load(ss, **kwargs)
 
 def _dump_json(d, stream=None, **kwargs):
     """Dump to a JSON string (if `stream` is None) or stream."""
@@ -46,7 +46,7 @@ def _dump_json(d, stream=None, **kwargs):
         return json.dumps(d, **kwargs)
 
 def _yaml_to_json(stream_in, stream_out, **kwargs):
-    d = yaml.load(stream_in, Loader=yaml.FullLoader)
+    d = yaml.safe_load(stream_in)
     return _dump_json(d, stream_out, **kwargs)
 
 def _json_to_yaml(stream_in, stream_out, **kwargs):

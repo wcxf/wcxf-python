@@ -20,7 +20,7 @@ def _del_files(fs):
 class TestCLI(unittest.TestCase):
     def test_convert(self):
         yml1 = pkgutil.get_data('wcxf', 'data/test.basis1.yml').decode('utf-8')
-        d_yml1 = yaml.load(yml1, Loader=yaml.FullLoader)
+        d_yml1 = yaml.safe_load(yml1)
         # YAML stdin -> JSON stdout
         res = subprocess.run(['wcxf', 'convert', 'json', '-'],
                              input=yml1.encode(),
@@ -33,7 +33,7 @@ class TestCLI(unittest.TestCase):
                              input=json1.encode(),
                              stdout=subprocess.PIPE)
         yml2 = res.stdout.decode('utf-8')
-        d_yml2 = yaml.load(yml2, Loader=yaml.FullLoader)
+        d_yml2 = yaml.safe_load(yml2)
         self.assertDictEqual(d_json1, d_yml2)
         # YAML file -> JSON file
         _, fin = tempfile.mkstemp()
@@ -54,7 +54,7 @@ class TestCLI(unittest.TestCase):
         res = subprocess.run(['wcxf', 'convert', 'yaml', fin, '--output', fout])
         with open(fout, 'r') as f:
             yml3 = f.read()
-        d_yml3 = yaml.load(yml3, Loader=yaml.FullLoader)
+        d_yml3 = yaml.safe_load(yml3)
         self.assertDictEqual(d_yml3, d_json1)
         # delete temp files
         _del_files([fin, fout])
