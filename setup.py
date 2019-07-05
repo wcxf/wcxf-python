@@ -33,6 +33,7 @@ setup(name='wcxf',
             'wcxf2dsixtools = wcxf.cli:wcxf2dsixtools',
             'dsixtools2wcxf = wcxf.cli:dsixtools2wcxf',
             'wcxf2smeftsim = wcxf.cli:smeftsim',
+            'wcxf2smeftfr = wcxf.cli:wcxf2smeftfr',
         ]
       },
     )

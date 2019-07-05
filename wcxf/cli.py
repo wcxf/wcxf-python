@@ -222,3 +222,18 @@ def dsixtools2wcxf():
     args = parser.parse_args()
     dsixtools.dsixtools2wcxf(tuple(f for f in args.FILE), stream=args.output)
     return 0
+
+
+def wcxf2smeftfr():
+    from wcxf.converters import smeftfr
+    parser = argparse.ArgumentParser(description="""Command line script to convert a WCxf file to a MadGraph param_card file for SmeftFR.""",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
+                        type=argparse.FileType('w'), default=sys.stdout)
+    args = parser.parse_args()
+    wc = wcxf.WC.load(args.FILE)
+    wc.validate()
+    smeftfr.wcxf2smeftfr(wc, stream=args.output)
+    return 0
