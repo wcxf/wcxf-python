@@ -230,10 +230,14 @@ def wcxf2smeftfr():
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("FILE", nargs='?', help="Input file. If \"-\", read from standard input",
                         type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("--card", required=True, help="Path to a SmeftFR parameter card necessary to define the output format",
+                        type=argparse.FileType('r'))
     parser.add_argument("--output", nargs='?', help="Output file. If absent, print to standard output",
                         type=argparse.FileType('w'), default=sys.stdout)
     args = parser.parse_args()
+    card = pylha.load(args.card, comments=True)
+    info_dict = smeftfr.analyze_smeftfr_param_card(card)
     wc = wcxf.WC.load(args.FILE)
     wc.validate()
-    smeftfr.wcxf2smeftfr(wc, stream=args.output)
+    smeftfr.wcxf2smeftfr(wc, info_dict, stream=args.output)
     return 0
