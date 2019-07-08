@@ -239,5 +239,5 @@ def wcxf2smeftfr():
     info_dict = smeftfr.analyze_smeftfr_param_card(card)
     wc = wcxf.WC.load(args.FILE)
     wc.validate()
-    smeftfr.wcxf2smeftfr(wc, info_dict, stream=args.output)
+    smeftfr.wcxf2smeftfr(wc, info_dict, card, stream=args.output)
     return 0

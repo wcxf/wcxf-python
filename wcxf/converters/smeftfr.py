@@ -62,7 +62,7 @@ def wcxf2smeftfr_dict(wc, info_dict):
     return card
 
 
-def wcxf2smeftfr(wc, info_dict, stream):
+def wcxf2smeftfr(wc, info_dict, card_dict, stream):
     """Take a WC instance and dump it into an LHA file (or return as string)
     in a format suitable for use as `param_card.dat` file for MadGraph
     with SmeftFR.
@@ -83,5 +83,14 @@ def wcxf2smeftfr(wc, info_dict, stream):
                 wc_m = wc.translate('Warsaw mass')
             except ValueError:
                 raise ValueError("wcxf2smeftfr requires a basis that can be translated to the Warsaw mass basis")
-    return pylha.dump({'BLOCK': wcxf2smeftfr_dict(wc_m, info_dict)},
-                      fmt='lha', stream=stream)
+    card = {}
+    card['DECAY'] = card_dict['DECAY'].copy()
+    card['BLOCK'] = wcxf2smeftfr_dict(wc_m, info_dict)
+    for name, block in card_dict['BLOCK'].items():
+        if name not in card['BLOCK']:
+            card['BLOCK'][name] = card_dict['BLOCK'][name].copy()
+        # else:
+        #     for k, v in block.items():
+        #         if k not in card['BLOCK'][name]:
+        #             card['BLOCK'][name][k] = v
+    return pylha.dump(card, fmt='lha', stream=stream)
