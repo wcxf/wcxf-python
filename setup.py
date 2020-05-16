@@ -22,7 +22,7 @@ setup(name='wcxf',
                 ]
       },
       install_requires=['pyyaml', 'ckmutil>=0.3.2', 'pandas',
-                        'wilson'],
+                        'wilson', 'pylha>=0.4'],
       extras_require={
             'testing': ['nose'],
       },
@@ -33,6 +33,7 @@ setup(name='wcxf',
             'wcxf2dsixtools = wcxf.cli:wcxf2dsixtools',
             'dsixtools2wcxf = wcxf.cli:dsixtools2wcxf',
             'wcxf2smeftsim = wcxf.cli:smeftsim',
+            'wcxf2smeftfr = wcxf.cli:wcxf2smeftfr',
         ]
       },
     )
